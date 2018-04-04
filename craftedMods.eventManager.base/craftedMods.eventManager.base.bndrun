@@ -1,0 +1,14 @@
+#
+# craftedMods.eventManager.base LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		craftedMods.eventManager.base.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=craftedMods.eventManager.base.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}
