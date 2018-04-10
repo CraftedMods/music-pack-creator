@@ -8,8 +8,8 @@ public class DefaultPropertyKeyTest {
 
 	@Test
 	public void testUniquesnessOfIdentifier() {
-		assertNotEquals(DefaultPropertyKey.getIntegerPropertyKey().getUniquePropertyIdentifier(),
-				DefaultPropertyKey.getIntegerPropertyKey().getUniquePropertyIdentifier());
+		assertNotEquals(DefaultPropertyKey.createIntegerPropertyKey().getUniquePropertyIdentifier(),
+				DefaultPropertyKey.createIntegerPropertyKey().getUniquePropertyIdentifier());
 	}
 
 }

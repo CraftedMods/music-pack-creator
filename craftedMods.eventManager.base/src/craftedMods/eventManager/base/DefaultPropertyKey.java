@@ -24,39 +24,39 @@ public class DefaultPropertyKey<T> implements PropertyKey<T> {
 		return this.propertyKeyType;
 	}
 
-	public static PropertyKey<String> getStringPropertyKey() {
+	public static PropertyKey<String> createStringPropertyKey() {
 		return new DefaultPropertyKey<>(String.class);
 	}
 
-	public static PropertyKey<Byte> getBytePropertyKey() {
+	public static PropertyKey<Byte> createBytePropertyKey() {
 		return new DefaultPropertyKey<>(Byte.class);
 	}
 
-	public static PropertyKey<Short> getShortPropertyKey() {
+	public static PropertyKey<Short> createShortPropertyKey() {
 		return new DefaultPropertyKey<>(Short.class);
 	}
 
-	public static PropertyKey<Integer> getIntegerPropertyKey() {
+	public static PropertyKey<Integer> createIntegerPropertyKey() {
 		return new DefaultPropertyKey<>(Integer.class);
 	}
 
-	public static PropertyKey<Character> getCharacterPropertyKey() {
+	public static PropertyKey<Character> createCharacterPropertyKey() {
 		return new DefaultPropertyKey<>(Character.class);
 	}
 
-	public static PropertyKey<Long> getLongPropertyKey() {
+	public static PropertyKey<Long> createLongPropertyKey() {
 		return new DefaultPropertyKey<>(Long.class);
 	}
 
-	public static PropertyKey<Float> getFloatPropertyKey() {
+	public static PropertyKey<Float> createFloatPropertyKey() {
 		return new DefaultPropertyKey<>(Float.class);
 	}
 
-	public static PropertyKey<Double> getDoublePropertyKey() {
+	public static PropertyKey<Double> createDoublePropertyKey() {
 		return new DefaultPropertyKey<>(Double.class);
 	}
 
-	public static PropertyKey<Boolean> getBooleanPropertyKey() {
+	public static PropertyKey<Boolean> createBooleanPropertyKey() {
 		return new DefaultPropertyKey<>(Boolean.class);
 	}
 

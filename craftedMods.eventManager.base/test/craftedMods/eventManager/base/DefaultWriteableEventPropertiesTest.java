@@ -12,7 +12,7 @@ public class DefaultWriteableEventPropertiesTest {
 	@Before
 	public void setup() {
 		this.properties = new DefaultWriteableEventProperties();
-		this.key = DefaultPropertyKey.getStringPropertyKey();
+		this.key = DefaultPropertyKey.createStringPropertyKey();
 	}
 
 	@Test

@@ -360,9 +360,9 @@ public class EventManagerImplTest {
 		EasyMock.replay(this.mockEventHandler1);
 
 		WriteableEventProperties properties = new DefaultWriteableEventProperties();
-		PropertyKey<String> property1 = DefaultPropertyKey.getStringPropertyKey();
+		PropertyKey<String> property1 = DefaultPropertyKey.createStringPropertyKey();
 		properties.put(property1, "Test");
-		PropertyKey<Integer> property2 = DefaultPropertyKey.getIntegerPropertyKey();
+		PropertyKey<Integer> property2 = DefaultPropertyKey.createIntegerPropertyKey();
 		properties.put(property2, 6);
 
 		this.eventManager.addHandler(this.mockEventHandler1);
@@ -391,8 +391,8 @@ public class EventManagerImplTest {
 		EasyMock.expect(this.mockEventHandler3.getSupportedEvents())
 				.andStubReturn(EventUtils.getSupportedEvents(EventHandlerPolicy.SYNCHRONOUS, this.synchronousDispatchedEvent));
 
-		PropertyKey<String> property1 = DefaultPropertyKey.getStringPropertyKey();
-		PropertyKey<Integer> property2 = DefaultPropertyKey.getIntegerPropertyKey();
+		PropertyKey<String> property1 = DefaultPropertyKey.createStringPropertyKey();
+		PropertyKey<Integer> property2 = DefaultPropertyKey.createIntegerPropertyKey();
 
 		this.mockEventHandler1.handleEvent(EasyMock.anyObject(Event.class));
 		EasyMock.expectLastCall().andAnswer(new IAnswer<Void>() {
