@@ -1,0 +1,13 @@
+#
+# craftedMods.utils.data DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~craftedMods.utils.data.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

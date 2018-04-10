@@ -8,7 +8,5 @@ Bundle-SymbolicName:		craftedMods.eventManager.provider.launch
 JPM-Command:				provider
 
 
--runrequires:  \
-	osgi.identity;filter:='(osgi.identity=craftedMods.eventManager.provider.provider)'
 
 -runbundles: ${error;You must first resolve this bndrun file before you can run it}
