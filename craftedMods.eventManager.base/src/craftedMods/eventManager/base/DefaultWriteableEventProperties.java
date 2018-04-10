@@ -6,25 +6,30 @@ import craftedMods.eventManager.api.*;
 
 public class DefaultWriteableEventProperties implements WriteableEventProperties {
 
-	private Hashtable<EventPropertyKey<?>, Object> properties = new Hashtable<>();
+	private Hashtable<PropertyKey<?>, Object> properties = new Hashtable<>();
 
 	private boolean isLocked = false;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T put(EventPropertyKey<T> key, T value) {
+	public <T> T put(PropertyKey<T> key, T value) {
 		this.checkState();
 		return (T) this.properties.put(key, value);
 	}
 
 	@Override
-	public <T> boolean containsProperty(EventPropertyKey<T> property) {
+	public boolean isEmpty() {
+		return properties.isEmpty();
+	}
+
+	@Override
+	public <T> boolean containsProperty(PropertyKey<T> property) {
 		return this.properties.containsKey(property);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T getProperty(EventPropertyKey<T> property) {
+	public <T> T getProperty(PropertyKey<T> property) {
 		return (T) this.properties.get(property);
 	}
 
@@ -35,7 +40,7 @@ public class DefaultWriteableEventProperties implements WriteableEventProperties
 	}
 
 	private void checkState() throws IllegalStateException {
-		if (this.isLocked) throw new IllegalStateException("The WriteableEventProperties were locked");
+		if (this.isLocked) throw new IllegalStateException("The writeable event properties were locked");
 	}
 
 	@Override

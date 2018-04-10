@@ -5,8 +5,8 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface PropertyKey<T> {
 	
-	public Long getPropertyKey();
+	public Long getUniquePropertyIdentifier();
 
 	public Class<T> getPropertyType();
-
+	
 }

@@ -2,7 +2,6 @@ package craftedMods.eventManager.provider;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BiConsumer;
 
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
@@ -17,6 +16,12 @@ public class EventManagerImpl implements EventManager {
 
 	@Reference
 	private LogService logger;
+
+	@Deactivate
+	public void onDeactivate() throws InterruptedException {
+		this.asynchronousExecutor.shutdown();
+		this.asynchronousExecutor.awaitTermination(2, TimeUnit.SECONDS);
+	}
 
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	public void addHandler(EventHandler eventHandler) {
@@ -48,26 +53,26 @@ public class EventManagerImpl implements EventManager {
 		}
 	}
 
-	@Override
-	public void dispatchEvent(EventInfo eventInfo) {
-		this.dispatchEvent(eventInfo, null, null);
-	}
-
-	@Override
-	public void dispatchEvent(EventInfo eventInfo, EventDispatchPolicy policy) {
-		this.dispatchEvent(eventInfo, null, policy);
-	}
-
-	@Override
-	public void dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties) {
-		this.dispatchEvent(eventInfo, properties, null);
-	}
-
 	private ExecutorService asynchronousExecutor = Executors.newCachedThreadPool();
 
 	@Override
+	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo) {
+		return this.dispatchEvent(eventInfo, null, null);
+	}
+
+	@Override
+	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, EventDispatchPolicy policy) {
+		return this.dispatchEvent(eventInfo, null, policy);
+	}
+
+	@Override
+	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties) {
+		return this.dispatchEvent(eventInfo, properties, null);
+	}
+
+	@Override
 	@SuppressWarnings("incomplete-switch")
-	public void dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties, EventDispatchPolicy policy) {
+	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties, EventDispatchPolicy policy) {
 		String eventTopic = eventInfo.getTopic();
 
 		WriteableEventProperties writeableEventProperties = properties == null ? new DefaultWriteableEventProperties() : properties;
@@ -91,17 +96,12 @@ public class EventManagerImpl implements EventManager {
 			case HANDLER:
 				synchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.SYNCHRONOUS));
 				asynchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.ASYNCHRONOUS));
-				synchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.NOT_SPECIFIED));
+				synchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.NOT_SPECIFIED));// This is provider specific
 				break;
 		}
 
-		this.dispatchEvent(eventInfo, EventDispatchPolicy.SYNCHRONOUS, writeableEventProperties, synchronousHandlers, this::sendEvent);
-		this.dispatchEvent(eventInfo, EventDispatchPolicy.ASYNCHRONOUS, writeableEventProperties, asynchronousHandlers, this::postEvent);
-	}
-
-	private void dispatchEvent(EventInfo eventInfo, EventDispatchPolicy policy, WriteableEventProperties properties, Set<EventHandler> handlers,
-			BiConsumer<Event, Set<EventHandler>> dispatchMethod) {
-		dispatchMethod.accept(new EventImpl(new DefaultEventInfo(eventInfo.getTopic(), policy), properties), handlers);
+		this.postEvent(new EventImpl(new DefaultEventInfo(eventTopic, EventDispatchPolicy.ASYNCHRONOUS), writeableEventProperties), asynchronousHandlers);
+		return this.sendEvent(new EventImpl(new DefaultEventInfo(eventTopic, EventDispatchPolicy.SYNCHRONOUS), writeableEventProperties), synchronousHandlers);
 	}
 
 	private Set<EventHandler> getEventHandlersByTopicAndPolicy(String eventTopic, EventHandlerPolicy policy) {
@@ -112,19 +112,23 @@ public class EventManagerImpl implements EventManager {
 		return ret;
 	}
 
-	private void sendEvent(Event event, Set<EventHandler> handlers) {
-		handlers.forEach(handler -> {
+	private Collection<EventProperties> sendEvent(EventImpl event, Set<EventHandler> handlers) {
+		List<WriteableEventProperties> results = new ArrayList<>();
+		for (EventHandler handler : handlers) {
 			handler.handleEvent(event);
-		});
+			if (!event.getEventResults().isEmpty()) {
+				event.getEventResults().lock();
+				results.add(event.getEventResults());
+				event.recreateEventResults();
+			}
+		}
+		return Collections.unmodifiableList(results);
 	}
 
 	private void postEvent(Event event, Set<EventHandler> handlers) {
-		this.asynchronousExecutor.execute(() -> this.sendEvent(event, handlers));
-	}
-
-	@Deactivate
-	public void onDeactivate() {
-		this.asynchronousExecutor.shutdownNow();
+		this.asynchronousExecutor.execute(() -> {
+			handlers.forEach(handler -> handler.handleEvent(event));
+		});
 	}
 
 }

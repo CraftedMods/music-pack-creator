@@ -9,7 +9,7 @@ public interface WriteableEventProperties extends EventProperties {
 
 	public boolean lock();
 
-	public <T> T put(EventPropertyKey<T> key, T value);
+	public <T> T put(PropertyKey<T> key, T value);
 
 	public void clear();
 

@@ -5,8 +5,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface EventProperties {
 
-	public <T> boolean containsProperty(EventPropertyKey<T> property);
+	public boolean isEmpty();
 
-	public <T> T getProperty(EventPropertyKey<T> property);
+	public <T> boolean containsProperty(PropertyKey<T> key);
+
+	public <T> T getProperty(PropertyKey<T> key);
 
 }
