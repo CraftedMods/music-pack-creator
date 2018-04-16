@@ -14,8 +14,17 @@ public class EventManagerImpl implements EventManager {
 
 	private Map<String, Map<EventHandlerPolicy, Set<EventHandler>>> eventHandlers = new Hashtable<>();
 
+	private List<Runnable> preActivationEventHandlerQuery = new ArrayList<>();
+
 	@Reference
 	private LogService logger;
+
+	@Activate
+	public void onActivate() {
+		for (Runnable task : preActivationEventHandlerQuery) {
+			task.run();
+		}
+	}
 
 	@Deactivate
 	public void onDeactivate() throws InterruptedException {
@@ -33,8 +42,12 @@ public class EventManagerImpl implements EventManager {
 				if (!this.eventHandlers.get(info.getTopic()).containsKey(policy)) this.eventHandlers.get(info.getTopic()).put(policy, new HashSet<>());
 				this.eventHandlers.get(info.getTopic()).get(policy).add(eventHandler);
 			}
-			this.logger.log(LogService.LOG_DEBUG, String.format("Successfully registered event handler \"%s\" listening for \"%d\" events", eventHandler,
-					eventHandler.getSupportedEvents().size()));
+			Runnable task = () -> {
+				this.logger.log(LogService.LOG_DEBUG, String.format("Successfully registered event handler \"%s\" listening for \"%d\" events", eventHandler,
+						eventHandler.getSupportedEvents().size()));
+			};
+			if (this.logger != null) task.run();
+			else preActivationEventHandlerQuery.add(task);
 		}
 	}
 
