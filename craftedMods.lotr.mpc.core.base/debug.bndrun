@@ -1,0 +1,13 @@
+#
+# craftedMods.lotr.mpc.core.base DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~craftedMods.lotr.mpc.core.base.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}
