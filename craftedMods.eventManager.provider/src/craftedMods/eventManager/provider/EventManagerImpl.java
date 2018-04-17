@@ -21,9 +21,9 @@ public class EventManagerImpl implements EventManager {
 
 	@Activate
 	public void onActivate() {
-		for (Runnable task : preActivationEventHandlerQuery) {
+		for (Runnable task : this.preActivationEventHandlerQuery)
 			task.run();
-		}
+		this.preActivationEventHandlerQuery.clear();
 	}
 
 	@Deactivate
@@ -47,7 +47,7 @@ public class EventManagerImpl implements EventManager {
 						eventHandler.getSupportedEvents().size()));
 			};
 			if (this.logger != null) task.run();
-			else preActivationEventHandlerQuery.add(task);
+			else this.preActivationEventHandlerQuery.add(task);
 		}
 	}
 
@@ -56,11 +56,8 @@ public class EventManagerImpl implements EventManager {
 			for (Map.Entry<EventInfo, EventHandlerPolicy> entry : eventHandler.getSupportedEvents().entrySet()) {
 				EventInfo info = entry.getKey();
 				EventHandlerPolicy policy = entry.getValue();
-				if (this.eventHandlers.containsKey(info.getTopic())) {
-					if (this.eventHandlers.get(info.getTopic()).containsKey(policy)) {
-						this.eventHandlers.get(info.getTopic()).get(policy).remove(eventHandler);
-					}
-				}
+				if (this.eventHandlers.containsKey(info.getTopic()))
+					if (this.eventHandlers.get(info.getTopic()).containsKey(policy)) this.eventHandlers.get(info.getTopic()).get(policy).remove(eventHandler);
 			}
 			this.logger.log(LogService.LOG_DEBUG, "Successfully unregistered event handler " + eventHandler);
 		}
@@ -119,9 +116,8 @@ public class EventManagerImpl implements EventManager {
 
 	private Set<EventHandler> getEventHandlersByTopicAndPolicy(String eventTopic, EventHandlerPolicy policy) {
 		Set<EventHandler> ret = new HashSet<>();
-		if (this.eventHandlers.containsKey(eventTopic) && this.eventHandlers.get(eventTopic).containsKey(policy)) {
+		if (this.eventHandlers.containsKey(eventTopic) && this.eventHandlers.get(eventTopic).containsKey(policy))
 			ret.addAll(this.eventHandlers.get(eventTopic).get(policy));
-		}
 		return ret;
 	}
 
