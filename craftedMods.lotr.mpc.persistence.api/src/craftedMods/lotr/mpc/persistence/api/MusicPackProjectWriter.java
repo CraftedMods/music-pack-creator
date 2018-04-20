@@ -9,7 +9,7 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 
 @ProviderType
 public interface MusicPackProjectWriter {
-	
+
 	/**
 	 * Writes the Music Pack Project to any location
 	 * 

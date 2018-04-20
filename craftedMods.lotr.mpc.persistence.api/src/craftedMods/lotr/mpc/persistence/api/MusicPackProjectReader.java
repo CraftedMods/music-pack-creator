@@ -9,7 +9,7 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 
 @ProviderType
 public interface MusicPackProjectReader {
-	
+
 	/**
 	 * Reads a Music Pack Project from any location
 	 * 

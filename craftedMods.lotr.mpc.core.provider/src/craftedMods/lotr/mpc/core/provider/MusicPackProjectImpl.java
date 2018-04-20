@@ -15,7 +15,7 @@ public class MusicPackProjectImpl implements MusicPackProject {
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public void setName(String newName) {
@@ -24,12 +24,12 @@ public class MusicPackProjectImpl implements MusicPackProject {
 
 	@Override
 	public MusicPack getMusicPack() {
-		return musicPack;
+		return this.musicPack;
 	}
 
 	@Override
 	public PrimitiveProperties getProperties() {
-		return properties;
+		return this.properties;
 	}
 
 }

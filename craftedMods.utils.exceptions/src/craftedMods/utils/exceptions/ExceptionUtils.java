@@ -18,11 +18,8 @@ public class ExceptionUtils {
 		try {
 			task.execute();
 		} catch (InvalidInputException ie) {
-			if (invalidInputCodeHandler != null) {
-				if (!invalidInputCodeHandler.test(ie.getErrorCode())) {
-					if (logger != null) logger.log(Level.SEVERE, loggedMessage, ie);
-				}
-			}
+			if (invalidInputCodeHandler != null)
+				if (!invalidInputCodeHandler.test(ie.getErrorCode())) if (logger != null) logger.log(Level.SEVERE, loggedMessage, ie);
 		} catch (Exception e) {
 			if (logger != null) logger.log(Level.SEVERE, loggedMessage, e);
 			if (errorHandler != null) errorHandler.accept(e);

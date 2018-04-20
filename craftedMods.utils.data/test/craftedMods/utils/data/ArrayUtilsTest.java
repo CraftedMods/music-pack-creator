@@ -10,16 +10,16 @@ public class ArrayUtilsTest {
 
 	@Test
 	public void testContains() {
-		Assert.assertTrue(ArrayUtils.contains(testArray1, "Test1"));
-		Assert.assertFalse(ArrayUtils.contains(testArray1, "Test5"));
-		Assert.assertFalse(ArrayUtils.contains(testArray3, "Test2"));
+		Assert.assertTrue(ArrayUtils.contains(this.testArray1, "Test1"));
+		Assert.assertFalse(ArrayUtils.contains(this.testArray1, "Test5"));
+		Assert.assertFalse(ArrayUtils.contains(this.testArray3, "Test2"));
 	}
 
 	@Test
 	public void testContainsNullValue() {
-		Assert.assertTrue(ArrayUtils.contains(testArray1, null));
-		Assert.assertFalse(ArrayUtils.contains(testArray2, null));
-		Assert.assertFalse(ArrayUtils.contains(testArray3, null));
+		Assert.assertTrue(ArrayUtils.contains(this.testArray1, null));
+		Assert.assertFalse(ArrayUtils.contains(this.testArray2, null));
+		Assert.assertFalse(ArrayUtils.contains(this.testArray3, null));
 	}
 
 	@Test(expected = NullPointerException.class)

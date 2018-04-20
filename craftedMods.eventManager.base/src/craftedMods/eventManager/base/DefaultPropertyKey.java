@@ -10,7 +10,7 @@ public class DefaultPropertyKey<T> implements PropertyKey<T> {
 	private static long counter = 0;
 
 	private DefaultPropertyKey(Class<T> propertyKeyType) {
-		this.propertyKey = counter++;
+		this.propertyKey = DefaultPropertyKey.counter++;
 		this.propertyKeyType = propertyKeyType;
 	}
 

@@ -6,7 +6,7 @@ import craftedMods.utils.data.PrimitiveProperties;
 
 @ProviderType
 public interface MusicPackProject {
-	
+
 	public static final String PROPERTY_MPC_VERSION = "mpcVersion";
 	public static final String PROPERTY_LOTR_VERSION = "lotrVersion";
 	public static final String PROPERTY_AUTHOR = "author";

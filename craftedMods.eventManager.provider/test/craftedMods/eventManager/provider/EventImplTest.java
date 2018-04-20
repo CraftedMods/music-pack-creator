@@ -1,7 +1,5 @@
 package craftedMods.eventManager.provider;
 
-import static org.junit.Assert.*;
-
 import org.junit.*;
 
 import craftedMods.eventManager.api.*;
@@ -14,27 +12,27 @@ public class EventImplTest {
 
 	@Before
 	public void setup() {
-		info = new DefaultEventInfo("TOPIC");
-		event = new EventImpl(info, null);
+		this.info = new DefaultEventInfo("TOPIC");
+		this.event = new EventImpl(this.info, null);
 	}
 
 	@Test
 	public void testInitialEventResults() {
-		assertNotNull(event.getEventResults());
+		Assert.assertNotNull(this.event.getEventResults());
 	}
 
 	@Test
 	public void testRecreatedEventResults() {
-		WriteableEventProperties properties = event.getEventResults();
-		event.recreateEventResults();
-		WriteableEventProperties newProperties = event.getEventResults();
-		assertNotNull(newProperties);
-		assertNotSame(properties, newProperties);
+		WriteableEventProperties properties = this.event.getEventResults();
+		this.event.recreateEventResults();
+		WriteableEventProperties newProperties = this.event.getEventResults();
+		Assert.assertNotNull(newProperties);
+		Assert.assertNotSame(properties, newProperties);
 	}
 
 	@Test
 	public void testMatches() {
-		assertTrue(event.matches(info));
+		Assert.assertTrue(this.event.matches(this.info));
 	}
 
 }

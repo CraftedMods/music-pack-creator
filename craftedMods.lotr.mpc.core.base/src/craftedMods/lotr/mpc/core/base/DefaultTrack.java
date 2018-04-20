@@ -56,7 +56,7 @@ public class DefaultTrack implements Track {
 
 	@Override
 	public String toString() {
-		return title != null ? title : trackPath.getFileName().toString();
+		return this.title != null ? this.title : this.trackPath.getFileName().toString();
 	}
 
 }

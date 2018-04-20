@@ -16,7 +16,7 @@ public class DefaultEventInfo implements EventInfo {
 	}
 
 	public DefaultEventInfo(Class<?> prefix, String suffix, EventDispatchPolicy eventDeliverPolicy) {
-		this(getEventTopicFromClass(prefix, suffix), eventDeliverPolicy);
+		this(DefaultEventInfo.getEventTopicFromClass(prefix, suffix), eventDeliverPolicy);
 	}
 
 	public DefaultEventInfo(String eventTopic, EventDispatchPolicy eventDeliverPolicy) {

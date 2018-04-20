@@ -138,7 +138,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
 	@Override
 	public void saveAllMusicPackProjects() {
-		for (MusicPackProject project : this.musicPackProjects) {
+		for (MusicPackProject project : this.musicPackProjects)
 			try {
 				this.saveMusicPackProject(project);
 			} catch (Exception e) {
@@ -148,7 +148,6 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT, properties);
 			}
-		}
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 
 @Component
-public class MusicPackCreatorImpl implements MusicPackCreator{
+public class MusicPackCreatorImpl implements MusicPackCreator {
 
 	@Override
 	public String getVersion() {
@@ -23,5 +23,5 @@ public class MusicPackCreatorImpl implements MusicPackCreator{
 	public Path getWorkspaceRoot() {
 		return Paths.get(".\\LOTRMusicPackCreator");
 	}
-	
+
 }

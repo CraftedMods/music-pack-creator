@@ -10,7 +10,7 @@ public class MusicPackImpl implements MusicPack {
 
 	@Override
 	public List<Track> getTracks() {
-		return tracksList;
+		return this.tracksList;
 	}
 
 }

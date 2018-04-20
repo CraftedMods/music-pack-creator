@@ -395,24 +395,18 @@ public class EventManagerImplTest {
 		PropertyKey<Integer> property2 = DefaultPropertyKey.createIntegerPropertyKey();
 
 		this.mockEventHandler1.handleEvent(EasyMock.anyObject(Event.class));
-		EasyMock.expectLastCall().andAnswer(new IAnswer<Void>() {
-			@Override
-			public Void answer() throws Throwable {
-				Event event = (Event) EasyMock.getCurrentArguments()[0];
-				event.getEventResults().put(property1, "Test");
-				event.getEventResults().put(property2, 6);
-				return null;
-			}
+		EasyMock.expectLastCall().andAnswer(() -> {
+			Event event = (Event) EasyMock.getCurrentArguments()[0];
+			event.getEventResults().put(property1, "Test");
+			event.getEventResults().put(property2, 6);
+			return null;
 		}).once();
 
 		this.mockEventHandler2.handleEvent(EasyMock.anyObject(Event.class));
-		EasyMock.expectLastCall().andAnswer(new IAnswer<Void>() {
-			@Override
-			public Void answer() throws Throwable {
-				Event event = (Event) EasyMock.getCurrentArguments()[0];
-				event.getEventResults().put(property1, "Test2");
-				return null;
-			}
+		EasyMock.expectLastCall().andAnswer(() -> {
+			Event event = (Event) EasyMock.getCurrentArguments()[0];
+			event.getEventResults().put(property1, "Test2");
+			return null;
 		}).once();
 
 		this.mockEventHandler3.handleEvent(EasyMock.anyObject(Event.class));
@@ -477,7 +471,7 @@ public class EventManagerImplTest {
 		this.eventManager.addHandler(this.mockEventHandler3);
 
 		List<EventProperties> results = new ArrayList<>(this.eventManager.dispatchEvent(this.asynchronousDispatchedEvent));
-		
+
 		this.eventManager.onDeactivate();
 
 		EasyMock.verify(this.mockEventHandler1);

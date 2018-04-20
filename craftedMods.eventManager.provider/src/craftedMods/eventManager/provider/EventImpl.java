@@ -35,7 +35,7 @@ public class EventImpl implements Event {
 
 	@Override
 	public WriteableEventProperties getEventResults() {
-		return eventResults;
+		return this.eventResults;
 	}
 
 }

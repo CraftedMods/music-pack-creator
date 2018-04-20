@@ -20,7 +20,7 @@ public class DefaultRegion implements Region {
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
@@ -30,17 +30,17 @@ public class DefaultRegion implements Region {
 
 	@Override
 	public List<String> getSubregions() {
-		return subregions;
+		return this.subregions;
 	}
 
 	@Override
 	public List<String> getCategories() {
-		return categories;
+		return this.categories;
 	}
 
 	@Override
 	public Float getWeight() {
-		return weight;
+		return this.weight;
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class DefaultWriteableEventProperties implements WriteableEventProperties
 
 	@Override
 	public boolean isEmpty() {
-		return properties.isEmpty();
+		return this.properties.isEmpty();
 	}
 
 	@Override

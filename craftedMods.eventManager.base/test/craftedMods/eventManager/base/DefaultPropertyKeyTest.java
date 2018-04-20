@@ -1,14 +1,12 @@
 package craftedMods.eventManager.base;
 
-import static org.junit.Assert.assertNotEquals;
-
-import org.junit.Test;
+import org.junit.*;
 
 public class DefaultPropertyKeyTest {
 
 	@Test
 	public void testUniquesnessOfIdentifier() {
-		assertNotEquals(DefaultPropertyKey.createIntegerPropertyKey().getUniquePropertyIdentifier(),
+		Assert.assertNotEquals(DefaultPropertyKey.createIntegerPropertyKey().getUniquePropertyIdentifier(),
 				DefaultPropertyKey.createIntegerPropertyKey().getUniquePropertyIdentifier());
 	}
 
