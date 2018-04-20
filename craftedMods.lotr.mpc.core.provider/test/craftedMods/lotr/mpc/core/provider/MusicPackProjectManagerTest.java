@@ -285,7 +285,7 @@ public class MusicPackProjectManagerTest {
 	public void testDeleteMusicPackProject() throws InvalidInputException {
 		EasyMock.reset(this.mockPersistenceManager);
 		this.mockPersistenceManager.deleteMusicPackProject(this.testProject);
-		EasyMock.expectLastCall().andVoid().once();
+		EasyMock.expectLastCall().andReturn(true).once();
 		EasyMock.replay(this.mockPersistenceManager);
 
 		this.musicPackProjectManager.registerMusicPackProject(this.testProject);
