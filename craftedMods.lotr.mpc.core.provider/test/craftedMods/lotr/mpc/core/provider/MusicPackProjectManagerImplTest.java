@@ -14,7 +14,7 @@ import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
 
 @RunWith(EasyMockRunner.class)
-public class MusicPackProjectManagerTest {
+public class MusicPackProjectManagerImplTest {
 
 	@TestSubject
 	private MusicPackProjectManagerImpl musicPackProjectManager = new MusicPackProjectManagerImpl();
