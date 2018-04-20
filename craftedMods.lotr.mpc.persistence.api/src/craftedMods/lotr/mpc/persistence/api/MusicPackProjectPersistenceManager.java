@@ -47,6 +47,6 @@ public interface MusicPackProjectPersistenceManager {
 	 * @param project
 	 *            The registered Music Pack Project
 	 */
-	public void deleteMusicPackProject(MusicPackProject project);
+	public boolean deleteMusicPackProject(MusicPackProject project);
 
 }
