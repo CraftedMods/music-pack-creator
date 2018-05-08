@@ -43,7 +43,7 @@ public class EventManagerImpl implements EventManager {
 				this.eventHandlers.get(info.getTopic()).get(policy).add(eventHandler);
 			}
 			Runnable task = () -> {
-				this.logger.log(LogService.LOG_DEBUG, String.format("Successfully registered event handler \"%s\" listening for \"%d\" events", eventHandler,
+				this.logger.log(LogService.LOG_DEBUG, String.format("Rregistered event handler \"%s\" listening for \"%d\" events", eventHandler,
 						eventHandler.getSupportedEvents().size()));
 			};
 			if (this.logger != null) task.run();
@@ -59,7 +59,7 @@ public class EventManagerImpl implements EventManager {
 				if (this.eventHandlers.containsKey(info.getTopic()))
 					if (this.eventHandlers.get(info.getTopic()).containsKey(policy)) this.eventHandlers.get(info.getTopic()).get(policy).remove(eventHandler);
 			}
-			this.logger.log(LogService.LOG_DEBUG, "Successfully unregistered event handler " + eventHandler);
+			this.logger.log(LogService.LOG_DEBUG, "Unregistered event handler " + eventHandler);
 		}
 	}
 
