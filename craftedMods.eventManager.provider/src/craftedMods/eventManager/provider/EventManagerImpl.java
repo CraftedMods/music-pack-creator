@@ -95,11 +95,11 @@ public class EventManagerImpl implements EventManager {
 				: policy != null && policy != EventDispatchPolicy.NOT_SPECIFIED ? policy : EventDispatchPolicy.HANDLER;
 
 		switch (dispatchPolicy) {
-			case SYNCHRONOUS:
+			case ASYNCHRONOUS:
 				synchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.SYNCHRONOUS));
 				synchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.NOT_SPECIFIED));
 				break;
-			case ASYNCHRONOUS:
+			case SYNCHRONOUS:
 				asynchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.ASYNCHRONOUS));
 				asynchronousHandlers.addAll(this.getEventHandlersByTopicAndPolicy(eventTopic, EventHandlerPolicy.NOT_SPECIFIED));
 				break;
