@@ -187,6 +187,28 @@ public class FileManagerImplTest {
 		Assert.assertFalse(Files.exists(path));
 	}
 
+	@Test
+	public void testDeleteFile() throws IOException {
+		Path file = this.fileManager.getPathAndCreateFile(folder.getRoot().toPath().toString(), "file.tmp");
+		Assert.assertTrue(this.fileManager.deleteFile(file));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testDeleteFileNull() throws IOException {
+		this.fileManager.deleteFile(null);
+	}
+
+	@Test(expected = IOException.class)
+	public void testDeleteFileDirectory() throws IOException {
+		this.fileManager.deleteFile(folder.getRoot().toPath());
+	}
+
+	@Test
+	public void testDeleteFileNotExisting() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file.tmp");
+		Assert.assertFalse(this.fileManager.deleteFile(file));
+	}
+
 	@Test(expected = NullPointerException.class)
 	public void testGetPathsInDirectoryNullDirectory() throws IOException {
 		fileManager.getPathsInDirectory(null);

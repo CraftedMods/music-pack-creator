@@ -83,6 +83,14 @@ public class FileManagerImpl implements FileManager {
 	}
 
 	@Override
+	public boolean deleteFile(Path file) throws IOException {
+		Objects.requireNonNull(file);
+		if (this.isDirectory(file))
+			throw new IOException(file.toString() + " is not a file");
+		return Files.deleteIfExists(file);
+	}
+
+	@Override
 	public String getSeparator() {
 		return FileSystems.getDefault().getSeparator();
 	}
