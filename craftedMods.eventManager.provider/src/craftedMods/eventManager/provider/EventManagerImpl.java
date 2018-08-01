@@ -43,7 +43,7 @@ public class EventManagerImpl implements EventManager {
 				this.eventHandlers.get(info.getTopic()).get(policy).add(eventHandler);
 			}
 			Runnable task = () -> {
-				this.logger.log(LogService.LOG_DEBUG, String.format("Rregistered event handler \"%s\" listening for \"%d\" events", eventHandler,
+				this.logger.log(LogService.LOG_DEBUG, String.format("Registered event handler \"%s\" listening for \"%d\" events", eventHandler,
 						eventHandler.getSupportedEvents().size()));
 			};
 			if (this.logger != null) task.run();
