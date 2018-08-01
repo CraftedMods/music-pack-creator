@@ -92,7 +92,12 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 
 		OutputStream mockOutputStream = createMock(OutputStream.class);
 
-		EasyMock.expect(mockFileManager.newOutputStream(projectFolder)).andReturn(mockOutputStream).once();
+		EasyMock.expect(
+				mockFileManager.createFile(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
+				.andReturn(true);
+		EasyMock.expect(mockFileManager
+				.newOutputStream(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
+				.andReturn(mockOutputStream).once();
 		EasyMock.expect(mockFileManager
 				.deleteFile(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE)))
 				.andReturn(true).once();
@@ -146,7 +151,9 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 
 		OutputStream mockOutputStream = createMock(OutputStream.class);
 
-		EasyMock.expect(mockFileManager.newOutputStream(projectFolder)).andThrow(new IOException("Error"));
+		EasyMock.expect(
+				mockFileManager.createFile(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
+				.andThrow(new IOException("Error"));
 
 		mockMusicPackProjectWriter.writeMusicPackProject(mockMusicPackProject, mockOutputStream);
 
@@ -176,7 +183,12 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 
 		OutputStream mockOutputStream = createMock(OutputStream.class);
 
-		EasyMock.expect(mockFileManager.newOutputStream(projectFolder)).andStubReturn(mockOutputStream);
+		EasyMock.expect(
+				mockFileManager.createFile(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
+				.andStubReturn(true);
+		EasyMock.expect(mockFileManager
+				.newOutputStream(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
+				.andStubReturn(mockOutputStream);
 		EasyMock.expect(mockFileManager
 				.deleteFile(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE)))
 				.andThrow(new IOException("Error"));

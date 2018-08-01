@@ -20,6 +20,7 @@ import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 public class SerializedWorkspaceToJSONConverter {
 
 	public static final String OLD_PROJECT_FILE = "project.lmpp";
+	public static final String NEW_PROJECT_FILE = "project.json";
 
 	private MusicPackCreator creator;
 
@@ -62,11 +63,13 @@ public class SerializedWorkspaceToJSONConverter {
 	}
 
 	private void saveNewMusicPackProject(Path workspacePath, MusicPackProject project) {
+		Path filePath = workspacePath.resolve(NEW_PROJECT_FILE);
 		try {
-			this.writer.writeMusicPackProject(project, fileManager.newOutputStream(workspacePath));
+			fileManager.createFile(filePath);
+			this.writer.writeMusicPackProject(project, fileManager.newOutputStream(filePath));
 		} catch (IOException e) {
 			throw new ServiceException(String.format("Couldn't write the converted Music Pack Project \"%s\" to \"%s\"",
-					project.getName(), workspacePath.toString()), e);
+					project.getName(), filePath.toString()), e);
 		}
 	}
 

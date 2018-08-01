@@ -19,9 +19,9 @@ import craftedMods.lotr.mpc.persistence.api.*;
 @Component
 public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectPersistenceManager {
 
-	public static final String PROJECTS_DIR_NAME = "projects";
-
 	public static final String PROJECT_FILE_NAME = "project.json";
+	
+	public static final String PROJECTS_DIR_NAME = "projects";
 
 	@Reference
 	private MusicPackCreator musicPackCreator;
