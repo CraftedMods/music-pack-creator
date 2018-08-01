@@ -1,0 +1,30 @@
+#
+# craftedMods.lotr.mpc.persistence.provider PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+
+
+Private-Package:  \
+	craftedMods.lotr.mpc.persistence.provider
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	craftedMods.lotr.mpc.persistence.api;version=latest,\
+	craftedMods.lotr.mpc.core.api;version=latest,\
+	craftedMods.eventManager.api;version=latest,\
+	craftedMods.eventManager.base;version=latest,\
+	craftedMods.lotr.mpc.compatibility.api;version=latest,\
+	craftedMods.utils.data;version=latest,\
+	com.google.gson,\
+	craftedMods.lotr.mpc.core.base;version=latest,\
+	org.easymock,\
+	craftedMods.fileManager.api;version=latest,\
+	org.objenesis
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

@@ -1,0 +1,55 @@
+{
+	"project": {
+		"name": "TestProject",
+		"tracks": [
+			{
+				"path": "Path/to/an/example/track.ogg",
+				"title": "Example Track",
+				"regions": [
+					{
+						"name": "Name",
+						"subregions": [
+							"subregion1",
+							"subregion2",
+							"subregion3",
+							"subregion4"
+						],
+						"categories": [
+							"category1",
+							"category2"
+						]
+					},
+					{
+						"name": "Name2",
+						"subregions": [
+							"subregionPi"
+						],
+						"categories": [
+						],
+						"weight": 1.5
+					}
+				],
+				"authors": [
+					"CraftedMods",
+					"J.S. Bach"
+				]
+			},
+			{
+				"path": "C:/entry",
+				"regions": [
+				],
+				"authors": [
+					"Test_Author"
+				]
+			}
+		],
+		"properties": [
+			{
+				"author": "Crafted_Mods"
+			},
+			{
+				"mpcVersion": "314.159.265-ALPHA.3"
+			}
+		]
+	}
+}
