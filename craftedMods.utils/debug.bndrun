@@ -1,8 +1,8 @@
 #
-# craftedMods.utils.data DEBUG LAUNCH SPECFICATION 
+# craftedMods.utils DEBUG LAUNCH SPECFICATION 
 #
 
--include: ~craftedMods.utils.data.bndrun
+-include: ~craftedMods.utils.bndrun
 
 -runrequires.debug:  \
 	${debug-bundles}

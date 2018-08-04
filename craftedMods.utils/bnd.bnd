@@ -1,10 +1,9 @@
 #
-# craftedMods.utils.exceptions PROVIDER BUNDLE
+# craftedMods.utils PROVIDER BUNDLE
 #
 
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package: craftedMods.utils.exceptions
 
 
 -includeresource: {readme.md}
@@ -16,3 +15,6 @@ Export-Package: craftedMods.utils.exceptions
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
+Export-Package: \
+	craftedMods.utils.data,\
+	craftedMods.utils.exceptions

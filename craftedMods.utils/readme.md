@@ -1,4 +1,4 @@
-# craftedMods.utils.data Provider
+# craftedMods.utils Provider
 
 ${Bundle-Description}
 
