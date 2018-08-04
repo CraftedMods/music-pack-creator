@@ -1,0 +1,14 @@
+#
+# craftedMods.language.provider LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		craftedMods.language.provider.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=craftedMods.language.provider.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}
