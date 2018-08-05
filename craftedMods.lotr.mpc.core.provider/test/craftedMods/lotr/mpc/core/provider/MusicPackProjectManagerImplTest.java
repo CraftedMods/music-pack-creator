@@ -1,6 +1,7 @@
 package craftedMods.lotr.mpc.core.provider;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -379,7 +380,7 @@ public class MusicPackProjectManagerImplTest {
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("2"));
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("3"));
 
-		this.musicPackProjectManager.saveAllMusicPackProjects();
+		Assert.assertTrue(this.musicPackProjectManager.saveAllMusicPackProjects().isEmpty());
 
 		EasyMock.verify(this.mockPersistenceManager);
 	}
@@ -410,7 +411,7 @@ public class MusicPackProjectManagerImplTest {
 		MusicPackProject failedProject = this.musicPackProjectManager
 				.registerMusicPackProject(new MusicPackProjectImpl("4"));
 
-		this.musicPackProjectManager.saveAllMusicPackProjects();
+		Collection<MusicPackProject> erroredProjects = this.musicPackProjectManager.saveAllMusicPackProjects();
 
 		EasyMock.verify(this.mockPersistenceManager);
 		EasyMock.verify(this.mockEventManager);
@@ -425,6 +426,9 @@ public class MusicPackProjectManagerImplTest {
 				.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getClass());
 		Assert.assertEquals("<--!!!Error!!!-->", saveAllErrorEventProperties
 				.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getMessage());
+
+		Assert.assertEquals(1, erroredProjects.size());
+		Assert.assertEquals(failedProject, erroredProjects.iterator().next());
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
