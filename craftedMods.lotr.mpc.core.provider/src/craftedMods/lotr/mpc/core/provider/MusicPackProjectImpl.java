@@ -32,4 +32,9 @@ public class MusicPackProjectImpl implements MusicPackProject {
 		return this.properties;
 	}
 
+	@Override
+	public String toString() {
+		return name;
+	}
+
 }
