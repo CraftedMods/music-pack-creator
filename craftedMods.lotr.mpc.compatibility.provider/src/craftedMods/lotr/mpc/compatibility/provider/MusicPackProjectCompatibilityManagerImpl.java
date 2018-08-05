@@ -117,7 +117,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	public void applyPostLoadFixes(MusicPackProject project, String loadedVersion) {
 		Objects.requireNonNull(project);
 		Objects.requireNonNull(loadedVersion);
-		if (loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
+		if (loadedVersion.startsWith("Music Pack Creator")
+				&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
 			this.fixAndrastRegion(project);
 	}
 

@@ -22,7 +22,9 @@ Private-Package:  \
 	org.easymock,\
 	craftedMods.fileManager.api;version=latest,\
 	org.objenesis,\
-	craftedMods.utils;version=latest
+	craftedMods.utils;version=latest,\
+	craftedMods.versionChecker.api;version=latest,\
+	craftedMods.versionChecker.base;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

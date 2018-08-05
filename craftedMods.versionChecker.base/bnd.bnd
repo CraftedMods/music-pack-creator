@@ -1,0 +1,25 @@
+#
+# craftedMods.versionChecker.base PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+
+
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	craftedMods.versionChecker.api;version=latest,\
+	org.junit.jupiter:junit-jupiter-api,\
+	org.junit.jupiter:junit-jupiter-engine,\
+	org.junit.platform:junit-platform-commons,\
+	org.junit.platform:junit-platform-engine,\
+	org.junit.platform:junit-platform-launcher,\
+	org.opentest4j:opentest4j
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
+Export-Package: craftedMods.versionChecker.base

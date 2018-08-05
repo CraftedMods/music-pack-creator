@@ -1,26 +1,38 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.ServiceException;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
-import craftedMods.eventManager.api.*;
+import craftedMods.eventManager.api.EventManager;
+import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.*;
-import craftedMods.lotr.mpc.persistence.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPackCreator;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
+import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
+import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @Component
 public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectPersistenceManager {
 
 	public static final String PROJECT_FILE_NAME = "project.json";
-	
+
 	public static final String PROJECTS_DIR_NAME = "projects";
 
 	@Reference
@@ -97,8 +109,11 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 						Paths.get(projectFolder.toString(), MusicPackProjectPersistenceManagerImpl.PROJECT_FILE_NAME)));
 				String version = project.getProperties().getProperty(MusicPackProject.PROPERTY_MPC_VERSION);
 				if (version != null) {
-					int comp = version.compareTo(this.musicPackCreator.getVersion());
-					if (comp != 0) {// TODO: Semver
+					// A non-semantic version is handled like an older version
+					boolean isSemanticVersion = DefaultSemanticVersion.isSemanticVersion(version);
+					int comp = !isSemanticVersion ? -1
+							: DefaultSemanticVersion.of(version).compareTo(this.musicPackCreator.getVersion());
+					if (comp != 0) {
 						WriteableEventProperties properties = new DefaultWriteableEventProperties();
 						boolean newer = comp > 0;
 						properties.put(newer

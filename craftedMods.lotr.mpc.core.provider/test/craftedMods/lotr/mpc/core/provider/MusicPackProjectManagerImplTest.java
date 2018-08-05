@@ -2,16 +2,30 @@ package craftedMods.lotr.mpc.core.provider;
 
 import java.util.Arrays;
 
-import org.easymock.*;
-import org.junit.*;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockRunner;
+import org.easymock.Mock;
+import org.easymock.MockType;
+import org.easymock.TestSubject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.LogService;
 
-import craftedMods.eventManager.api.*;
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.eventManager.api.EventInfo;
+import craftedMods.eventManager.api.EventManager;
+import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.lotr.mpc.core.api.MusicPackCreator;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
+import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @RunWith(EasyMockRunner.class)
 public class MusicPackProjectManagerImplTest {
@@ -46,9 +60,10 @@ public class MusicPackProjectManagerImplTest {
 		this.testProject = new MusicPackProjectImpl("Project");
 
 		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects()).andReturn(Arrays.asList()).once();
-		EasyMock.expect(this.mockMusicPackProjectFactory.createMusicPackProjectInstance(EasyMock.anyString())).andStubAnswer(() -> {
-			return new MusicPackProjectImpl(EasyMock.getCurrentArguments()[0].toString());
-		});
+		EasyMock.expect(this.mockMusicPackProjectFactory.createMusicPackProjectInstance(EasyMock.anyString()))
+				.andStubAnswer(() -> {
+					return new MusicPackProjectImpl(EasyMock.getCurrentArguments()[0].toString());
+				});
 
 		EasyMock.replay(this.mockPersistenceManager);
 		EasyMock.replay(this.mockMusicPackCreator);
@@ -76,7 +91,8 @@ public class MusicPackProjectManagerImplTest {
 	@Test
 	public void testActivationWithLoadedProjects() {
 		EasyMock.reset(this.mockPersistenceManager);
-		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects()).andReturn(Arrays.asList(this.loadedProject)).once();
+		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects())
+				.andReturn(Arrays.asList(this.loadedProject)).once();
 		EasyMock.replay(this.mockPersistenceManager);
 
 		this.musicPackProjectManager.onActivate();
@@ -90,15 +106,15 @@ public class MusicPackProjectManagerImplTest {
 	@Test
 	public void testActivationWithLoadedProjectsAndOneError() {
 		EasyMock.reset(this.mockPersistenceManager);
-		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects()).andReturn(Arrays.asList(this.loadedProject, this.loadedProject)).once();
+		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects())
+				.andReturn(Arrays.asList(this.loadedProject, this.loadedProject)).once();
 		EasyMock.replay(this.mockPersistenceManager);
 
 		Capture<EventInfo> loadingErrorEventInfoCapture = EasyMock.newCapture();
 		Capture<WriteableEventProperties> loadingErrorEventPropertiesCapture = EasyMock.newCapture();
 		EasyMock.resetToStrict(this.mockEventManager);
-		EasyMock.expect(
-				this.mockEventManager.dispatchEvent(EasyMock.capture(loadingErrorEventInfoCapture), EasyMock.capture(loadingErrorEventPropertiesCapture)))
-				.andReturn(null).once();
+		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.capture(loadingErrorEventInfoCapture),
+				EasyMock.capture(loadingErrorEventPropertiesCapture))).andReturn(null).once();
 		EasyMock.replay(this.mockEventManager);
 
 		this.musicPackProjectManager.onActivate();
@@ -106,9 +122,10 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.verify(this.mockPersistenceManager);
 		EasyMock.verify(this.mockEventManager);
 
-		Assert.assertEquals(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT, loadingErrorEventInfoCapture.getValue());
-		Assert.assertTrue(
-				loadingErrorEventPropertiesCapture.getValue().containsProperty(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION));
+		Assert.assertEquals(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
+				loadingErrorEventInfoCapture.getValue());
+		Assert.assertTrue(loadingErrorEventPropertiesCapture.getValue()
+				.containsProperty(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION));
 		Assert.assertEquals(1, this.musicPackProjectManager.getRegisteredMusicPackProjects().size());
 		Assert.assertTrue(this.musicPackProjectManager.getRegisteredMusicPackProjects().contains(this.loadedProject));
 	}
@@ -179,15 +196,18 @@ public class MusicPackProjectManagerImplTest {
 
 	@Test
 	public void testGetUnusedMusicPackProjectName() {
-		Assert.assertEquals("MusicPackProject232", this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
+		Assert.assertEquals("MusicPackProject232",
+				this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
 	}
 
 	@Test
 	public void testGetUnusedMusicPackProjectNameDuplicated() throws InvalidInputException {
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("MusicPackProject232"));
-		Assert.assertEquals("MusicPackProject232_1", this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
+		Assert.assertEquals("MusicPackProject232_1",
+				this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("MusicPackProject232_1"));
-		Assert.assertEquals("MusicPackProject232_2", this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
+		Assert.assertEquals("MusicPackProject232_2",
+				this.musicPackProjectManager.getUnusedMusicPackProjectName("MusicPackProject232"));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -197,7 +217,8 @@ public class MusicPackProjectManagerImplTest {
 
 	@Test
 	public void testGetUnusedMusicPackProjectNameWhitespaceName() {
-		Assert.assertEquals("MusicPackProject", this.musicPackProjectManager.getUnusedMusicPackProjectName("	 	 	"));
+		Assert.assertEquals("MusicPackProject",
+				this.musicPackProjectManager.getUnusedMusicPackProjectName("	 	 	"));
 	}
 
 	@Test
@@ -222,7 +243,8 @@ public class MusicPackProjectManagerImplTest {
 	@Test
 	public void testRenameMusicPackProjectSameNameWithTrailingWhitespaces() throws InvalidInputException {
 		this.musicPackProjectManager.registerMusicPackProject(this.testProject);
-		Assert.assertFalse(this.musicPackProjectManager.renameMusicPackProject(this.testProject, "	 	Project  	 	"));
+		Assert.assertFalse(
+				this.musicPackProjectManager.renameMusicPackProject(this.testProject, "	 	Project  	 	"));
 		Assert.assertEquals(this.testProject.getName(), "Project");
 	}
 
@@ -313,12 +335,13 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.expectLastCall().andVoid().once();
 
 		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andReturn("2.0").atLeastOnce();
+		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andReturn(DefaultSemanticVersion.of("2.0.0"))
+				.atLeastOnce();
 
 		EasyMock.replay(this.mockPersistenceManager);
 		EasyMock.replay(this.mockMusicPackCreator);
 
-		this.testProject.getProperties().put(MusicPackProject.PROPERTY_MPC_VERSION, "1.0");
+		this.testProject.getProperties().put(MusicPackProject.PROPERTY_MPC_VERSION, "1.0.0");
 
 		this.musicPackProjectManager.registerMusicPackProject(this.testProject);
 		this.musicPackProjectManager.saveMusicPackProject(this.testProject);
@@ -326,7 +349,8 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.verify(this.mockPersistenceManager);
 		EasyMock.verify(this.mockMusicPackCreator);
 
-		Assert.assertEquals("2.0", this.testProject.getProperties().getProperty(MusicPackProject.PROPERTY_MPC_VERSION));
+		Assert.assertEquals("2.0.0",
+				this.testProject.getProperties().getProperty(MusicPackProject.PROPERTY_MPC_VERSION));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -346,7 +370,7 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.expectLastCall().times(3);
 
 		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn("2.0");
+		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("2.0.0"));
 
 		EasyMock.replay(this.mockPersistenceManager);
 		EasyMock.replay(this.mockMusicPackCreator);
@@ -367,15 +391,14 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.expectLastCall().times(3).andThrow(new RuntimeException("<--!!!Error!!!-->")).once();
 
 		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn("2.0");
+		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("2.0.0"));
 
 		Capture<EventInfo> saveAllErrorEventInfoCapture = EasyMock.newCapture();
 		Capture<WriteableEventProperties> saveAllErrorEventPropertiesCapture = EasyMock.newCapture();
 
 		EasyMock.resetToStrict(this.mockEventManager);
-		EasyMock.expect(
-				this.mockEventManager.dispatchEvent(EasyMock.capture(saveAllErrorEventInfoCapture), EasyMock.capture(saveAllErrorEventPropertiesCapture)))
-				.andReturn(null).once();
+		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.capture(saveAllErrorEventInfoCapture),
+				EasyMock.capture(saveAllErrorEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.replay(this.mockPersistenceManager);
 		EasyMock.replay(this.mockMusicPackCreator);
@@ -384,7 +407,8 @@ public class MusicPackProjectManagerImplTest {
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("1"));
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("2"));
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("3"));
-		MusicPackProject failedProject = this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("4"));
+		MusicPackProject failedProject = this.musicPackProjectManager
+				.registerMusicPackProject(new MusicPackProjectImpl("4"));
 
 		this.musicPackProjectManager.saveAllMusicPackProjects();
 
@@ -393,12 +417,14 @@ public class MusicPackProjectManagerImplTest {
 
 		WriteableEventProperties saveAllErrorEventProperties = saveAllErrorEventPropertiesCapture.getValue();
 
-		Assert.assertEquals(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT, saveAllErrorEventInfoCapture.getValue());
-		Assert.assertEquals(failedProject, saveAllErrorEventProperties.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT));
-		Assert.assertEquals(RuntimeException.class,
-				saveAllErrorEventProperties.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getClass());
-		Assert.assertEquals("<--!!!Error!!!-->",
-				saveAllErrorEventProperties.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getMessage());
+		Assert.assertEquals(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT,
+				saveAllErrorEventInfoCapture.getValue());
+		Assert.assertEquals(failedProject, saveAllErrorEventProperties
+				.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT));
+		Assert.assertEquals(RuntimeException.class, saveAllErrorEventProperties
+				.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getClass());
+		Assert.assertEquals("<--!!!Error!!!-->", saveAllErrorEventProperties
+				.getProperty(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION).getMessage());
 	}
 
 	@Test(expected = UnsupportedOperationException.class)

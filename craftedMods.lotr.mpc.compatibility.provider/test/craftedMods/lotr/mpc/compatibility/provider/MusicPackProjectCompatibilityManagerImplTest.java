@@ -288,6 +288,17 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		this.verifyAll();
 	}
+	
+	@Test
+	public void testApplyPostLoadFixesAndrastFixUnprefixedVersion() {
+		MusicPackProject mockMusicPackProject = this.createMock(MusicPackProject.class);
+
+		this.replayAll();
+
+		compatibilityManager.applyPostLoadFixes(mockMusicPackProject, "2.0");
+
+		this.verifyAll();
+	}
 
 	@Test(expected = NullPointerException.class)
 	public void testApplyPostLoadFixesNull() {

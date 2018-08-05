@@ -48,7 +48,7 @@ public class SerializedWorkspaceToJSONConverter {
 			newProject.getMusicPack().getTracks().add(new DefaultTrack(oldTrack.getTrackPath(), oldTrack.getTitle(),
 					this.getNewRegions(oldTrack.getRegions()), oldTrack.getAuthors()));
 		newProject.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
-				version == null ? this.creator.getVersion() : version);
+				version == null ? this.creator.getVersion().toString() : version);
 		this.saveNewMusicPackProject(workspacePath, newProject);
 		this.deleteOldProjectFile(workspacePath);
 	}

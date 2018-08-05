@@ -39,10 +39,12 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 				this.registerMusicPackProject(loadedProject);
 			} catch (Exception e) {
 				this.logger.log(LogService.LOG_ERROR,
-						String.format("The Music Pack Project \"%s\" couldn't be registered during loading", loadedProject.getName()));
+						String.format("The Music Pack Project \"%s\" couldn't be registered during loading",
+								loadedProject.getName()));
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
-				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT, properties);
+				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
+						properties);
 			}
 	}
 
@@ -63,11 +65,12 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 	}
 
 	/**
-	 * Creates an unique Music Pack Project name based on a suggested one. If the suggested name is empty, a default name will be used. This function is intended for the automatic creation of Music Pack Project names when the user cannot provide a
-	 * name.
+	 * Creates an unique Music Pack Project name based on a suggested one. If the
+	 * suggested name is empty, a default name will be used. This function is
+	 * intended for the automatic creation of Music Pack Project names when the user
+	 * cannot provide a name.
 	 * 
-	 * @param suggestedName
-	 *            The suggested name
+	 * @param suggestedName The suggested name
 	 * @return A currently unique name based on the suggested one
 	 */
 	@Override
@@ -75,7 +78,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		Objects.requireNonNull(suggestedName);
 		String startName = suggestedName.trim().isEmpty() ? "MusicPackProject" : suggestedName.trim();
 		String projectName = startName;
-		for (int i = 0; this.existsMPPName(projectName = startName + (i == 0 ? "" : "_" + i)); i++) {}
+		for (int i = 0; this.existsMPPName(projectName = startName + (i == 0 ? "" : "_" + i)); i++) {
+		}
 		return projectName.trim();
 	}
 
@@ -85,7 +89,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
 	private boolean existsMPPName(String name, MusicPackProject ignore) {
 		for (MusicPackProject project : this.musicPackProjects)
-			if ((ignore != null ? project != ignore : true) && project.getName().equals(name.trim())) return true;
+			if ((ignore != null ? project != ignore : true) && project.getName().equals(name.trim()))
+				return true;
 		return false;
 	}
 
@@ -96,7 +101,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		String oldName = project.getName();
 		if (!newName.trim().equals(oldName)) {
 			((MusicPackProjectImpl) project).setName(newName.trim());
-			this.logger.log(LogService.LOG_INFO, String.format("Renamed the Music Pack Project \"%s\" to \"%s\"", oldName, newName));
+			this.logger.log(LogService.LOG_INFO,
+					String.format("Renamed the Music Pack Project \"%s\" to \"%s\"", oldName, newName));
 			return true;
 		}
 		return false;
@@ -108,8 +114,10 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
 	private void validateMPPName(String name, MusicPackProject ignore) throws InvalidInputException {
 		Objects.requireNonNull(name);
-		if (name.trim().isEmpty()) throw new InvalidInputException(MusicPackProjectNameErrors.EMPTY);
-		if (this.existsMPPName(name, ignore)) throw new InvalidInputException(MusicPackProjectNameErrors.DUPLICATED);
+		if (name.trim().isEmpty())
+			throw new InvalidInputException(MusicPackProjectNameErrors.EMPTY);
+		if (this.existsMPPName(name, ignore))
+			throw new InvalidInputException(MusicPackProjectNameErrors.DUPLICATED);
 	}
 
 	private void validateRegisteredProject(MusicPackProject project) {
@@ -122,10 +130,13 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
 	private void validateProject(MusicPackProject project, boolean registered) {
 		Objects.requireNonNull(project);
-		if (!(project instanceof MusicPackProjectImpl)) throw new IllegalArgumentException(
-				String.format("The Music Pack Project \"%s\" cannot be managed by this Music Pack Project Manager", project.getName()));
-		if (registered ? !this.musicPackProjects.contains(project) : this.musicPackProjects.contains(project)) throw new IllegalArgumentException(
-				String.format("The Music Pack Project \"%s\" is %s registered", project.getName(), registered ? "not" : "already"));
+		if (!(project instanceof MusicPackProjectImpl))
+			throw new IllegalArgumentException(
+					String.format("The Music Pack Project \"%s\" cannot be managed by this Music Pack Project Manager",
+							project.getName()));
+		if (registered ? !this.musicPackProjects.contains(project) : this.musicPackProjects.contains(project))
+			throw new IllegalArgumentException(String.format("The Music Pack Project \"%s\" is %s registered",
+					project.getName(), registered ? "not" : "already"));
 	}
 
 	@Override
@@ -142,7 +153,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 			try {
 				this.saveMusicPackProject(project);
 			} catch (Exception e) {
-				this.logger.log(LogService.LOG_ERROR, String.format("The Music Pack Project \"%s\" couldn't be saved: ", project.getName()), e);
+				this.logger.log(LogService.LOG_ERROR,
+						String.format("The Music Pack Project \"%s\" couldn't be saved: ", project.getName()), e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT, project);
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
@@ -159,7 +171,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 	}
 
 	private void addSaveProperties(MusicPackProject project) {
-		project.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION, this.musicPackCreator.getVersion());
+		project.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
+				this.musicPackCreator.getVersion().toString());
 	}
 
 	@Override

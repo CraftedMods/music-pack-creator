@@ -33,6 +33,7 @@ import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 import craftedMods.utils.data.PrimitiveProperties;
+import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @RunWith(EasyMockRunner.class)
 public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport {
@@ -73,7 +74,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		projectsDir = workspaceRoot.resolve(MusicPackProjectPersistenceManagerImpl.PROJECTS_DIR_NAME);
 
 		EasyMock.expect(mockMusicPackCreator.getWorkspaceRoot()).andStubReturn(workspaceRoot);
-		EasyMock.expect(mockMusicPackCreator.getVersion()).andStubReturn("0.1.0");
+		EasyMock.expect(mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("0.1.0"));
 	}
 
 	@Test
@@ -332,6 +333,56 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		WriteableEventProperties value = propertiesCapture.getValue();
 
 		Assert.assertEquals("0.0.1",
+				value.getProperty(MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION));
+		Assert.assertTrue(mockMusicPackProject1 == value
+				.getProperty(MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT));
+
+		this.verifyAll();
+	}
+
+	@Test
+	public void testLoadMusicPackProjectNonSemanticVersion() throws IOException {
+		Path projectPath1 = projectsDir.resolve("project1");
+
+		Path projectFilePath1 = projectPath1.resolve(MusicPackProjectPersistenceManagerImpl.PROJECT_FILE_NAME);
+
+		InputStream projectStream1 = EasyMock.createMock(InputStream.class);
+
+		MusicPackProject mockMusicPackProject1 = createMockMusicPackProject("Music Pack Creator 10.12.14");
+
+		EasyMock.expect(mockFileManager.getPathAndCreateDir(this.workspaceRoot.toString(),
+				MusicPackProjectPersistenceManagerImpl.PROJECTS_DIR_NAME)).andStubReturn(projectsDir);
+		EasyMock.expect(mockFileManager.getPathsInDirectory(projectsDir))
+				.andStubReturn(Arrays.stream(new Path[] { projectPath1 }));
+		EasyMock.expect(mockFileManager.isDirectory(EasyMock.anyObject())).andStubReturn(true);
+		EasyMock.expect(mockFileManager.exists(EasyMock.anyObject())).andStubReturn(true);
+		EasyMock.expect(mockFileManager.newInputStream(projectFilePath1)).andStubReturn(projectStream1);
+
+		EasyMock.expect(mockMusicPackProjectReader.readMusicPackProject(projectStream1))
+				.andStubReturn(mockMusicPackProject1);
+
+		mockCompatibilityManager.applyPreLoadFixes(projectPath1);
+		EasyMock.expectLastCall().once();
+
+		Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture();
+
+		EasyMock.expect(
+				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT),
+						EasyMock.capture(propertiesCapture)))
+				.andReturn(null).once();
+
+		mockCompatibilityManager.applyPostLoadFixes(mockMusicPackProject1, "Music Pack Creator 10.12.14");
+		EasyMock.expectLastCall().once();
+
+		this.replayAll();
+		EasyMock.replay(mockMusicPackProject1);
+
+		persistenceManager.onActivate();
+		persistenceManager.loadMusicPackProjects();
+
+		WriteableEventProperties value = propertiesCapture.getValue();
+
+		Assert.assertEquals("Music Pack Creator 10.12.14",
 				value.getProperty(MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION));
 		Assert.assertTrue(mockMusicPackProject1 == value
 				.getProperty(MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT));

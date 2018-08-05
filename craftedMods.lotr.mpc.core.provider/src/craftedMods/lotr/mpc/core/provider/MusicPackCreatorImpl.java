@@ -1,22 +1,22 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.nio.file.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.osgi.service.component.annotations.Component;
 
 import craftedMods.lotr.mpc.core.api.MusicPackCreator;
+import craftedMods.versionChecker.api.SemanticVersion;
+import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @Component
 public class MusicPackCreatorImpl implements MusicPackCreator {
 
-	@Override
-	public String getVersion() {
-		return "Beta 5.0";
-	}
+	private static final SemanticVersion VERSION = DefaultSemanticVersion.of("5.0.0-BETA");
 
 	@Override
-	public boolean isPreRelease() {
-		return false;
+	public SemanticVersion getVersion() {
+		return VERSION;
 	}
 
 	@Override
