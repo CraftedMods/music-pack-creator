@@ -11,6 +11,9 @@ public class DefaultRegion implements Region {
 	private List<String> categories = new ArrayList<>();
 	private Float weight;
 
+	public DefaultRegion() {
+	}
+
 	public DefaultRegion(String name, List<String> subregions, List<String> categories, Float weight) {
 		this.name = name;
 		this.subregions = subregions;

@@ -12,6 +12,9 @@ public class DefaultTrack implements Track {
 	private List<Region> regions = new ArrayList<>();
 	private List<String> authors = new ArrayList<>();
 
+	public DefaultTrack() {
+	}
+
 	public DefaultTrack(Path trackPath, String title, List<Region> regions, List<String> authors) {
 		this.trackPath = trackPath;
 		this.title = title;
@@ -67,22 +70,33 @@ public class DefaultTrack implements Track {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		DefaultTrack other = (DefaultTrack) obj;
 		if (authors == null) {
-			if (other.authors != null) return false;
-		} else if (!authors.equals(other.authors)) return false;
+			if (other.authors != null)
+				return false;
+		} else if (!authors.equals(other.authors))
+			return false;
 		if (regions == null) {
-			if (other.regions != null) return false;
-		} else if (!regions.equals(other.regions)) return false;
+			if (other.regions != null)
+				return false;
+		} else if (!regions.equals(other.regions))
+			return false;
 		if (title == null) {
-			if (other.title != null) return false;
-		} else if (!title.equals(other.title)) return false;
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
 		if (trackPath == null) {
-			if (other.trackPath != null) return false;
-		} else if (!trackPath.equals(other.trackPath)) return false;
+			if (other.trackPath != null)
+				return false;
+		} else if (!trackPath.equals(other.trackPath))
+			return false;
 		return true;
 	}
 
