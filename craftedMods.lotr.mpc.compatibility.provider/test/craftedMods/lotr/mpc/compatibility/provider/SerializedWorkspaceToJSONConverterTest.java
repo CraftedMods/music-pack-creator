@@ -34,6 +34,7 @@ import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 
 @RunWith(EasyMockRunner.class)
@@ -79,7 +80,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
 		List<Track> tracks = new ArrayList<>();
-		PrimitiveProperties properties = new PrimitiveProperties();
+		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
@@ -138,7 +139,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
 		List<Track> tracks = new ArrayList<>();
-		PrimitiveProperties properties = new PrimitiveProperties();
+		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
@@ -170,7 +171,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
 		List<Track> tracks = new ArrayList<>();
-		PrimitiveProperties properties = new PrimitiveProperties();
+		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);

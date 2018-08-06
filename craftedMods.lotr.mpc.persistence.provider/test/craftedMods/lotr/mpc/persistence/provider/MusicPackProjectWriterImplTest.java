@@ -1,18 +1,32 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.easymock.EasyMock;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import com.google.gson.stream.JsonReader;
 
-import craftedMods.lotr.mpc.core.api.*;
-import craftedMods.lotr.mpc.core.base.*;
+import craftedMods.lotr.mpc.core.api.MusicPack;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.lotr.mpc.core.base.DefaultRegion;
+import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 
 public class MusicPackProjectWriterImplTest {
@@ -51,7 +65,7 @@ public class MusicPackProjectWriterImplTest {
 				new DefaultTrack(Paths.get("C:\\Path\\to\\an\\example\\track.ogg"), "Example Track", this.regions, Arrays.asList("CraftedMods", "J.S. Bach")));
 		this.tracks.add(new DefaultTrack(Paths.get("C:\\", "entry"), null, Arrays.asList(), Arrays.asList("Test_Author")));
 
-		this.packProperties = new PrimitiveProperties();
+		this.packProperties = new ExtendedProperties();
 
 		this.packProperties.put(MusicPackProject.PROPERTY_AUTHOR, "Crafted_Mods");
 		this.packProperties.put(MusicPackProject.PROPERTY_MPC_VERSION, "314.159.265-ALPHA.3");

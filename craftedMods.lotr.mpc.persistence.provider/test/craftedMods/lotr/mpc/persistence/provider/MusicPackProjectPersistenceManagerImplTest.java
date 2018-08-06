@@ -32,6 +32,7 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
@@ -524,7 +525,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 	private MusicPackProject createMockMusicPackProject(String version) {
 		MusicPackProject mockMusicPackProject = EasyMock.createMock(MusicPackProject.class);
-		PrimitiveProperties properties = new PrimitiveProperties();
+		PrimitiveProperties properties = new ExtendedProperties();
 		properties.put(MusicPackProject.PROPERTY_MPC_VERSION, version);
 
 		EasyMock.expect(mockMusicPackProject.getProperties()).andStubReturn(properties);

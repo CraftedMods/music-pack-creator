@@ -1,17 +1,31 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.easymock.*;
-import org.junit.*;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockRunner;
+import org.easymock.Mock;
+import org.easymock.TestSubject;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPack;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
+import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
+import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 
 @RunWith(EasyMockRunner.class)
@@ -46,7 +60,7 @@ public class MusicPackProjectReaderImplTest {
 	@Test
 	public void testReadProject() throws IOException, URISyntaxException {
 
-		PrimitiveProperties musicPackProperties = new PrimitiveProperties();
+		PrimitiveProperties musicPackProperties = new ExtendedProperties();
 
 		MusicPack mockMusicPack = EasyMock.createNiceMock(MusicPack.class);
 

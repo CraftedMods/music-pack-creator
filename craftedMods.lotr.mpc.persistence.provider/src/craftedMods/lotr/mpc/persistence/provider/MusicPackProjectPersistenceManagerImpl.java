@@ -107,7 +107,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 			try {
 				MusicPackProject project = this.reader.readMusicPackProject(fileManager.newInputStream(
 						Paths.get(projectFolder.toString(), MusicPackProjectPersistenceManagerImpl.PROJECT_FILE_NAME)));
-				String version = project.getProperties().getProperty(MusicPackProject.PROPERTY_MPC_VERSION);
+				String version = project.getProperties().getString(MusicPackProject.PROPERTY_MPC_VERSION, null);
 				if (version != null) {
 					// A non-semantic version is handled like an older version
 					boolean isSemanticVersion = DefaultSemanticVersion.isSemanticVersion(version);

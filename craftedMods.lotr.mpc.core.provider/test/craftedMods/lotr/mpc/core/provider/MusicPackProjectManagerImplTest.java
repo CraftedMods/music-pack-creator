@@ -350,8 +350,7 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.verify(this.mockPersistenceManager);
 		EasyMock.verify(this.mockMusicPackCreator);
 
-		Assert.assertEquals("2.0.0",
-				this.testProject.getProperties().getProperty(MusicPackProject.PROPERTY_MPC_VERSION));
+		Assert.assertEquals("2.0.0", this.testProject.getProperties().get(MusicPackProject.PROPERTY_MPC_VERSION));
 	}
 
 	@Test(expected = NullPointerException.class)

@@ -1,13 +1,15 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPack;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 
 public class MusicPackProjectImpl implements MusicPackProject {
 
 	private String name;
 	private final MusicPack musicPack = new MusicPackImpl();
-	private final PrimitiveProperties properties = new PrimitiveProperties();
+	private final PrimitiveProperties properties = new ExtendedProperties();
 
 	public MusicPackProjectImpl(String name) {
 		this.name = name;
