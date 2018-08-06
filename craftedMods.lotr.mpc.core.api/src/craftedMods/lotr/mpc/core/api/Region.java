@@ -16,5 +16,7 @@ public interface Region {
 	public List<String> getCategories();
 
 	public Float getWeight();
+	
+	public void setWeight(Float weight);
 
 }
