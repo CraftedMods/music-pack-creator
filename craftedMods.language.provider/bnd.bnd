@@ -22,7 +22,8 @@ Private-Package:  \
 	org.powermock:powermock-module-junit4-common,\
 	org.powermock:powermock-reflect,\
 	javassist,\
-	org.osgi.service.prefs
+	craftedMods.preferences.api;version=latest,\
+	craftedMods.utils;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

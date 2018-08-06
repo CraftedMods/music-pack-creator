@@ -12,10 +12,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
-import org.osgi.service.prefs.Preferences;
-import org.osgi.service.prefs.PreferencesService;
 
 import craftedMods.language.api.LanguageRegistry;
+import craftedMods.preferences.api.Preferences;
+import craftedMods.preferences.api.PreferencesManager;
 
 @Component
 public class LanguageRegistryImpl implements LanguageRegistry {
@@ -27,7 +27,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	private Map<Locale, ResourceBundle> entries;
 
 	@Reference
-	private PreferencesService preferences;
+	private PreferencesManager preferences;
 
 	private Preferences prefs;
 
@@ -41,9 +41,9 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	public void onActivate() {
 		entries = new HashMap<>();
 
-		prefs = preferences.getSystemPreferences();
-		defaultLanguage = Locale.forLanguageTag(prefs.get(DEFAULT_LANGUAGE_KEY, "en-US"));
-		currentLanguage = Locale.forLanguageTag(prefs.get(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
+		prefs = preferences.getPreferences(LanguageRegistry.CONFIG_PID);
+		defaultLanguage = Locale.forLanguageTag(prefs.getString(DEFAULT_LANGUAGE_KEY, "en-US"));
+		currentLanguage = Locale.forLanguageTag(prefs.getString(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
 		this.reload();
 	}
 
@@ -62,7 +62,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 		Objects.requireNonNull(defaultLanguage);
 		if (!defaultLanguage.equals(this.defaultLanguage)) {
 			this.defaultLanguage = defaultLanguage;
-			prefs.put(DEFAULT_LANGUAGE_KEY, this.defaultLanguage.toLanguageTag());
+			prefs.setString(DEFAULT_LANGUAGE_KEY, this.defaultLanguage.toLanguageTag());
 			this.loadResourceBundle(this.defaultLanguage, false, true);
 			return true;
 		}
@@ -79,7 +79,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 		Objects.requireNonNull(currentLanguage);
 		if (!currentLanguage.equals(this.currentLanguage)) {
 			this.currentLanguage = currentLanguage;
-			prefs.put(CURRENT_LANGUAGE_KEY, this.currentLanguage.toLanguageTag());
+			prefs.setString(CURRENT_LANGUAGE_KEY, this.currentLanguage.toLanguageTag());
 			this.loadResourceBundle(this.currentLanguage, true, false);
 			return true;
 		}
