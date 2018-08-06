@@ -4,25 +4,21 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
+import org.osgi.service.prefs.Preferences;
+import org.osgi.service.prefs.PreferencesService;
 
 import craftedMods.language.api.LanguageRegistry;
 
-@Component(configurationPid = LanguageRegistry.LANGUAGE_CONFIG_PID)
+@Component
 public class LanguageRegistryImpl implements LanguageRegistry {
-
-	public @interface Config {
-		String defaultLanguage() default "en-US";
-
-		String currentLanguage() default LanguageRegistry.SYSTEM_LANGUAGE;
-	}
 
 	private Locale defaultLanguage;
 
@@ -31,35 +27,24 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	private Map<Locale, ResourceBundle> entries;
 
 	@Reference
+	private PreferencesService preferences;
+
+	private Preferences prefs;
+
+	@Reference
 	private ResourceBundleLoader resourceBundleLoader;
 
 	@Reference
 	private LogService logger;
 
 	@Activate
-	public void onActivate(Config config) {
+	public void onActivate() {
 		entries = new HashMap<>();
-		defaultLanguage = parseLocale(config.defaultLanguage());
-		currentLanguage = parseLocale(config.currentLanguage());
+
+		prefs = preferences.getSystemPreferences();
+		defaultLanguage = Locale.forLanguageTag(prefs.get(DEFAULT_LANGUAGE_KEY, "en-US"));
+		currentLanguage = Locale.forLanguageTag(prefs.get(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
 		this.reload();
-	}
-
-	@Modified
-	public void onModify(Config config) {
-		Locale newDefaultLanguage = parseLocale(config.defaultLanguage());
-		Locale newCurrentLanguage = parseLocale(config.currentLanguage());
-		if (!newDefaultLanguage.equals(defaultLanguage) || !newCurrentLanguage.equals(currentLanguage)) {
-			defaultLanguage = newDefaultLanguage;
-			currentLanguage = newCurrentLanguage;
-			this.reload();
-		}
-	}
-
-	private Locale parseLocale(String languageTag) {
-		if (languageTag.equals(LanguageRegistry.SYSTEM_LANGUAGE)) {
-			return Locale.getDefault();
-		}
-		return Locale.forLanguageTag(languageTag);
 	}
 
 	@Deactivate
@@ -73,8 +58,32 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	}
 
 	@Override
+	public boolean setDefaultLanguage(Locale defaultLanguage) {
+		Objects.requireNonNull(defaultLanguage);
+		if (!defaultLanguage.equals(this.defaultLanguage)) {
+			this.defaultLanguage = defaultLanguage;
+			prefs.put(DEFAULT_LANGUAGE_KEY, this.defaultLanguage.toLanguageTag());
+			this.loadResourceBundle(this.defaultLanguage, false, true);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public Locale getCurrentLanguage() {
 		return currentLanguage;
+	}
+
+	@Override
+	public boolean setCurrentLanguage(Locale currentLanguage) {
+		Objects.requireNonNull(currentLanguage);
+		if (!currentLanguage.equals(this.currentLanguage)) {
+			this.currentLanguage = currentLanguage;
+			prefs.put(CURRENT_LANGUAGE_KEY, this.currentLanguage.toLanguageTag());
+			this.loadResourceBundle(this.currentLanguage, true, false);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

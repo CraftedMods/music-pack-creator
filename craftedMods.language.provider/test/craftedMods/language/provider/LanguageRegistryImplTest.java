@@ -1,6 +1,5 @@
 package craftedMods.language.provider;
 
-import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -16,12 +15,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.LogService;
+import org.osgi.service.prefs.Preferences;
+import org.osgi.service.prefs.PreferencesService;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.language.api.LanguageRegistry;
-import craftedMods.language.provider.LanguageRegistryImpl.Config;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceBundle.class)
@@ -36,6 +36,9 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 	@Mock
 	private ResourceBundleLoader mockResourceBundleLoader;
 
+	@Mock
+	private PreferencesService mockPreferencesService;
+
 	@Before
 	public void setup() {
 		if (Locale.getDefault().equals(Locale.US)) {
@@ -48,6 +51,9 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		ResourceBundle mockBundle1 = createMockResourceBundle();
 		ResourceBundle mockBundle2 = createMockResourceBundle();
 
+		EasyMock.expect(mockPreferencesService.getSystemPreferences())
+				.andReturn(createMockPreferences(Locale.US, Locale.getDefault())).once();
+
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
 				.andReturn(mockBundle1).once();
 		EasyMock.expect(
@@ -56,7 +62,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate(createConfig("en-US", LanguageRegistry.SYSTEM_LANGUAGE));
+		languageRegistry.onActivate();
 
 		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
 		Assert.assertEquals(Locale.getDefault(), languageRegistry.getCurrentLanguage());
@@ -70,24 +76,34 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 	@Test
 	public void testOnActivateCurrentLanguageSet() {
 		ResourceBundle mockBundle1 = createMockResourceBundle();
+		ResourceBundle mockBundle2 = createMockResourceBundle();
+
+		EasyMock.expect(mockPreferencesService.getSystemPreferences())
+				.andReturn(createMockPreferences(Locale.US, Locale.CANADA)).once();
 
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
-				.andReturn(mockBundle1).times(2);
+				.andReturn(mockBundle1).once();
+		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.CANADA), EasyMock.anyBoolean()))
+				.andReturn(mockBundle2).once();
 
 		this.replayAll();
 
-		languageRegistry.onActivate(createConfig("en-US", "en-US"));
+		languageRegistry.onActivate();
 
 		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
-		Assert.assertEquals(Locale.US, languageRegistry.getCurrentLanguage());
+		Assert.assertEquals(Locale.CANADA, languageRegistry.getCurrentLanguage());
 
 		Assert.assertEquals(mockBundle1, languageRegistry.getEntries().get(Locale.US));
+		Assert.assertEquals(mockBundle2, languageRegistry.getEntries().get(Locale.CANADA));
 
 		this.verifyAll();
 	}
 
 	@Test
 	public void testOnActivateNullBundles() {
+		EasyMock.expect(mockPreferencesService.getSystemPreferences())
+				.andReturn(createMockPreferences(Locale.US, Locale.getDefault())).once();
+
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
 				.andReturn(null).once();
 		EasyMock.expect(
@@ -96,49 +112,82 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate(createConfig("en-US", LanguageRegistry.SYSTEM_LANGUAGE));
+		languageRegistry.onActivate();
 
 		Assert.assertTrue(languageRegistry.getEntries().isEmpty());
 
 		this.verifyAll();
 	}
 
+	@Test(expected = NullPointerException.class)
+	public void testSetDefaultLanguageNull() {
+		this.replayAll();
+
+		languageRegistry.setDefaultLanguage(null);
+	}
+
 	@Test
-	public void testOnModifyNothingChanged() {
-		activate();
+	public void testSetDefaultLanguageNothingChanged() {
+		this.activate();
+		this.replayAll();
+
+		Assert.assertFalse(languageRegistry.setDefaultLanguage(Locale.US));
+		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
+
+		this.verifyAll();
+	}
+
+	@Test
+	public void testSetDefaultLanguageChanged() {
+		Preferences prefs = this.activate();
+
+		EasyMock.expect(
+				mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.getDefault()), EasyMock.anyBoolean()))
+				.andStubReturn(createMockResourceBundle());
+
+		prefs.put(LanguageRegistry.DEFAULT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag());
+		EasyMock.expectLastCall().once();
 
 		this.replayAll();
 
-		languageRegistry.onModify(createConfig("en-US", LanguageRegistry.SYSTEM_LANGUAGE));
+		Assert.assertTrue(languageRegistry.setDefaultLanguage(Locale.getDefault()));
+		Assert.assertEquals(Locale.getDefault(), languageRegistry.getDefaultLanguage());
 
-		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
+		this.verifyAll();
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testSetCurrentLanguageNull() {
+		this.replayAll();
+
+		languageRegistry.setCurrentLanguage(null);
+	}
+
+	@Test
+	public void testSetCurrentLanguageNothingChanged() {
+		this.activate();
+		this.replayAll();
+
+		Assert.assertFalse(languageRegistry.setCurrentLanguage(Locale.getDefault()));
 		Assert.assertEquals(Locale.getDefault(), languageRegistry.getCurrentLanguage());
 
 		this.verifyAll();
 	}
 
 	@Test
-	public void testOnModifyLocaleChanged() {
-		activate();
+	public void testSetCurrentLanguageChanged() {
+		Preferences prefs = this.activate();
 
-		ResourceBundle mockBundle1 = createMockResourceBundle();
-		ResourceBundle mockBundle2 = createMockResourceBundle();
-
-		EasyMock.expect(
-				mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.getDefault()), EasyMock.anyBoolean()))
-				.andReturn(mockBundle1).once();
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
-				.andReturn(mockBundle2).once();
+				.andStubReturn(createMockResourceBundle());
+
+		prefs.put(LanguageRegistry.CURRENT_LANGUAGE_KEY, Locale.US.toLanguageTag());
+		EasyMock.expectLastCall().once();
 
 		this.replayAll();
 
-		languageRegistry.onModify(createConfig(LanguageRegistry.SYSTEM_LANGUAGE, "en-US"));
-
-		Assert.assertEquals(Locale.getDefault(), languageRegistry.getDefaultLanguage());
+		Assert.assertTrue(languageRegistry.setCurrentLanguage(Locale.US));
 		Assert.assertEquals(Locale.US, languageRegistry.getCurrentLanguage());
-
-		Assert.assertEquals(mockBundle1, languageRegistry.getEntries().get(Locale.getDefault()));
-		Assert.assertEquals(mockBundle2, languageRegistry.getEntries().get(Locale.US));
 
 		this.verifyAll();
 	}
@@ -298,9 +347,13 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		PowerMock.verifyAll();
 	}
 
-	private void activate() {
+	private Preferences activate() {
 		ResourceBundle mockBundle1 = createMockResourceBundle();
 		ResourceBundle mockBundle2 = createMockResourceBundle();
+
+		Preferences prefs = createMockPreferences(Locale.US, Locale.getDefault());
+
+		EasyMock.expect(mockPreferencesService.getSystemPreferences()).andReturn(prefs).once();
 
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
 				.andStubReturn(mockBundle1);
@@ -310,16 +363,20 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate(createConfig("en-US", LanguageRegistry.SYSTEM_LANGUAGE));
+		languageRegistry.onActivate();
 
 		this.verifyAll();
 
 		this.resetAll();
+		return prefs;
 	}
 
 	private void powerMockActivate() {
 		ResourceBundle mockBundle1 = createPowerMockResourceBundle();
 		ResourceBundle mockBundle2 = createPowerMockResourceBundle();
+
+		EasyMock.expect(mockPreferencesService.getSystemPreferences())
+				.andReturn(createMockPreferences(Locale.US, Locale.getDefault())).once();
 
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.US), EasyMock.anyBoolean()))
 				.andStubReturn(mockBundle1);
@@ -330,33 +387,13 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		this.replayAll();
 		PowerMock.replayAll();
 
-		languageRegistry.onActivate(createConfig(Locale.US.toLanguageTag(), Locale.getDefault().toLanguageTag()));
+		languageRegistry.onActivate();
 
 		this.verifyAll();
 		PowerMock.verifyAll();
 
 		this.resetAll();
 		PowerMock.resetAll();
-	}
-
-	private Config createConfig(String defaultLocale, String currentLocale) {
-		return new Config() {
-
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return Config.class;
-			}
-
-			@Override
-			public String defaultLanguage() {
-				return defaultLocale;
-			}
-
-			@Override
-			public String currentLanguage() {
-				return currentLocale;
-			}
-		};
 	}
 
 	private ResourceBundle createMockResourceBundle() {
@@ -369,6 +406,15 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		ResourceBundle mockBundle = PowerMock.createNiceMock(ResourceBundle.class);
 		EasyMock.expect(mockBundle.keySet()).andStubReturn(new HashSet<>());
 		return mockBundle;
+	}
+
+	private Preferences createMockPreferences(Locale defaultLanguage, Locale currentLanguage) {
+		Preferences mockPreferences = this.createMock(Preferences.class);
+		EasyMock.expect(mockPreferences.get(LanguageRegistry.DEFAULT_LANGUAGE_KEY, Locale.US.toLanguageTag()))
+				.andReturn(defaultLanguage.toLanguageTag()).once();
+		EasyMock.expect(mockPreferences.get(LanguageRegistry.CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()))
+				.andReturn(currentLanguage.toLanguageTag()).once();
+		return mockPreferences;
 	}
 
 }

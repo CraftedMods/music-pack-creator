@@ -7,15 +7,16 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface LanguageRegistry {
 
-	public static final String LANGUAGE_CONFIG_PID = "craftedMods.language.api.LanguageRegistry";
-	public static final String CURRENT_LANGUAGE_KEY = "currentLanguage";
 	public static final String DEFAULT_LANGUAGE_KEY = "defaultLanguage";
-
-	public static final String SYSTEM_LANGUAGE = "$SYS_LANG$";
+	public static final String CURRENT_LANGUAGE_KEY = "currentLanguage";
 
 	public Locale getDefaultLanguage();
 
+	public boolean setDefaultLanguage(Locale defaultLanguage);
+
 	public Locale getCurrentLanguage();
+
+	public boolean setCurrentLanguage(Locale currentLanguage);
 
 	public String getLocalizedValue(String key, Object... params);
 
