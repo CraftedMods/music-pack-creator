@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.osgi.framework.ServiceException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
@@ -28,12 +29,14 @@ import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
-@Component
+@Component(configurationPid = MusicPackProjectPersistenceManager.CONFIG_PID, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectPersistenceManager {
 
-	public static final String PROJECT_FILE_NAME = "project.json";
+	public @interface Configuration {
+		String projectsDirectory();
+	}
 
-	public static final String PROJECTS_DIR_NAME = "projects";
+	public static final String PROJECT_FILE_NAME = "project.json";
 
 	@Reference
 	private MusicPackCreator musicPackCreator;
@@ -61,9 +64,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	private Map<MusicPackProject, Path> managedMusicPackProjects;
 
 	@Activate
-	public void onActivate() throws IOException {
-		this.projectsDir = this.fileManager.getPathAndCreateDir(this.musicPackCreator.getWorkspaceRoot().toString(),
-				MusicPackProjectPersistenceManagerImpl.PROJECTS_DIR_NAME);
+	public void onActivate(Configuration configuration) throws IOException {
+		this.projectsDir = this.fileManager.getPathAndCreateDir(configuration.projectsDirectory());
 		this.logger.log(LogService.LOG_INFO,
 				String.format("The projects directory is located at \"%s\"", this.projectsDir.toString()));
 		this.managedMusicPackProjects = new HashMap<>();

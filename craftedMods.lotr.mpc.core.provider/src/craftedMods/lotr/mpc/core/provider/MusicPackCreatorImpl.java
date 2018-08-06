@@ -1,8 +1,5 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.osgi.service.component.annotations.Component;
 
 import craftedMods.lotr.mpc.core.api.MusicPackCreator;
@@ -17,11 +14,6 @@ public class MusicPackCreatorImpl implements MusicPackCreator {
 	@Override
 	public SemanticVersion getVersion() {
 		return VERSION;
-	}
-
-	@Override
-	public Path getWorkspaceRoot() {
-		return Paths.get(".\\LOTRMusicPackCreator");
 	}
 
 }

@@ -13,6 +13,8 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 @ProviderType
 public interface MusicPackProjectPersistenceManager {
 
+	public static final String CONFIG_PID = "craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager";
+
 	public static final EventInfo LOAD_ALL_PROJECT_ERROR_EVENT = new DefaultEventInfo(
 			MusicPackProjectPersistenceManager.class, "LOAD_ALL_ERROR");
 
@@ -46,16 +48,14 @@ public interface MusicPackProjectPersistenceManager {
 	/**
 	 * Saves a registered Music Pack Project to the workspace
 	 * 
-	 * @param project
-	 *            The registered Music Pack Project
+	 * @param project The registered Music Pack Project
 	 */
 	public void saveMusicPackProject(MusicPackProject project);
 
 	/**
 	 * Deletes a registered Music Pack Project from the workspace
 	 * 
-	 * @param project
-	 *            The registered Music Pack Project
+	 * @param project The registered Music Pack Project
 	 */
 	public boolean deleteMusicPackProject(MusicPackProject project);
 
