@@ -8,8 +8,9 @@ Bundle-Version:					1.0.0.${tstamp}
 
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	org.easymock
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
@@ -17,4 +18,6 @@ Bundle-Version:					1.0.0.${tstamp}
 
 Export-Package: \
 	craftedMods.utils.data,\
-	craftedMods.utils.exceptions
+	craftedMods.utils.exceptions,\
+	craftedMods.utils.function,\
+	craftedMods.utils
