@@ -1,0 +1,13 @@
+#
+# craftedMods.preferences.provider DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~craftedMods.preferences.provider.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

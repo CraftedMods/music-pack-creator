@@ -1,5 +1,7 @@
 package craftedMods.preferences.api;
 
+import java.io.IOException;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.utils.data.PrimitiveProperties;
@@ -9,8 +11,8 @@ public interface Preferences extends PrimitiveProperties {
 
 	public String getPID();
 
-	public void sync();
+	public void sync() throws IOException;
 
-	public void flush();
+	public void flush() throws IOException;
 
 }
