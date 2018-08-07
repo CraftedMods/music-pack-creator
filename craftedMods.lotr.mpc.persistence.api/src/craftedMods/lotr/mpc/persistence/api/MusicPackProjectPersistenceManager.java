@@ -13,8 +13,6 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 @ProviderType
 public interface MusicPackProjectPersistenceManager {
 
-	public static final String CONFIG_PID = "craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager";
-
 	public static final EventInfo LOAD_ALL_PROJECT_ERROR_EVENT = new DefaultEventInfo(
 			MusicPackProjectPersistenceManager.class, "LOAD_ALL_ERROR");
 

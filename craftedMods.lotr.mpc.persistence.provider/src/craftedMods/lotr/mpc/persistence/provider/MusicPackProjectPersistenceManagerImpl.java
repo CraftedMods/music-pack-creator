@@ -29,7 +29,7 @@ import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
-@Component(configurationPid = MusicPackProjectPersistenceManager.CONFIG_PID, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectPersistenceManager {
 
 	public @interface Configuration {

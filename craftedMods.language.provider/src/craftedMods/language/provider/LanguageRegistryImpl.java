@@ -20,6 +20,11 @@ import craftedMods.preferences.api.PreferencesManager;
 @Component
 public class LanguageRegistryImpl implements LanguageRegistry {
 
+	public static final String CONFIG_PID = LanguageRegistryImpl.class.getName();
+
+	public static final String DEFAULT_LANGUAGE_KEY = "defaultLanguage";
+	public static final String CURRENT_LANGUAGE_KEY = "currentLanguage";
+
 	private Locale defaultLanguage;
 
 	private Locale currentLanguage;
@@ -41,9 +46,10 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	public void onActivate() {
 		entries = new HashMap<>();
 
-		prefs = preferences.getPreferences(LanguageRegistry.CONFIG_PID);
+		prefs = preferences.getPreferences(LanguageRegistryImpl.CONFIG_PID);
 		defaultLanguage = Locale.forLanguageTag(prefs.getString(DEFAULT_LANGUAGE_KEY, "en-US"));
-		currentLanguage = Locale.forLanguageTag(prefs.getString(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
+		currentLanguage = Locale
+				.forLanguageTag(prefs.getString(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
 		this.reload();
 	}
 
