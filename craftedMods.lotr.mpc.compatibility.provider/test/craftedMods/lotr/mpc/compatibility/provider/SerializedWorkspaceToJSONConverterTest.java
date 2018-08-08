@@ -15,7 +15,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
 import org.easymock.EasyMockSupport;
 import org.easymock.Mock;
-import org.easymock.MockType;
 import org.easymock.TestSubject;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +26,6 @@ import org.osgi.framework.ServiceException;
 
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.core.api.MusicPack;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Track;
@@ -42,9 +40,6 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 
 	@TestSubject
 	public SerializedWorkspaceToJSONConverter converter = new SerializedWorkspaceToJSONConverter();
-
-	@Mock(type = MockType.NICE)
-	private MusicPackCreator mockMusicPackCreator;
 
 	@Mock
 	private MusicPackProjectFactory mockMusicPackProjectFactory;

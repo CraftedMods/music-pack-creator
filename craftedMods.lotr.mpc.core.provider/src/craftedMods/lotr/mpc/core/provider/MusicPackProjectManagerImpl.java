@@ -10,12 +10,10 @@ import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.lotr.mpc.core.api.*;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
+import craftedMods.versionChecker.api.SemanticVersion;
 
 @Component
 public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
-
-	@Reference
-	private MusicPackCreator musicPackCreator;
 
 	@Reference
 	private LogService logger;
@@ -28,6 +26,9 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
 	@Reference
 	private MusicPackProjectFactory mppFactory;
+
+	@Reference(target = "(application=mpc)")
+	SemanticVersion mpcVersion;
 
 	private List<MusicPackProjectImpl> musicPackProjects;
 
@@ -175,8 +176,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 	}
 
 	private void addSaveProperties(MusicPackProject project) {
-		project.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
-				this.musicPackCreator.getVersion().toString());
+		project.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION, mpcVersion.toString());
 	}
 
 	@Override

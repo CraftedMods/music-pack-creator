@@ -22,11 +22,11 @@ import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.versionChecker.api.SemanticVersion;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @Component(configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -38,8 +38,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 
 	public static final String PROJECT_FILE_NAME = "project.json";
 
-	@Reference
-	private MusicPackCreator musicPackCreator;
+	@Reference(target = "(application=mpc)")
+	SemanticVersion mpcVersion;
 
 	@Reference
 	private MusicPackProjectReader reader;
@@ -113,8 +113,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 				if (version != null) {
 					// A non-semantic version is handled like an older version
 					boolean isSemanticVersion = DefaultSemanticVersion.isSemanticVersion(version);
-					int comp = !isSemanticVersion ? -1
-							: DefaultSemanticVersion.of(version).compareTo(this.musicPackCreator.getVersion());
+					int comp = !isSemanticVersion ? -1 : DefaultSemanticVersion.of(version).compareTo(mpcVersion);
 					if (comp != 0) {
 						WriteableEventProperties properties = new DefaultWriteableEventProperties();
 						boolean newer = comp > 0;

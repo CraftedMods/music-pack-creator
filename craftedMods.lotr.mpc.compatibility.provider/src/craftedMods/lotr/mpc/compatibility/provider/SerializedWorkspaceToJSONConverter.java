@@ -9,20 +9,20 @@ import java.util.List;
 import org.osgi.framework.ServiceException;
 
 import craftedMods.fileManager.api.FileManager;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.versionChecker.api.SemanticVersion;
 
 public class SerializedWorkspaceToJSONConverter {
 
 	public static final String OLD_PROJECT_FILE = "project.lmpp";
 	public static final String NEW_PROJECT_FILE = "project.json";
 
-	private MusicPackCreator creator;
+	private SemanticVersion mpcVersion;
 
 	private MusicPackProjectFactory factory;
 
@@ -30,9 +30,9 @@ public class SerializedWorkspaceToJSONConverter {
 
 	private FileManager fileManager;
 
-	public void onActivate(MusicPackCreator creator, MusicPackProjectFactory factory, MusicPackProjectWriter writer,
+	public void onActivate(SemanticVersion mpcVersion, MusicPackProjectFactory factory, MusicPackProjectWriter writer,
 			FileManager fileManager) {
-		this.creator = creator;
+		this.mpcVersion = mpcVersion;
 		this.factory = factory;
 		this.writer = writer;
 		this.fileManager = fileManager;
@@ -48,7 +48,7 @@ public class SerializedWorkspaceToJSONConverter {
 			newProject.getMusicPack().getTracks().add(new DefaultTrack(oldTrack.getTrackPath(), oldTrack.getTitle(),
 					this.getNewRegions(oldTrack.getRegions()), oldTrack.getAuthors()));
 		newProject.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
-				version == null ? this.creator.getVersion().toString() : version);
+				version == null ? mpcVersion.toString() : version);
 		this.saveNewMusicPackProject(workspacePath, newProject);
 		this.deleteOldProjectFile(workspacePath);
 	}

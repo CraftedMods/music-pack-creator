@@ -14,12 +14,12 @@ import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.versionChecker.api.SemanticVersion;
 
 @Component
 public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjectCompatibilityManager {
@@ -29,8 +29,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	@Reference
 	private EventManager eventManager;
 
-	@Reference
-	private MusicPackCreator creator;
+	@Reference(target = "(application=mpc)")
+	private SemanticVersion mpcVersion;
 
 	@Reference
 	private MusicPackProjectFactory factory;
@@ -48,7 +48,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 
 	@Activate
 	public void onActivate() {
-		this.serializedWorkspaceToJsonConverter.onActivate(this.creator, this.factory, this.writer, this.fileManager);
+		this.serializedWorkspaceToJsonConverter.onActivate(this.mpcVersion, this.factory, this.writer,
+				this.fileManager);
 	}
 
 	@Override

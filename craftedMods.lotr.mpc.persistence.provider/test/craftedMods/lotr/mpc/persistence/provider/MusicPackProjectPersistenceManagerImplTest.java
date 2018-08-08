@@ -28,7 +28,6 @@ import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
@@ -43,9 +42,6 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 	@TestSubject
 	public MusicPackProjectPersistenceManagerImpl persistenceManager = new MusicPackProjectPersistenceManagerImpl();
-
-	@Mock(type = MockType.NICE)
-	private MusicPackCreator mockMusicPackCreator;
 
 	@Mock
 	private MusicPackProjectReader mockMusicPackProjectReader;
@@ -74,7 +70,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 	public void setup() {
 		projectsDir = folder.getRoot().toPath().resolve("projects");
 
-		EasyMock.expect(mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("0.1.0"));
+		persistenceManager.mpcVersion = DefaultSemanticVersion.of("0.1.0");
 	}
 
 	@Test

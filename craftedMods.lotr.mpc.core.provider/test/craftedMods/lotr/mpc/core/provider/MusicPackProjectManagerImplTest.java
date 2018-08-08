@@ -20,12 +20,12 @@ import org.osgi.service.log.LogService;
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.lotr.mpc.core.api.MusicPackCreator;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
+import craftedMods.versionChecker.api.SemanticVersion;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @RunWith(EasyMockRunner.class)
@@ -37,8 +37,7 @@ public class MusicPackProjectManagerImplTest {
 	@Mock(type = MockType.NICE)
 	private LogService mockLogger;
 
-	@Mock(type = MockType.NICE)
-	private MusicPackCreator mockMusicPackCreator;
+	private SemanticVersion mpcVersion;
 
 	@Mock(type = MockType.NICE)
 	private EventManager mockEventManager;
@@ -60,6 +59,10 @@ public class MusicPackProjectManagerImplTest {
 		this.loadedProject = new MusicPackProjectImpl("Loaded Project");
 		this.testProject = new MusicPackProjectImpl("Project");
 
+		mpcVersion = DefaultSemanticVersion.of("2.0.0");
+
+		musicPackProjectManager.mpcVersion = mpcVersion;
+
 		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects()).andReturn(Arrays.asList()).once();
 		EasyMock.expect(this.mockMusicPackProjectFactory.createMusicPackProjectInstance(EasyMock.anyString()))
 				.andStubAnswer(() -> {
@@ -67,7 +70,6 @@ public class MusicPackProjectManagerImplTest {
 				});
 
 		EasyMock.replay(this.mockPersistenceManager);
-		EasyMock.replay(this.mockMusicPackCreator);
 		EasyMock.replay(this.mockEventManager);
 		EasyMock.replay(this.mockMusicPackProjectFactory);
 
@@ -335,12 +337,7 @@ public class MusicPackProjectManagerImplTest {
 		this.mockPersistenceManager.saveMusicPackProject(this.testProject);
 		EasyMock.expectLastCall().andVoid().once();
 
-		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andReturn(DefaultSemanticVersion.of("2.0.0"))
-				.atLeastOnce();
-
 		EasyMock.replay(this.mockPersistenceManager);
-		EasyMock.replay(this.mockMusicPackCreator);
 
 		this.testProject.getProperties().put(MusicPackProject.PROPERTY_MPC_VERSION, "1.0.0");
 
@@ -348,7 +345,6 @@ public class MusicPackProjectManagerImplTest {
 		this.musicPackProjectManager.saveMusicPackProject(this.testProject);
 
 		EasyMock.verify(this.mockPersistenceManager);
-		EasyMock.verify(this.mockMusicPackCreator);
 
 		Assert.assertEquals("2.0.0", this.testProject.getProperties().get(MusicPackProject.PROPERTY_MPC_VERSION));
 	}
@@ -369,11 +365,7 @@ public class MusicPackProjectManagerImplTest {
 		this.mockPersistenceManager.saveMusicPackProject(EasyMock.anyObject(MusicPackProject.class));
 		EasyMock.expectLastCall().times(3);
 
-		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("2.0.0"));
-
 		EasyMock.replay(this.mockPersistenceManager);
-		EasyMock.replay(this.mockMusicPackCreator);
 
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("1"));
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("2"));
@@ -390,9 +382,6 @@ public class MusicPackProjectManagerImplTest {
 		this.mockPersistenceManager.saveMusicPackProject(EasyMock.anyObject(MusicPackProject.class));
 		EasyMock.expectLastCall().times(3).andThrow(new RuntimeException("<--!!!Error!!!-->")).once();
 
-		EasyMock.reset(this.mockMusicPackCreator);
-		EasyMock.expect(this.mockMusicPackCreator.getVersion()).andStubReturn(DefaultSemanticVersion.of("2.0.0"));
-
 		Capture<EventInfo> saveAllErrorEventInfoCapture = EasyMock.newCapture();
 		Capture<WriteableEventProperties> saveAllErrorEventPropertiesCapture = EasyMock.newCapture();
 
@@ -401,7 +390,6 @@ public class MusicPackProjectManagerImplTest {
 				EasyMock.capture(saveAllErrorEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.replay(this.mockPersistenceManager);
-		EasyMock.replay(this.mockMusicPackCreator);
 		EasyMock.replay(this.mockEventManager);
 
 		this.musicPackProjectManager.registerMusicPackProject(new MusicPackProjectImpl("1"));
