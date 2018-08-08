@@ -12,6 +12,7 @@ import org.osgi.service.log.LogService;
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.eventManager.base.EventUtils;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
@@ -70,16 +71,9 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 			WriteableEventProperties properties = new DefaultWriteableEventProperties();
 			properties.put(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_PATH,
 					projectDir);
-			if (this.eventManager
-					.dispatchEvent(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT,
-							properties)
-					.stream().map(result -> {
-						return Boolean.valueOf(!result.containsProperty(
-								MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED)
-										? true
-										: result.getProperty(
-												MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED));
-					}).allMatch(proceed -> proceed ? true : false))
+			if (EventUtils.proceed(this.eventManager.dispatchEvent(
+					MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT, properties),
+					MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED))
 				try {
 					this.serializedWorkspaceToJsonConverter.convertWorkspace(projectDir);
 					this.logger.log(LogService.LOG_INFO,
