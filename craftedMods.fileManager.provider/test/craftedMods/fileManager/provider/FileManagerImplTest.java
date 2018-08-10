@@ -3,6 +3,7 @@ package craftedMods.fileManager.provider;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -227,6 +228,123 @@ public class FileManagerImplTest {
 			this.fileManager.createFile(folder.getRoot().toPath().toString(), "file_" + i);
 		}
 		Assert.assertEquals(4l, fileManager.getPathsInDirectory((folder.getRoot().toPath())).count());
+	}
+
+	@Test
+	public void testWriteNonExisting() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file.d");
+
+		this.fileManager.write(file, new String("TEST").getBytes());
+
+		Assert.assertTrue(fileManager.exists(file));
+		Assert.assertEquals("TEST", new String(Files.readAllBytes(file)));
+	}
+
+	@Test
+	public void testWriteExisting() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file.d");
+
+		this.fileManager.createFile(file);
+
+		this.fileManager.write(file, new String("TEST").getBytes());
+
+		Assert.assertEquals("TEST", new String(Files.readAllBytes(file)));
+	}
+
+	@Test(expected = IOException.class)
+	public void testWriteDirectory() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file");
+
+		this.fileManager.createDir(file);
+
+		this.fileManager.write(file, new String("TEST").getBytes());
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testWriteNullFile() throws IOException {
+		this.fileManager.write(null, new String("TEST").getBytes());
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testWriteNullBytes() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file");
+
+		this.fileManager.createFile(file);
+
+		this.fileManager.write(file, null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testCopyFirstNull() throws IOException {
+		this.fileManager.copy(null, Paths.get("s"));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testCopySecondNull() throws IOException {
+		this.fileManager.copy(Paths.get("s"), null);
+	}
+
+	@Test
+	public void testCopy() throws IOException {
+		Path file1 = folder.getRoot().toPath().resolve("file1");
+		Path file2 = folder.getRoot().toPath().resolve("file2");
+
+		this.fileManager.createFile(file1);
+		this.fileManager.createFile(file2);
+
+		this.fileManager.write(file1, new String("S").getBytes());
+
+		this.fileManager.copy(file1, file2);
+
+		Assert.assertEquals("S", new String(Files.readAllBytes(file2)));
+	}
+
+	@Test(expected = NoSuchFileException.class)
+	public void testCopySourceNotExisting() throws IOException {
+		Path file1 = folder.getRoot().toPath().resolve("file1");
+		Path file2 = folder.getRoot().toPath().resolve("file2");
+
+		this.fileManager.createFile(file2);
+
+		this.fileManager.copy(file1, file2);
+	}
+
+	@Test
+	public void testCopyTargetNotExisting() throws IOException {
+		Path file1 = folder.getRoot().toPath().resolve("file1");
+		Path file2 = folder.getRoot().toPath().resolve("file2");
+
+		this.fileManager.createFile(file1);
+
+		this.fileManager.write(file1, new String("S").getBytes());
+
+		this.fileManager.copy(file1, file2);
+
+		Assert.assertEquals("S", new String(Files.readAllBytes(file2)));
+	}
+
+	@Test(expected = IOException.class)
+	public void testCopySourceDir() throws IOException {
+		Path file1 = folder.getRoot().toPath().resolve("file1");
+		Path file2 = folder.getRoot().toPath().resolve("file2");
+
+		this.fileManager.createDir(file1);
+		this.fileManager.createFile(file2);
+
+		this.fileManager.copy(file1, file2);
+	}
+
+	@Test(expected = IOException.class)
+	public void testCopyTargetDir() throws IOException {
+		Path file1 = folder.getRoot().toPath().resolve("file1");
+		Path file2 = folder.getRoot().toPath().resolve("file2");
+
+		this.fileManager.createFile(file1);
+		this.fileManager.createDir(file2);
+
+		this.fileManager.write(file1, new String("S").getBytes());
+
+		this.fileManager.copy(file1, file2);
 	}
 
 }

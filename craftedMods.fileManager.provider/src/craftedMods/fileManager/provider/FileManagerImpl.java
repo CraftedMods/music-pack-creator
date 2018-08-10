@@ -128,4 +128,24 @@ public class FileManagerImpl implements FileManager {
 		return Files.newOutputStream(path);
 	}
 
+	@Override
+	public void write(Path file, byte[] data) throws IOException {
+		Objects.requireNonNull(file);
+		Objects.requireNonNull(data);
+		if (this.isDirectory(file))
+			throw new IOException(file.toString() + " is not a file");
+		Files.write(file, data);
+	}
+
+	@Override
+	public void copy(Path file1, Path file2) throws IOException {
+		Objects.requireNonNull(file1);
+		Objects.requireNonNull(file2);
+		if (this.isDirectory(file1))
+			throw new IOException(file1.toString() + " is not a file");
+		if (this.isDirectory(file2))
+			throw new IOException(file2.toString() + " is not a file");
+		Files.copy(file1, file2, StandardCopyOption.REPLACE_EXISTING);
+	}
+
 }

@@ -1,6 +1,8 @@
 package craftedMods.fileManager.api;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -22,8 +24,8 @@ public interface FileManager {
 	public Path getPathAndCreateDir(String path, String... more) throws IOException;
 
 	public void deleteDirAndContent(Path dir) throws IOException;
-	
-	public boolean deleteFile(Path file)throws IOException;
+
+	public boolean deleteFile(Path file) throws IOException;
 
 	public String getSeparator();
 
@@ -38,5 +40,9 @@ public interface FileManager {
 	public InputStream newInputStream(Path path) throws IOException;
 
 	public OutputStream newOutputStream(Path path) throws IOException;
+
+	public void write(Path path, byte[] data) throws IOException;
+
+	public void copy(Path file1, Path file2) throws IOException;
 
 }
