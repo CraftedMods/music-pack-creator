@@ -1,0 +1,13 @@
+#
+# craftedMods.versionChecker.provider DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~craftedMods.versionChecker.provider.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

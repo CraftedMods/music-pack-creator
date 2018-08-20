@@ -1,0 +1,14 @@
+#
+# craftedMods.versionChecker.provider LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		craftedMods.versionChecker.provider.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=craftedMods.versionChecker.provider.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}
