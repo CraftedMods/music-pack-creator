@@ -347,4 +347,38 @@ public class FileManagerImplTest {
 		this.fileManager.copy(file1, file2);
 	}
 
+	@Test(expected = NoSuchFileException.class)
+	public void testReadNonExisting() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file.d");
+
+		this.fileManager.read(file);
+	}
+
+	@Test
+	public void testReadExisting() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file.d");
+
+		String content = "TEST";
+
+		this.fileManager.createFile(file);
+
+		this.fileManager.write(file, content.getBytes());
+
+		Assert.assertArrayEquals(content.getBytes(), this.fileManager.read(file));
+	}
+
+	@Test(expected = IOException.class)
+	public void testReadDirectory() throws IOException {
+		Path file = folder.getRoot().toPath().resolve("file");
+
+		this.fileManager.createDir(file);
+
+		this.fileManager.read(file);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void testReadNullFile() throws IOException {
+		this.fileManager.read(null);
+	}
+
 }

@@ -148,4 +148,14 @@ public class FileManagerImpl implements FileManager {
 		Files.copy(file1, file2, StandardCopyOption.REPLACE_EXISTING);
 	}
 
+	@Override
+	public byte[] read(Path file) throws IOException {
+		Objects.requireNonNull(file);
+		if (!this.exists(file))
+			throw new NoSuchFileException(file.toString());
+		if (this.isDirectory(file))
+			throw new IOException(file.toString() + " is not a file");
+		return Files.readAllBytes(file);
+	}
+
 }

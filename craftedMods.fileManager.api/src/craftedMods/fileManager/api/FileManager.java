@@ -45,4 +45,6 @@ public interface FileManager {
 
 	public void copy(Path file1, Path file2) throws IOException;
 
+	public byte[] read(Path path) throws IOException;
+
 }
