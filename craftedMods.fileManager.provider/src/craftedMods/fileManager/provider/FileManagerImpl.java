@@ -163,4 +163,15 @@ public class FileManagerImpl implements FileManager {
 		return Files.readAllBytes(file);
 	}
 
+	@Override
+	public void rename(Path source, String newName) throws IOException {
+		Objects.requireNonNull(source);
+		Objects.requireNonNull(newName);
+		if (!this.exists(source))
+			throw new NoSuchFileException(source.toString());
+		if (!source.getFileName().toString().equals(newName)) {
+			Files.move(source, source.resolveSibling(newName), StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
+
 }

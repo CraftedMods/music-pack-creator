@@ -47,4 +47,6 @@ public interface FileManager {
 
 	public byte[] read(Path path) throws IOException;
 
+	public void rename(Path source, String newName) throws IOException;
+
 }

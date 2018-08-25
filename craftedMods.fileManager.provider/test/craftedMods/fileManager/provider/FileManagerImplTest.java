@@ -387,10 +387,106 @@ public class FileManagerImplTest {
 
 		this.fileManager.read(file);
 	}
-	
+
 	@Test(expected = NullPointerException.class)
 	public void testReadNullFile() throws IOException {
 		this.fileManager.read(null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testRenameNullFile() throws IOException {
+		this.fileManager.rename(null, "");
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testRenameNullNewName() throws IOException {
+		this.fileManager.rename(Paths.get("s"), null);
+	}
+
+	@Test(expected = NoSuchFileException.class)
+	public void testRenameNonExistingFile() throws IOException {
+		this.fileManager.rename(Paths.get("sertf"), "sd");
+	}
+
+	@Test
+	public void testRenameEqualFileName() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("file.f");
+
+		this.fileManager.createFile(file);
+
+		this.fileManager.rename(file, "file.f");
+
+		Assert.assertTrue(this.fileManager.exists(file));
+	}
+
+	@Test
+	public void testRenameEqualDirName() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("dir");
+
+		this.fileManager.createDir(file);
+
+		this.fileManager.rename(file, "dir");
+
+		Assert.assertTrue(this.fileManager.exists(file));
+	}
+
+	@Test
+	public void testRenameNewFileName() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("file.f");
+		Path newFile = file.resolveSibling("file.f2");
+
+		this.fileManager.createFile(file);
+
+		this.fileManager.rename(file, "file.f2");
+
+		Assert.assertTrue(this.fileManager.exists(newFile));
+		Assert.assertFalse(this.fileManager.exists(file));
+		Assert.assertTrue(this.fileManager.isRegularFile(newFile));
+	}
+
+	@Test
+	public void testRenameNewDirName() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("diro");
+		Path newFile = file.resolveSibling("dirouz");
+
+		this.fileManager.createDir(file);
+		this.fileManager.createDir(newFile);
+
+		this.fileManager.rename(file, "dirouz");
+
+		Assert.assertTrue(this.fileManager.exists(newFile));
+		Assert.assertFalse(this.fileManager.exists(file));
+		Assert.assertTrue(this.fileManager.isDirectory(newFile));
+	}
+
+	@Test
+	public void testRenameNewFileNameExisting() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("file.f");
+		Path newFile = file.resolveSibling("file.f2");
+
+		this.fileManager.createFile(file);
+		this.fileManager.createFile(newFile);
+
+		this.fileManager.rename(file, "file.f2");
+
+		Assert.assertTrue(this.fileManager.exists(newFile));
+		Assert.assertFalse(this.fileManager.exists(file));
+		Assert.assertTrue(this.fileManager.isRegularFile(newFile));
+	}
+
+	@Test
+	public void testRenameNewDirNameExisting() throws IOException {
+		Path file = this.folder.getRoot().toPath().resolve("dre");
+		Path newFile = file.resolveSibling("bgt");
+
+		this.fileManager.createDir(file);
+		this.fileManager.createDir(newFile);
+
+		this.fileManager.rename(file, "bgt");
+
+		Assert.assertTrue(this.fileManager.exists(newFile));
+		Assert.assertFalse(this.fileManager.exists(file));
+		Assert.assertTrue(this.fileManager.isDirectory(newFile));
 	}
 
 }
