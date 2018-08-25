@@ -1,8 +1,7 @@
 package craftedMods.audioPlayer.provider;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +59,8 @@ public class AudioPlayerImpl implements AudioPlayer {
 
 	private long shutdownTimeout;
 
+	private volatile String currentTrack;
+
 	@Activate
 	public void onActivate(Configuration config) throws UnsupportedAudioFileException, IOException {
 		this.shutdownTimeout = config.shutdownTimeout();
@@ -82,26 +83,27 @@ public class AudioPlayerImpl implements AudioPlayer {
 		}
 	}
 
-	public boolean play(Path trackPath) {
+	@Override
+	public boolean play(InputStream trackInputStream, String name) {
 		if (this.sourceDataLine == null) {
 			this.isPaused = false;
 			this.maxPlayingTime = 0;
 			this.currentPlayingTime = 0;
 			this.playTrackFlag = 0;
-			File trackFile = trackPath.toFile();
+			this.currentTrack = name;
 			this.audioPlayerThread.execute(() -> {
-				try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(trackFile)) {
+				try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(trackInputStream)) {
 					if (audioInputStream != null) {
 						AudioFormat baseAudioFormat = audioInputStream.getFormat();
 						try {
-							AudioFileFormat baseAudioFileFormat = AudioSystem.getAudioFileFormat(trackFile);
+							AudioFileFormat baseAudioFileFormat = AudioSystem.getAudioFileFormat(trackInputStream);
 							if (baseAudioFileFormat instanceof TAudioFileFormat)
 								this.maxPlayingTime = (long) ((TAudioFileFormat) baseAudioFileFormat).properties()
 										.get("duration");
 						} catch (Exception e) {
 							this.maxPlayingTime = -100000;
 							logger.log(LogService.LOG_ERROR,
-									String.format("Couldn't get the duration of the track \"%s\"", trackPath), e);
+									String.format("Couldn't get the duration of the track \"%s\"", name), e);
 						}
 						AudioFormat decodedAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
 								baseAudioFormat.getSampleRate(), 16, baseAudioFormat.getChannels(),
@@ -152,10 +154,10 @@ public class AudioPlayerImpl implements AudioPlayer {
 					this.sourceDataLine = null;
 					this.maxPlayingTime = 0;
 					this.currentPlayingTime = 0;
-					logger.log(LogService.LOG_ERROR,
-							String.format("Couldn't play the track \"%s\"", trackPath.toString()), e);
+					this.currentTrack = null;
+					logger.log(LogService.LOG_ERROR, String.format("Couldn't play the track \"%s\"", name), e);
 					WriteableEventProperties properties = new DefaultWriteableEventProperties();
-					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_PATH, trackPath);
+					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_NAME, name);
 					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_EXCEPTION, e);
 					eventManager.dispatchEvent(AudioPlayer.PLAY_TRACK_ERROR_EVENT, properties,
 							EventDispatchPolicy.ASYNCHRONOUS);
@@ -166,6 +168,11 @@ public class AudioPlayerImpl implements AudioPlayer {
 			return this.playTrackFlag != 2;
 		}
 		return false;
+	}
+
+	@Override
+	public String getCurrentTrack() {
+		return this.currentTrack;
 	}
 
 	private float getLinearGain(float gain) {
@@ -195,6 +202,7 @@ public class AudioPlayerImpl implements AudioPlayer {
 		this.sourceDataLine = null;
 		this.currentPlayingTime = 0;
 		this.maxPlayingTime = 0;
+		this.currentTrack = null;
 	}
 
 	public long getCurrentPlayingTime() {

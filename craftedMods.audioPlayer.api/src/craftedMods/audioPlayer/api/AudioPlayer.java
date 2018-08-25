@@ -1,6 +1,6 @@
 package craftedMods.audioPlayer.api;
 
-import java.nio.file.Path;
+import java.io.InputStream;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -18,12 +18,17 @@ public interface AudioPlayer {
 	public static final EventInfo PLAY_TRACK_ERROR_EVENT = new DefaultEventInfo(AudioPlayer.class, "PLAY_TRACK_ERROR",
 			EventDispatchPolicy.NOT_SPECIFIED);
 
-	public static final PropertyKey<Path> PLAY_TRACK_ERROR_EVENT_PATH = DefaultPropertyKey
-			.createPropertyKey(Path.class);
+	public static final PropertyKey<String> PLAY_TRACK_ERROR_EVENT_NAME = DefaultPropertyKey.createStringPropertyKey();
 	public static final PropertyKey<Exception> PLAY_TRACK_ERROR_EVENT_EXCEPTION = DefaultPropertyKey
 			.createPropertyKey(Exception.class);
 
-	public boolean play(Path trackPath);
+	public boolean play(InputStream track, String name);
+	
+	/**
+	 * Returns the current playing track or null, if no track is playing.
+	 * @return The current playing track
+	 */
+	public String getCurrentTrack();
 
 	public void pause();
 
