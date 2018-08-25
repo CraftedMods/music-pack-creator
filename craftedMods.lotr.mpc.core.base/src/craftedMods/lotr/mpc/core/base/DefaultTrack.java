@@ -1,13 +1,14 @@
 package craftedMods.lotr.mpc.core.base;
 
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.lotr.mpc.core.api.Track;
 
 public class DefaultTrack implements Track {
 
-	private Path trackPath;
+	private String name;
 	private String title;
 	private List<Region> regions = new ArrayList<>();
 	private List<String> authors = new ArrayList<>();
@@ -15,21 +16,21 @@ public class DefaultTrack implements Track {
 	public DefaultTrack() {
 	}
 
-	public DefaultTrack(Path trackPath, String title, List<Region> regions, List<String> authors) {
-		this.trackPath = trackPath;
+	public DefaultTrack(String name, String title, List<Region> regions, List<String> authors) {
+		this.name = name;
 		this.title = title;
 		this.regions = regions;
 		this.authors = authors;
 	}
 
 	@Override
-	public Path getTrackPath() {
-		return this.trackPath;
+	public String getName() {
+		return name;
 	}
 
 	@Override
-	public void setTrackPath(Path newTrackPath) {
-		this.trackPath = newTrackPath;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -62,9 +63,9 @@ public class DefaultTrack implements Track {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((authors == null) ? 0 : authors.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((regions == null) ? 0 : regions.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		result = prime * result + ((trackPath == null) ? 0 : trackPath.hashCode());
 		return result;
 	}
 
@@ -82,6 +83,11 @@ public class DefaultTrack implements Track {
 				return false;
 		} else if (!authors.equals(other.authors))
 			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
 		if (regions == null) {
 			if (other.regions != null)
 				return false;
@@ -92,17 +98,12 @@ public class DefaultTrack implements Track {
 				return false;
 		} else if (!title.equals(other.title))
 			return false;
-		if (trackPath == null) {
-			if (other.trackPath != null)
-				return false;
-		} else if (!trackPath.equals(other.trackPath))
-			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return this.title != null ? this.title : this.trackPath.getFileName().toString();
+		return this.title != null ? this.title : this.name;
 	}
 
 }

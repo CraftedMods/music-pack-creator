@@ -15,10 +15,10 @@ class OldMusicPackProjectReader {
 	}
 
 	public MusicPackProject read() throws IOException, ClassNotFoundException {
-		try (ObjectInputStream out = new ObjectInputStream(
+		try (ObjectInputStream in = new ObjectInputStream(
 				Files.newInputStream(Paths.get(this.path.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE)))) {
-			this.version = (String) out.readObject();
-			return (MusicPackProject) out.readObject();
+			this.version = (String) in.readObject();
+			return (MusicPackProject) in.readObject();
 		}
 	}
 

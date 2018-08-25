@@ -3,7 +3,7 @@
 		"name": "TestProject",
 		"tracks": [
 			{
-				"path": "Path/to/an/example/track.ogg",
+				"name": "track1.ogg",
 				"title": "Example Track",
 				"regions": [
 					{
@@ -35,7 +35,7 @@
 				]
 			},
 			{
-				"path": "C:/entry",
+				"name": "track2.ogg",
 				"regions": [
 				],
 				"authors": [

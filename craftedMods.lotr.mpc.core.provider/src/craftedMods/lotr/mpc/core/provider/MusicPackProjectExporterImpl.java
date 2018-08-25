@@ -2,6 +2,8 @@ package craftedMods.lotr.mpc.core.provider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -25,6 +27,9 @@ import craftedMods.lotr.mpc.core.api.MusicPack;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
 import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.lotr.mpc.persistence.api.TrackStore;
+import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.utils.Utils;
 import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.versionChecker.api.SemanticVersion;
 
@@ -45,6 +50,9 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 
 	@Reference
 	private MusicPackJSONFileWriter writer;
+
+	@Reference
+	private TrackStoreManager trackStoreManager;
 
 	@Override
 	public void exportMusicPackProject(Path exportLocation, MusicPackProject project) {
@@ -88,17 +96,22 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 						}
 						Path tracksDir = zip.getPath(".", MusicPackProjectExporter.TRACKS_DIR);
 						fileManager.createDir(tracksDir);
+						TrackStore trackStore = trackStoreManager.getTrackStore(project);
 						for (Track track : pack.getTracks()) {
-							Path trackLocation = track.getTrackPath();
-							if (!EventUtils.proceed(
-									this.dispatchEvent(COPYING_TRACK_EVENT, exportLocation, project,
-											MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_PATH, trackLocation),
-									MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED)) {
-								delete = true;
-								break;
+							Path trackZipLocation = tracksDir.resolve(track.getName());
+							
+							try (InputStream trackIn = trackStore.openInputStream(track.getName());
+									OutputStream trackOut = fileManager.newOutputStream(trackZipLocation)) {
+								
+								if (!EventUtils.proceed(this.dispatchEvent(COPYING_TRACK_EVENT, exportLocation, project,
+										MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_NAME, track.getName()),
+										MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED)) {
+									delete = true;
+									break;
+								}
+
+								Utils.writeFromInputStreamToOutputStream(trackIn, trackOut);
 							}
-							Path trackZipLocation = tracksDir.resolve(trackLocation.getFileName().toString());
-							fileManager.copy(trackLocation, trackZipLocation);
 						}
 					}
 				}

@@ -1,16 +1,28 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 
-import craftedMods.lotr.mpc.core.api.*;
-import craftedMods.lotr.mpc.core.base.*;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
+import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.lotr.mpc.core.base.DefaultRegion;
+import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 
 @Component
@@ -23,12 +35,15 @@ public class MusicPackProjectReaderImpl implements MusicPackProjectReader {
 	public MusicPackProject readMusicPackProject(InputStream projectData) throws IOException {
 		Objects.requireNonNull(projectData);
 		MusicPackProject project = null;
-		try (InputStreamReader bridge = new InputStreamReader(projectData); JsonReader reader = new JsonReader(bridge)) {
+		try (InputStreamReader bridge = new InputStreamReader(projectData);
+				JsonReader reader = new JsonReader(bridge)) {
 			JsonParser parser = new JsonParser();
 			JsonObject root = parser.parse(reader).getAsJsonObject();
 			JsonObject projectObj = root.getAsJsonObject(MusicPackProjectWriterImpl.JSON_PROJECT);
-			project = this.factory.createMusicPackProjectInstance(projectObj.get(MusicPackProjectWriterImpl.JSON_PROJECT_NAME).getAsString());
-			project.getProperties().putAll(this.readStringMap(projectObj, MusicPackProjectWriterImpl.JSON_PROJECT_PROPERTIES));
+			project = this.factory.createMusicPackProjectInstance(
+					projectObj.get(MusicPackProjectWriterImpl.JSON_PROJECT_NAME).getAsString());
+			project.getProperties()
+					.putAll(this.readStringMap(projectObj, MusicPackProjectWriterImpl.JSON_PROJECT_PROPERTIES));
 			project.getMusicPack().getTracks().addAll(this.readTracks(projectObj));
 		}
 		projectData.close();
@@ -39,9 +54,12 @@ public class MusicPackProjectReaderImpl implements MusicPackProjectReader {
 		List<Track> tracks = new ArrayList<>();
 		projectObject.getAsJsonArray(MusicPackProjectWriterImpl.JSON_PROJECT_TRACKS).forEach(trackElement -> {
 			JsonObject trackObj = trackElement.getAsJsonObject();
-			tracks.add(new DefaultTrack(Paths.get(trackObj.get(MusicPackProjectWriterImpl.JSON_TRACK_PATH).getAsString()),
-					trackObj.has(MusicPackProjectWriterImpl.JSON_TRACK_TITLE) ? trackObj.get(MusicPackProjectWriterImpl.JSON_TRACK_TITLE).getAsString() : null,
-					this.readRegions(trackObj), this.readStringArray(trackObj, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS)));
+			tracks.add(new DefaultTrack(trackObj.get(MusicPackProjectWriterImpl.JSON_TRACK_NAME).getAsString(),
+					trackObj.has(MusicPackProjectWriterImpl.JSON_TRACK_TITLE)
+							? trackObj.get(MusicPackProjectWriterImpl.JSON_TRACK_TITLE).getAsString()
+							: null,
+					this.readRegions(trackObj),
+					this.readStringArray(trackObj, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS)));
 		});
 		return tracks;
 	}

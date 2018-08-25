@@ -1,10 +1,11 @@
 package craftedMods.lotr.mpc.compatibility.provider;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
@@ -16,11 +17,11 @@ import craftedMods.eventManager.base.EventUtils;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.api.Track;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
-import craftedMods.versionChecker.api.SemanticVersion;
+import craftedMods.lotr.mpc.persistence.api.TrackStore;
+import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.utils.Utils;
 
 @Component
 public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjectCompatibilityManager {
@@ -30,16 +31,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	@Reference
 	private EventManager eventManager;
 
-	@Reference(target = "(application=mpc)")
-	private SemanticVersion mpcVersion;
-
 	@Reference
-	private MusicPackProjectFactory factory;
-
-	@Reference
-	private MusicPackProjectWriter writer;
-
-	private SerializedWorkspaceToJSONConverter serializedWorkspaceToJsonConverter = new SerializedWorkspaceToJSONConverter();
+	private SerializedWorkspaceToJSONConverter serializedWorkspaceToJsonConverter;
 
 	@Reference
 	private LogService logger;
@@ -47,11 +40,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	@Reference
 	private FileManager fileManager;
 
-	@Activate
-	public void onActivate() {
-		this.serializedWorkspaceToJsonConverter.onActivate(this.mpcVersion, this.factory, this.writer,
-				this.fileManager);
-	}
+	@Reference
+	private TrackStoreManager trackStoreManager;
 
 	@Override
 	public void applyPreLoadFixes(Path workspacePath) {
@@ -109,12 +99,16 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	}
 
 	@Override
-	public void applyPostLoadFixes(MusicPackProject project, String loadedVersion) {
+	public void applyPostLoadFixes(Path workspacePath, MusicPackProject project, String loadedVersion) {
+		Objects.requireNonNull(workspacePath);
 		Objects.requireNonNull(project);
-		Objects.requireNonNull(loadedVersion);
-		if (loadedVersion.startsWith("Music Pack Creator")
-				&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
-			this.fixAndrastRegion(project);
+		if (loadedVersion != null) {
+			if (loadedVersion.startsWith("Music Pack Creator")
+					&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
+				this.fixAndrastRegion(project);
+		}
+		if (serializedWorkspaceToJsonConverter.getOldProjects().containsKey(workspacePath))
+			copyTracksToStore(workspacePath, project);
 	}
 
 	private void fixAndrastRegion(MusicPackProject project) {
@@ -135,6 +129,52 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 							"The region \"andrast\" was found in the Music Pack Project \"%s\" - it was changed to \"pukel\".",
 							project.getName()));
 				}
+	}
+
+	private void copyTracksToStore(Path projectPath, MusicPackProject project) {
+		try {
+			TrackStore store = trackStoreManager.getTrackStore(project);
+			store.refresh(); // Load present tracks
+			int copiedTracks = 0;
+			int presentTracks = 0;
+			int notFoundTracks = 0;
+
+			for (craftedMods.lotrTools.musicPackCreator.data.Track oldTrack : serializedWorkspaceToJsonConverter
+					.getOldProjects().get(projectPath)) {
+				/*
+				 * Ignore missing tracks and don't write tracks which are already present in the
+				 * old track store
+				 */
+				boolean exists = fileManager.exists(oldTrack.getTrackPath());
+				boolean isPresent = store.getStoredTracks().contains(oldTrack.getFilename());
+				if (exists && !isPresent) {
+					try (InputStream in = fileManager.newInputStream(oldTrack.getTrackPath());
+							OutputStream out = store.openOutputStream(oldTrack.getFilename())) {
+						Utils.writeFromInputStreamToOutputStream(in, out);
+					}
+					copiedTracks++;
+				} else if (isPresent) {
+					++presentTracks;
+				} else if (!exists) {
+					++notFoundTracks;
+				}
+			}
+			this.logger.log(LogService.LOG_INFO, String.format(
+					"Copied %d of %d tracks of the old Music Pack Project \"%s\" to the track store (%s were already present and %s weren't found)",
+					copiedTracks, project.getMusicPack().getTracks().size(), project.getName(), presentTracks,
+					notFoundTracks));
+		} catch (Exception e) {
+			this.logger.log(LogService.LOG_ERROR,
+					String.format("Couldn't copy the tracks of the old Music Pack Project \"%s\" to the track store",
+							project.getName()),
+					e);
+			WriteableEventProperties properties = new DefaultWriteableEventProperties();
+			properties.put(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_MUSIC_PACK_PROJECT, project);
+			properties.put(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_EXCEPTION, e);
+			this.eventManager.dispatchEvent(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT, properties);
+		} finally {
+			serializedWorkspaceToJsonConverter.getOldProjects().remove(projectPath);
+		}
 	}
 
 }

@@ -1,7 +1,7 @@
 package craftedMods.lotr.mpc.core.provider;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
@@ -16,7 +16,7 @@ import craftedMods.lotr.mpc.core.api.Track;
 @Component(service = MusicPackJSONFileWriter.class)
 public class MusicPackJSONFileWriter {
 
-	public byte[] writeJSONFile(List<Track> tracks) throws Exception {
+	public byte[] writeJSONFile(List<Track> tracks) throws IOException {
 		byte[] ret = null;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
 				JsonWriter writer = new JsonWriter(new OutputStreamWriter(out))) {
@@ -25,8 +25,7 @@ public class MusicPackJSONFileWriter {
 			writer.beginArray();
 			for (Track track : tracks) {
 				writer.beginObject();
-				writer.name(MusicPackProjectExporter.JSON_TRACK_FILE_NAME)
-						.value(new File(track.getTrackPath().getFileName().toString()).getName());
+				writer.name(MusicPackProjectExporter.JSON_TRACK_NAME).value(track.getName());
 
 				if (track.hasTitle()) {
 					writer.name(MusicPackProjectExporter.JSON_TRACK_TITLE).value(track.getTitle());

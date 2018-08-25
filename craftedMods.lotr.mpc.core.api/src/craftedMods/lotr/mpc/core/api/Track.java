@@ -1,6 +1,5 @@
 package craftedMods.lotr.mpc.core.api;
 
-import java.nio.file.Path;
 import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -8,9 +7,9 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface Track {
 
-	public Path getTrackPath();
+	public String getName();
 
-	public void setTrackPath(Path newTrackPath);
+	public void setName(String name);
 
 	public boolean hasTitle();
 

@@ -24,7 +24,14 @@ Private-Package:  \
 	craftedMods.utils;version=latest,\
 	craftedMods.versionChecker.api;version=latest,\
 	craftedMods.versionChecker.base;version=latest,\
-	craftedMods.lotr.mpc.core.api;version=latest
+	craftedMods.lotr.mpc.core.api;version=latest,\
+	org.powermock:powermock-api-easymock,\
+	org.powermock:powermock-api-support,\
+	org.powermock:powermock-core,\
+	org.powermock:powermock-module-junit4,\
+	org.powermock:powermock-module-junit4-common,\
+	org.powermock:powermock-reflect,\
+	javassist
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -1,6 +1,5 @@
 package craftedMods.lotr.mpc.compatibility.provider;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +31,7 @@ import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.utils.Utils;
 import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 
@@ -60,13 +60,17 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		projectFolder = folder.getRoot().toPath();
 
 		try (InputStream in = this.getClass().getResourceAsStream("serializedProject.lmpp");
-				ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			int read = -1;
-			while ((read = in.read()) != -1) {
-				out.write(read);
-			}
-			Files.write(projectFolder.resolve(SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE), out.toByteArray());
+				OutputStream out = Files
+						.newOutputStream(projectFolder.resolve(SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE))) {
+			Utils.writeFromInputStreamToOutputStream(in, out);
 		}
+		converter.onActivate();
+	}
+
+	@Test
+	public void testOnActivate() {
+		Assert.assertNotNull(converter.getOldProjects());
+		Assert.assertTrue(converter.getOldProjects().isEmpty());
 	}
 
 	@Test
@@ -111,19 +115,22 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 				mockMusicPackProject.getProperties().get(MusicPackProject.PROPERTY_MPC_VERSION));
 		Assert.assertEquals(3, mockMusicPackProject.getMusicPack().getTracks().size());
 
-		Track track1 = new DefaultTrack(Paths.get(".\\The Descent.ogg"), "The Descent",
+		Track track1 = new DefaultTrack("The Descent.ogg", "The Descent",
 				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)),
 				Arrays.asList("Crafted_Mods"));
-		Track track2 = new DefaultTrack(Paths.get(".\\Skye Cuillin.ogg"), "Skye Cuillin",
+		Track track2 = new DefaultTrack("Skye Cuillin.ogg", "Skye Cuillin",
 				Arrays.asList(new DefaultRegion("angmar", Arrays.asList("ettenmoors"), Arrays.asList("night"), null)),
 				Arrays.asList());
-		Track track3 = new DefaultTrack(Paths.get(".\\The-Castle-Beyond-the-Forest.ogg"), "A Track",
+		Track track3 = new DefaultTrack("The-Castle-Beyond-the-Forest.ogg", "A Track",
 				Arrays.asList(new DefaultRegion("dale", Arrays.asList(), Arrays.asList(), null)),
 				Arrays.asList("Someone"));
 
 		Assert.assertEquals(track1, mockMusicPack.getTracks().get(0));
 		Assert.assertEquals(track2, mockMusicPack.getTracks().get(1));
 		Assert.assertEquals(track3, mockMusicPack.getTracks().get(2));
+
+		Assert.assertTrue(converter.getOldProjects().containsKey(projectFolder));
+		Assert.assertEquals(3, converter.getOldProjects().get(projectFolder).size());
 
 		verifyAll();
 	}

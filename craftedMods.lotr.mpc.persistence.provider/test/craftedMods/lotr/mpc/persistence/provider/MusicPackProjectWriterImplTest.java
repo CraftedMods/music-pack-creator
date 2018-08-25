@@ -3,7 +3,6 @@ package craftedMods.lotr.mpc.persistence.provider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,13 +56,14 @@ public class MusicPackProjectWriterImplTest {
 		this.tracks = new ArrayList<>();
 		this.regions = new ArrayList<>();
 
-		this.regions.add(new DefaultRegion("Name", Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4"),
-				Arrays.asList("category1", "category2"), null));
+		this.regions
+				.add(new DefaultRegion("Name", Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4"),
+						Arrays.asList("category1", "category2"), null));
 		this.regions.add(new DefaultRegion("Name2", Arrays.asList("subregionPi"), Arrays.asList(), 1.5f));
 
-		this.tracks.add(
-				new DefaultTrack(Paths.get("C:\\Path\\to\\an\\example\\track.ogg"), "Example Track", this.regions, Arrays.asList("CraftedMods", "J.S. Bach")));
-		this.tracks.add(new DefaultTrack(Paths.get("C:\\", "entry"), null, Arrays.asList(), Arrays.asList("Test_Author")));
+		this.tracks.add(new DefaultTrack("track1.ogg", "Example Track", this.regions,
+				Arrays.asList("CraftedMods", "J.S. Bach")));
+		this.tracks.add(new DefaultTrack("track2.ogg", null, Arrays.asList(), Arrays.asList("Test_Author")));
 
 		this.packProperties = new ExtendedProperties();
 
@@ -114,7 +114,8 @@ public class MusicPackProjectWriterImplTest {
 	}
 
 	private void checkWrittenMusicPackProject(String projectData) throws IOException {
-		try (StringReader contentReader = new StringReader(projectData); JsonReader reader = new JsonReader(contentReader)) {
+		try (StringReader contentReader = new StringReader(projectData);
+				JsonReader reader = new JsonReader(contentReader)) {
 			reader.beginObject();
 			Assert.assertEquals(MusicPackProjectWriterImpl.JSON_PROJECT, reader.nextName());
 			reader.beginObject();
@@ -141,8 +142,8 @@ public class MusicPackProjectWriterImplTest {
 
 	private void checkWrittenTrack(JsonReader reader, Track comparison) throws IOException {
 		reader.beginObject();
-		Assert.assertEquals(MusicPackProjectWriterImpl.JSON_TRACK_PATH, reader.nextName());
-		Assert.assertEquals(comparison.getTrackPath().toString(), reader.nextString());
+		Assert.assertEquals(MusicPackProjectWriterImpl.JSON_TRACK_NAME, reader.nextName());
+		Assert.assertEquals(comparison.getName(), reader.nextString());
 		if (comparison.hasTitle()) {
 			Assert.assertEquals(MusicPackProjectWriterImpl.JSON_TRACK_TITLE, reader.nextName());
 			Assert.assertEquals(comparison.getTitle(), reader.nextString());

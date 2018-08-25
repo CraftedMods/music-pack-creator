@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -26,6 +24,7 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.versionChecker.api.SemanticVersion;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
@@ -61,14 +60,17 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 
 	private Path projectsDir;
 
-	private Map<MusicPackProject, Path> managedMusicPackProjects;
+	@Reference
+	private MusicPackProjectManager musicPackProjectManager;
+
+	@Reference
+	private TrackStoreManager trackStoreManager;
 
 	@Activate
 	public void onActivate(Configuration configuration) throws IOException {
 		this.projectsDir = this.fileManager.getPathAndCreateDir(configuration.projectsDirectory());
 		this.logger.log(LogService.LOG_INFO,
 				String.format("The projects directory is located at \"%s\"", this.projectsDir.toString()));
-		this.managedMusicPackProjects = new HashMap<>();
 		this.logger.log(LogService.LOG_INFO,
 				this.compatibilityManager == null ? "No compatibility manager service was found"
 						: "Found a compatibility manager service");
@@ -76,7 +78,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 
 	@Override
 	public Collection<MusicPackProject> loadMusicPackProjects() {
-		this.managedMusicPackProjects.clear();
+		this.musicPackProjectManager.getManagedMusicPackProjects().clear();
 		try {
 			List<Path> projectFolders = fileManager.getPathsInDirectory(this.projectsDir)
 					.filter(fileManager::isDirectory).collect(Collectors.toList());
@@ -92,12 +94,12 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 							properties);
 				}
 			}
-			this.logger.log(LogService.LOG_INFO,
-					String.format("Loaded %d Music Pack Projects", this.managedMusicPackProjects.keySet().size()));
+			this.logger.log(LogService.LOG_INFO, String.format("Loaded %d Music Pack Projects",
+					this.musicPackProjectManager.getManagedMusicPackProjects().keySet().size()));
 		} catch (IOException e) {
 			throw new ServiceException("Couldn't load the Music Pack Projects from the workspace: ", e);
 		}
-		return this.managedMusicPackProjects.keySet();
+		return this.musicPackProjectManager.getManagedMusicPackProjects().keySet();
 	}
 
 	private void loadMusicPackProject(Path projectFolder) {
@@ -144,11 +146,11 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 						// "musicPackCreator.musicPackProjectManager.loadProject.warning.olderVersion",
 						// projectDir.getFileName().toString(), version));
 					}
-					if (this.compatibilityManager != null) {
-						this.compatibilityManager.applyPostLoadFixes(project, version);
-					}
 				}
-				this.managedMusicPackProjects.put(project, projectFolder);
+				this.musicPackProjectManager.getManagedMusicPackProjects().put(project, projectFolder);
+				if (this.compatibilityManager != null) {
+					this.compatibilityManager.applyPostLoadFixes(projectFolder, project, version);
+				}
 			} catch (IOException e) {
 				throw new ServiceException(
 						String.format("Couldn't load the Music Pack Project from \"%s\"", projectFolder.toString()), e);
@@ -162,18 +164,14 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 
 	}
 
-	Map<MusicPackProject, Path> getManagedMusicPackProjects() {
-		return managedMusicPackProjects;
-	}
-
 	@Override
 	public void saveMusicPackProject(MusicPackProject project) {
 		Objects.requireNonNull(project);
-		if (!this.managedMusicPackProjects.containsKey(project)) {
+		if (!this.musicPackProjectManager.getManagedMusicPackProjects().containsKey(project)) {
 			try {
 				Path projectDir = this.getUnusedMusicPackProjectDir(project.getName());
 				fileManager.createDir(projectDir);
-				this.managedMusicPackProjects.put(project, projectDir);
+				this.musicPackProjectManager.getManagedMusicPackProjects().put(project, projectDir);
 			} catch (IOException e) {
 				throw new ServiceException(
 						String.format("Couldn't create the saves directory for the Music Pack Project \"%s\": ",
@@ -183,7 +181,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 		}
 		try {
 			this.writer.writeMusicPackProject(project,
-					fileManager.newOutputStream(Paths.get(this.managedMusicPackProjects.get(project).toString(),
+					fileManager.newOutputStream(Paths.get(
+							this.musicPackProjectManager.getManagedMusicPackProjects().get(project).toString(),
 							MusicPackProjectPersistenceManagerImpl.PROJECT_FILE_NAME)));
 		} catch (IOException e) {
 			throw new ServiceException(
@@ -202,10 +201,12 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	@Override
 	public boolean deleteMusicPackProject(MusicPackProject project) {
 		Objects.requireNonNull(project);
-		if (this.managedMusicPackProjects.containsKey(project)) {
+		if (this.musicPackProjectManager.getManagedMusicPackProjects().containsKey(project)) {
 			try {
-				this.fileManager.deleteDirAndContent(this.managedMusicPackProjects.get(project));
-				this.managedMusicPackProjects.remove(project);
+				this.fileManager
+						.deleteDirAndContent(this.musicPackProjectManager.getManagedMusicPackProjects().get(project));
+				this.musicPackProjectManager.getManagedMusicPackProjects().remove(project);
+				this.trackStoreManager.deleteTrackStore(project);
 				return true;
 			} catch (IOException e) {
 				throw new ServiceException(String.format(
@@ -214,5 +215,4 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 		}
 		return false;
 	}
-
 }

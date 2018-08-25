@@ -3,7 +3,6 @@ package craftedMods.lotr.mpc.core.provider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,15 +22,15 @@ public class MusicPackJSONFileWriterTest {
 	private MusicPackJSONFileWriter writer = new MusicPackJSONFileWriter();
 
 	@Test
-	public void testWriteJSONFile() throws Exception {
-		DefaultTrack track1 = new DefaultTrack(Paths.get("path", "to", "track"), "Title",
+	public void testWriteJSONFile() throws IOException {
+		DefaultTrack track1 = new DefaultTrack("Track1", "Title",
 				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)),
 				Arrays.asList("Author1", "Author2"));
-		DefaultTrack track2 = new DefaultTrack(Paths.get("path", "to", "track23", "kl"), null,
+		DefaultTrack track2 = new DefaultTrack("Track2", null,
 				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null),
 						new DefaultRegion("mordor", Arrays.asList("nanUngol", "nurn"), Arrays.asList("day"), null)),
 				Arrays.asList("Author1"));
-		DefaultTrack track3 = new DefaultTrack(Paths.get("path", "to2"), "Title",
+		DefaultTrack track3 = new DefaultTrack("Track3", "Title",
 				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), 2.0f)), Arrays.asList());
 
 		List<Track> tracksList = Arrays.asList(track1, track2, track3);
@@ -56,8 +55,8 @@ public class MusicPackJSONFileWriterTest {
 
 	private void checkWrittenTrack(JsonReader reader, Track comparison) throws IOException {
 		reader.beginObject();
-		Assert.assertEquals(MusicPackProjectExporter.JSON_TRACK_FILE_NAME, reader.nextName());
-		Assert.assertEquals(comparison.getTrackPath().getFileName().toString(), reader.nextString());
+		Assert.assertEquals(MusicPackProjectExporter.JSON_TRACK_NAME, reader.nextName());
+		Assert.assertEquals(comparison.getName(), reader.nextString());
 		if (comparison.hasTitle()) {
 			Assert.assertEquals(MusicPackProjectExporter.JSON_TRACK_TITLE, reader.nextName());
 			Assert.assertEquals(comparison.getTitle(), reader.nextString());

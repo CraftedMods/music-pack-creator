@@ -4,9 +4,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.ServiceException;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
@@ -17,40 +24,55 @@ import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 import craftedMods.versionChecker.api.SemanticVersion;
 
+@Component(service = SerializedWorkspaceToJSONConverter.class)
 public class SerializedWorkspaceToJSONConverter {
 
 	public static final String OLD_PROJECT_FILE = "project.lmpp";
 	public static final String NEW_PROJECT_FILE = "project.json";
 
+	@Reference(target = "(application=mpc)")
 	private SemanticVersion mpcVersion;
 
+	@Reference
 	private MusicPackProjectFactory factory;
 
+	@Reference
 	private MusicPackProjectWriter writer;
 
+	@Reference
 	private FileManager fileManager;
 
-	public void onActivate(SemanticVersion mpcVersion, MusicPackProjectFactory factory, MusicPackProjectWriter writer,
-			FileManager fileManager) {
-		this.mpcVersion = mpcVersion;
-		this.factory = factory;
-		this.writer = writer;
-		this.fileManager = fileManager;
+	private Map<Path, Collection<craftedMods.lotrTools.musicPackCreator.data.Track>> oldProjects;
+
+	@Activate
+	public void onActivate() {
+		oldProjects = new HashMap<>();
 	}
 
-	public void convertWorkspace(Path workspacePath) {
+	@Deactivate
+	public void onDeactivate() {
+		oldProjects.clear();
+	}
+
+	public void convertWorkspace(Path workspacePath) throws IOException {
 		OldMusicPackProjectReader reader = new OldMusicPackProjectReader(workspacePath);
 		craftedMods.lotrTools.musicPackCreator.data.MusicPackProject oldProject = this.readOldProject(workspacePath,
 				reader);
 		String version = reader.getVersion();
 		MusicPackProject newProject = this.factory.createMusicPackProjectInstance(oldProject.getName());
-		for (craftedMods.lotrTools.musicPackCreator.data.Track oldTrack : oldProject.getMusicPack().getTracks())
-			newProject.getMusicPack().getTracks().add(new DefaultTrack(oldTrack.getTrackPath(), oldTrack.getTitle(),
-					this.getNewRegions(oldTrack.getRegions()), oldTrack.getAuthors()));
+		for (craftedMods.lotrTools.musicPackCreator.data.Track oldTrack : oldProject.getMusicPack().getTracks()) {
+			newProject.getMusicPack().getTracks().add(new DefaultTrack(oldTrack.getTrackPath().getFileName().toString(),
+					oldTrack.getTitle(), this.getNewRegions(oldTrack.getRegions()), oldTrack.getAuthors()));
+		}
 		newProject.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
 				version == null ? mpcVersion.toString() : version);
 		this.saveNewMusicPackProject(workspacePath, newProject);
 		this.deleteOldProjectFile(workspacePath);
+		oldProjects.put(workspacePath, oldProject.getMusicPack().getTracks());
+	}
+
+	public Map<Path, Collection<craftedMods.lotrTools.musicPackCreator.data.Track>> getOldProjects() {
+		return oldProjects;
 	}
 
 	private craftedMods.lotrTools.musicPackCreator.data.MusicPackProject readOldProject(Path workspacePath,

@@ -34,8 +34,8 @@ public interface MusicPackProjectExporter {
 
 	public static final PropertyKey<String> CREATING_FILE_EVENT_FILENAME = DefaultPropertyKey.createStringPropertyKey();
 
-	public static final PropertyKey<Path> COPYING_TRACK_EVENT_TRACK_PATH = DefaultPropertyKey
-			.createPropertyKey(Path.class);
+	public static final PropertyKey<String> COPYING_TRACK_EVENT_TRACK_NAME = DefaultPropertyKey
+			.createStringPropertyKey();
 	public static final PropertyKey<Boolean> COPYING_TRACK_EVENT_RESULT_PROCEED = DefaultPropertyKey
 			.createBooleanPropertyKey();
 
@@ -47,7 +47,7 @@ public interface MusicPackProjectExporter {
 	// LOTR specification
 	public static final String BASE_FILE = "music.json";
 	public static final String JSON_TRACKS = "tracks";
-	public static final String JSON_TRACK_FILE_NAME = "file";
+	public static final String JSON_TRACK_NAME = "file";
 	public static final String JSON_TRACK_TITLE = "title";
 	public static final String JSON_TRACK_REGIONS = "regions";
 	public static final String JSON_REGION_NAME = "name";

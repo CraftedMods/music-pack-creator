@@ -7,11 +7,13 @@ import java.lang.annotation.Annotation;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.easymock.EasyMockRunner;
 import org.easymock.EasyMockSupport;
+import org.easymock.IAnswer;
 import org.easymock.Mock;
 import org.easymock.MockType;
 import org.easymock.TestSubject;
@@ -23,6 +25,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.osgi.framework.ServiceException;
 import org.osgi.service.log.LogService;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
@@ -32,12 +36,14 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.lotr.mpc.persistence.provider.MusicPackProjectPersistenceManagerImpl.Configuration;
 import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
-@RunWith(EasyMockRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MusicPackProjectPersistenceManagerImpl.class)
 public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport {
 
 	@TestSubject
@@ -64,13 +70,25 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 	@Mock(type = MockType.STRICT)
 	private MusicPackProjectCompatibilityManager mockCompatibilityManager;
 
+	@Mock
+	private MusicPackProjectManager mockMusicPackProjectManager;
+
+	@Mock
+	private TrackStoreManager mockTrackStoreManager;
+
 	private Path projectsDir;
+
+	private Map<MusicPackProject, Path> managedMusicPackProjects;
 
 	@Before
 	public void setup() {
 		projectsDir = folder.getRoot().toPath().resolve("projects");
 
 		persistenceManager.mpcVersion = DefaultSemanticVersion.of("0.1.0");
+
+		managedMusicPackProjects = new HashMap<>();
+		EasyMock.expect(mockMusicPackProjectManager.getManagedMusicPackProjects())
+				.andStubReturn(managedMusicPackProjects);
 	}
 
 	@Test
@@ -81,8 +99,8 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 		persistenceManager.onActivate(createConfig());
 
-		Assert.assertNotNull(persistenceManager.getManagedMusicPackProjects());
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().isEmpty());
+		Assert.assertNotNull(managedMusicPackProjects);
+		Assert.assertTrue(managedMusicPackProjects.isEmpty());
 
 		this.verifyAll();
 	}
@@ -110,11 +128,19 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		mockCompatibilityManager.applyPreLoadFixes(projectPath1);
 		EasyMock.expectLastCall().once();
 
-		mockCompatibilityManager.applyPostLoadFixes(mockMusicPackProject1, "0.1.0");
-		EasyMock.expectLastCall().once();
+		Capture<MusicPackProject> postLoadProjectCapture = Capture.newInstance();
+
+		mockCompatibilityManager.applyPostLoadFixes(EasyMock.eq(projectPath1), EasyMock.capture(postLoadProjectCapture),
+				EasyMock.eq("0.1.0"));
+		EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+			@Override
+			public Object answer() throws Throwable {
+				Assert.assertTrue(managedMusicPackProjects.containsKey(postLoadProjectCapture.getValue()));
+				return null;
+			}
+		}).once();
 
 		this.replayAll();
-		EasyMock.replay(mockMusicPackProject1);
 
 		persistenceManager.onActivate(createConfig());
 		Collection<MusicPackProject> projects = persistenceManager.loadMusicPackProjects();
@@ -125,8 +151,12 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 		Assert.assertTrue(project == mockMusicPackProject1);
 
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().containsKey(project));
-		Assert.assertEquals(projectPath1, persistenceManager.getManagedMusicPackProjects().get(project));
+		Assert.assertTrue(managedMusicPackProjects.containsKey(project));
+		Assert.assertEquals(projectPath1, managedMusicPackProjects.get(project));
+
+		MusicPackProject postLoadProject = postLoadProjectCapture.getValue();
+
+		Assert.assertEquals(mockMusicPackProject1, postLoadProject);
 
 		this.verifyAll();
 	}
@@ -144,7 +174,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		Collection<MusicPackProject> projects = persistenceManager.loadMusicPackProjects();
 
 		Assert.assertEquals(0, projects.size());
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().isEmpty());
+		Assert.assertTrue(managedMusicPackProjects.isEmpty());
 
 		this.verifyAll();
 	}
@@ -193,7 +223,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		Collection<MusicPackProject> projects = persistenceManager.loadMusicPackProjects();
 
 		Assert.assertEquals(0, projects.size());
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().isEmpty());
+		Assert.assertTrue(managedMusicPackProjects.isEmpty());
 
 		WriteableEventProperties value = propertiesCapture.getValue();
 
@@ -207,8 +237,6 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 	public void testLoadMusicPackProjectNoProjectFile() throws IOException {
 		Path projectPath1 = projectsDir.resolve("project1");
 
-		MusicPackProject mockMusicPackProject1 = createMockMusicPackProject("0.1.0");
-
 		EasyMock.expect(mockFileManager.getPathAndCreateDir(projectsDir.toString())).andStubReturn(projectsDir);
 		EasyMock.expect(mockFileManager.getPathsInDirectory(projectsDir))
 				.andStubReturn(Arrays.stream(new Path[] { projectPath1 }));
@@ -219,13 +247,12 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		EasyMock.expectLastCall().once();
 
 		this.replayAll();
-		EasyMock.replay(mockMusicPackProject1);
 
 		persistenceManager.onActivate(createConfig());
 		Collection<MusicPackProject> projects = persistenceManager.loadMusicPackProjects();
 
 		Assert.assertEquals(0, projects.size());
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().isEmpty());
+		Assert.assertTrue(managedMusicPackProjects.isEmpty());
 
 		this.verifyAll();
 	}
@@ -260,11 +287,10 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 						EasyMock.capture(propertiesCapture)))
 				.andReturn(null).once();
 
-		mockCompatibilityManager.applyPostLoadFixes(mockMusicPackProject1, "0.2.0");
+		mockCompatibilityManager.applyPostLoadFixes(projectPath1, mockMusicPackProject1, "0.2.0");
 		EasyMock.expectLastCall().once();
 
 		this.replayAll();
-		EasyMock.replay(mockMusicPackProject1);
 
 		persistenceManager.onActivate(createConfig());
 		persistenceManager.loadMusicPackProjects();
@@ -309,11 +335,10 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 						EasyMock.capture(propertiesCapture)))
 				.andReturn(null).once();
 
-		mockCompatibilityManager.applyPostLoadFixes(mockMusicPackProject1, "0.0.1");
+		mockCompatibilityManager.applyPostLoadFixes(projectPath1, mockMusicPackProject1, "0.0.1");
 		EasyMock.expectLastCall().once();
 
 		this.replayAll();
-		EasyMock.replay(mockMusicPackProject1);
 
 		persistenceManager.onActivate(createConfig());
 		persistenceManager.loadMusicPackProjects();
@@ -358,11 +383,10 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 						EasyMock.capture(propertiesCapture)))
 				.andReturn(null).once();
 
-		mockCompatibilityManager.applyPostLoadFixes(mockMusicPackProject1, "Music Pack Creator 10.12.14");
+		mockCompatibilityManager.applyPostLoadFixes(projectPath1, mockMusicPackProject1, "Music Pack Creator 10.12.14");
 		EasyMock.expectLastCall().once();
 
 		this.replayAll();
-		EasyMock.replay(mockMusicPackProject1);
 
 		persistenceManager.onActivate(createConfig());
 		persistenceManager.loadMusicPackProjects();
@@ -388,8 +412,8 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 		saveExistingMusicPackProject(project, projectPath, false, false);
 
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().containsKey(project));
-		Assert.assertEquals(projectPath, persistenceManager.getManagedMusicPackProjects().get(project));
+		Assert.assertTrue(managedMusicPackProjects.containsKey(project));
+		Assert.assertEquals(projectPath, managedMusicPackProjects.get(project));
 	}
 
 	@Test(expected = ServiceException.class)
@@ -436,11 +460,10 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		}
 
 		this.replayAll();
-		EasyMock.replay(project);
 
 		persistenceManager.onActivate(createConfig());
 		if (inject)
-			persistenceManager.getManagedMusicPackProjects().put(project, projectPath);
+			managedMusicPackProjects.put(project, projectPath);
 		persistenceManager.saveMusicPackProject(project);
 
 		this.verifyAll();
@@ -474,13 +497,15 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 		EasyMock.expect(mockFileManager.deleteDirAndContent(projectDir)).andReturn(true).once();
 
+		mockTrackStoreManager.deleteTrackStore(project);
+		EasyMock.expectLastCall().once();
+
 		this.replayAll();
-		EasyMock.replay(project);
 
 		persistenceManager.onActivate(createConfig());
-		persistenceManager.getManagedMusicPackProjects().put(project, projectDir);
+		managedMusicPackProjects.put(project, projectDir);
 		Assert.assertTrue(persistenceManager.deleteMusicPackProject(project));
-		Assert.assertTrue(persistenceManager.getManagedMusicPackProjects().isEmpty());
+		Assert.assertTrue(managedMusicPackProjects.isEmpty());
 
 		this.verifyAll();
 	}
@@ -495,10 +520,9 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 				.andThrow(new IOException("Couldn't delete the project directory")).once();
 
 		this.replayAll();
-		EasyMock.replay(project);
 
 		persistenceManager.onActivate(createConfig());
-		persistenceManager.getManagedMusicPackProjects().put(project, null);
+		managedMusicPackProjects.put(project, null);
 		persistenceManager.deleteMusicPackProject(project);
 	}
 
@@ -518,7 +542,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 	}
 
 	private MusicPackProject createMockMusicPackProject(String version) {
-		MusicPackProject mockMusicPackProject = EasyMock.createMock(MusicPackProject.class);
+		MusicPackProject mockMusicPackProject = this.createMock(MusicPackProject.class);
 		PrimitiveProperties properties = new ExtendedProperties();
 		properties.put(MusicPackProject.PROPERTY_MPC_VERSION, version);
 

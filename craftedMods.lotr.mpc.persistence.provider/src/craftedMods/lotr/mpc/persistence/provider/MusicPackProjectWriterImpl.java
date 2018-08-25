@@ -17,7 +17,7 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 	public static final String JSON_PROJECT_NAME = "name";
 	public static final String JSON_PROJECT_TRACKS = "tracks";
 	public static final String JSON_PROJECT_PROPERTIES = "properties";
-	public static final String JSON_TRACK_PATH = "path";
+	public static final String JSON_TRACK_NAME = "name";
 	public static final String JSON_TRACK_TITLE = "title";
 	public static final String JSON_TRACK_REGIONS = "regions";
 	public static final String JSON_TRACK_AUTHORS = "authors";
@@ -50,8 +50,9 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 		writer.beginArray();
 		for (Track track : project.getMusicPack().getTracks()) {
 			writer.beginObject();
-			writer.name(MusicPackProjectWriterImpl.JSON_TRACK_PATH).value(track.getTrackPath().toString());
-			if (track.hasTitle()) writer.name(MusicPackProjectWriterImpl.JSON_TRACK_TITLE).value(track.getTitle());
+			writer.name(MusicPackProjectWriterImpl.JSON_TRACK_NAME).value(track.getName());
+			if (track.hasTitle())
+				writer.name(MusicPackProjectWriterImpl.JSON_TRACK_TITLE).value(track.getTitle());
 			this.writeRegions(track, writer);
 			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS, track.getAuthors());
 			writer.endObject();
@@ -67,7 +68,8 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 			writer.name(MusicPackProjectWriterImpl.JSON_REGION_NAME).value(region.getName());
 			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, region.getSubregions());
 			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, region.getCategories());
-			if (region.getWeight() != null) writer.name(MusicPackProjectWriterImpl.JSON_REGION_WEIGHT).value(region.getWeight());
+			if (region.getWeight() != null)
+				writer.name(MusicPackProjectWriterImpl.JSON_REGION_WEIGHT).value(region.getWeight());
 			writer.endObject();
 		}
 		writer.endArray();

@@ -2,6 +2,7 @@ package craftedMods.lotr.mpc.core.provider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -38,12 +39,15 @@ import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
 import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
+import craftedMods.lotr.mpc.persistence.api.TrackStore;
+import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.utils.Utils;
 import craftedMods.utils.data.ExtendedProperties;
 import craftedMods.utils.data.PrimitiveProperties;
 import craftedMods.versionChecker.api.SemanticVersion;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ MusicPackProjectExporterImpl.class, EventUtils.class })
+@PrepareForTest({ MusicPackProjectExporterImpl.class, EventUtils.class, Utils.class })
 public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 	@TestSubject
@@ -64,6 +68,9 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	@Mock
 	private MusicPackJSONFileWriter mockWriter;
 
+	@Mock
+	private TrackStoreManager mockTrackStoreManager;
+
 	private Path exportLocation;
 
 	private MusicPackProject mockMusicPackProject;
@@ -75,9 +82,9 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	private Track track2;
 	private Track track3;
 
-	private Path trackPath1;
-	private Path trackPath2;
-	private Path trackPath3;
+	private String trackName1;
+	private String trackName2;
+	private String trackName3;
 
 	@Before
 	public void setup() {
@@ -91,13 +98,13 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		track2 = new DefaultTrack();
 		track3 = new DefaultTrack();
 
-		trackPath1 = Paths.get("path", "to", "track1");
-		trackPath2 = Paths.get("path", "to", "track2", "path");
-		trackPath3 = Paths.get("path", "to23");
+		trackName1 = "Tracl1_2";
+		trackName2 = "Track2_2";
+		trackName3 = "Tracl4_4";
 
-		track1.setTrackPath(trackPath1);
-		track2.setTrackPath(trackPath2);
-		track3.setTrackPath(trackPath3);
+		track1.setName(trackName1);
+		track2.setName(trackName2);
+		track3.setName(trackName3);
 
 		tracksList.add(track1);
 		tracksList.add(track2);
@@ -207,11 +214,56 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyTrackEventProperties))).andReturn(Arrays.asList()).times(3);
 
-		this.mockFileManager.copy(trackPath1, tracksDir.resolve(trackPath1.getFileName()));
+		TrackStore mockTrackStore = this.createMock(TrackStore.class);
+
+		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andReturn(mockTrackStore).once();
+
+		InputStream track1MockInputStream = this.createMock(InputStream.class);
+		InputStream track2MockInputStream = this.createMock(InputStream.class);
+		InputStream track3MockInputStream = this.createMock(InputStream.class);
+
+		EasyMock.expect(mockTrackStore.openInputStream(trackName1)).andReturn(track1MockInputStream);
+		EasyMock.expect(mockTrackStore.openInputStream(trackName2)).andReturn(track2MockInputStream);
+		EasyMock.expect(mockTrackStore.openInputStream(trackName3)).andReturn(track3MockInputStream);
+
+		track1MockInputStream.close();
 		EasyMock.expectLastCall().once();
-		this.mockFileManager.copy(trackPath2, tracksDir.resolve(trackPath2.getFileName()));
+
+		track2MockInputStream.close();
 		EasyMock.expectLastCall().once();
-		this.mockFileManager.copy(trackPath3, tracksDir.resolve(trackPath3.getFileName()));
+
+		track3MockInputStream.close();
+		EasyMock.expectLastCall().once();
+
+		OutputStream track1MockOutputStream = this.createMock(OutputStream.class);
+		OutputStream track2MockOutputStream = this.createMock(OutputStream.class);
+		OutputStream track3MockOutputStream = this.createMock(OutputStream.class);
+
+		EasyMock.expect(mockFileManager.newOutputStream(tracksDir.resolve(trackName1)))
+				.andReturn(track1MockOutputStream).once();
+		EasyMock.expect(mockFileManager.newOutputStream(tracksDir.resolve(trackName2)))
+				.andReturn(track2MockOutputStream).once();
+		EasyMock.expect(mockFileManager.newOutputStream(tracksDir.resolve(trackName3)))
+				.andReturn(track3MockOutputStream).once();
+
+		track1MockOutputStream.close();
+		EasyMock.expectLastCall().once();
+
+		track2MockOutputStream.close();
+		EasyMock.expectLastCall().once();
+
+		track3MockOutputStream.close();
+		EasyMock.expectLastCall().once();
+
+		PowerMock.mockStatic(Utils.class);
+
+		Utils.writeFromInputStreamToOutputStream(track1MockInputStream, track1MockOutputStream);
+		EasyMock.expectLastCall().once();
+
+		Utils.writeFromInputStreamToOutputStream(track2MockInputStream, track2MockOutputStream);
+		EasyMock.expectLastCall().once();
+
+		Utils.writeFromInputStreamToOutputStream(track3MockInputStream, track3MockOutputStream);
 		EasyMock.expectLastCall().once();
 
 		Capture<WriteableEventProperties> preSuccessEventProperties = Capture.newInstance();
@@ -244,8 +296,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		for (int i = 0; i < 3; i++) {
 			WriteableEventProperties copyTrackEventPropertiesValue = copyTrackEventProperties.getValues().get(i);
 			this.checkForStandardProperties(copyTrackEventPropertiesValue);
-			Assert.assertEquals(i == 0 ? trackPath1 : i == 1 ? trackPath2 : trackPath3,
-					copyTrackEventPropertiesValue.getProperty(MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_PATH));
+			Assert.assertEquals(i == 0 ? trackName1 : i == 1 ? trackName2 : trackName3,
+					copyTrackEventPropertiesValue.getProperty(MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_NAME));
 		}
 
 		this.checkForStandardProperties(preSuccessEventProperties.getValue());
@@ -353,13 +405,34 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.createDir(EasyMock.anyObject(Path.class))).andStubReturn(true);
 
+		TrackStore mockTrackStore = this.createMock(TrackStore.class);
+
+		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andStubReturn(mockTrackStore);
+
+		InputStream track1MockInputStream = this.createMock(InputStream.class);
+
+		EasyMock.expect(mockTrackStore.openInputStream(EasyMock.anyString())).andStubReturn(track1MockInputStream);
+
+		track1MockInputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		OutputStream track1MockOutputStream = this.createMock(OutputStream.class);
+
+		EasyMock.expect(mockFileManager.newOutputStream(EasyMock.anyObject(Path.class)))
+				.andStubReturn(track1MockOutputStream);
+
+		track1MockOutputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		PowerMock.mockStatic(Utils.class);
+
+		Utils.writeFromInputStreamToOutputStream(track1MockInputStream, track1MockOutputStream);
+		EasyMock.expectLastCall().asStub();
+
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
-				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andStubReturn(true);
+				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).times(3);
-
-		this.mockFileManager.copy(EasyMock.anyObject(Path.class), EasyMock.anyObject(Path.class));
-		EasyMock.expectLastCall().asStub();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andStubReturn(true);
@@ -436,14 +509,35 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.createDir(EasyMock.anyObject(Path.class))).andStubReturn(true);
 
+		TrackStore mockTrackStore = this.createMock(TrackStore.class);
+
+		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andStubReturn(mockTrackStore);
+
+		InputStream track1MockInputStream = this.createMock(InputStream.class);
+
+		EasyMock.expect(mockTrackStore.openInputStream(EasyMock.anyString())).andStubReturn(track1MockInputStream);
+
+		track1MockInputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		OutputStream track1MockOutputStream = this.createMock(OutputStream.class);
+
+		EasyMock.expect(mockFileManager.newOutputStream(EasyMock.anyObject(Path.class)))
+				.andStubReturn(track1MockOutputStream);
+
+		track1MockOutputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		PowerMock.mockStatic(Utils.class);
+
+		Utils.writeFromInputStreamToOutputStream(track1MockInputStream, track1MockOutputStream);
+		EasyMock.expectLastCall().asStub();
+
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(2)
 				.andReturn(false).once();
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).atLeastOnce();
-
-		this.mockFileManager.copy(EasyMock.anyObject(Path.class), EasyMock.anyObject(Path.class));
-		EasyMock.expectLastCall().asStub();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CANCEL_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
@@ -514,13 +608,34 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.createDir(EasyMock.anyObject(Path.class))).andStubReturn(true);
 
+		TrackStore mockTrackStore = this.createMock(TrackStore.class);
+
+		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andStubReturn(mockTrackStore);
+
+		InputStream track1MockInputStream = this.createMock(InputStream.class);
+
+		EasyMock.expect(mockTrackStore.openInputStream(EasyMock.anyString())).andStubReturn(track1MockInputStream);
+
+		track1MockInputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		OutputStream track1MockOutputStream = this.createMock(OutputStream.class);
+
+		EasyMock.expect(mockFileManager.newOutputStream(EasyMock.anyObject(Path.class)))
+				.andStubReturn(track1MockOutputStream);
+
+		track1MockOutputStream.close();
+		EasyMock.expectLastCall().asStub();
+
+		PowerMock.mockStatic(Utils.class);
+
+		Utils.writeFromInputStreamToOutputStream(track1MockInputStream, track1MockOutputStream);
+		EasyMock.expectLastCall().asStub();
+		
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).times(3);
-
-		this.mockFileManager.copy(EasyMock.anyObject(Path.class), EasyMock.anyObject(Path.class));
-		EasyMock.expectLastCall().asStub();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andStubReturn(false);
