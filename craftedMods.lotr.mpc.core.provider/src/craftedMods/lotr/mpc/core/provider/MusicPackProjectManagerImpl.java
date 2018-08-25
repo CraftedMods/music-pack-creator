@@ -41,7 +41,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 			} catch (Exception e) {
 				this.logger.log(LogService.LOG_ERROR,
 						String.format("The Music Pack Project \"%s\" couldn't be registered during loading",
-								loadedProject.getName()));
+								loadedProject.getName()),e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
