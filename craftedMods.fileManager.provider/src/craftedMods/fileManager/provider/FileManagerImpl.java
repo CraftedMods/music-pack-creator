@@ -64,22 +64,27 @@ public class FileManagerImpl implements FileManager {
 	}
 
 	@Override
-	public void deleteDirAndContent(Path dir) throws IOException {
+	public boolean deleteDirAndContent(Path dir) throws IOException {
 		Objects.requireNonNull(dir);
-		Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult postVisitDirectory(Path paramT, IOException paramIOException) throws IOException {
-				Files.delete(paramT);
-				return super.postVisitDirectory(paramT, paramIOException);
-			}
+		if (this.isDirectory(dir)) {
+			Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult postVisitDirectory(Path paramT, IOException paramIOException)
+						throws IOException {
+					Files.delete(paramT);
+					return super.postVisitDirectory(paramT, paramIOException);
+				}
 
-			@Override
-			public FileVisitResult visitFile(Path paramT, BasicFileAttributes paramBasicFileAttributes)
-					throws IOException {
-				Files.delete(paramT);
-				return super.visitFile(paramT, paramBasicFileAttributes);
-			}
-		});
+				@Override
+				public FileVisitResult visitFile(Path paramT, BasicFileAttributes paramBasicFileAttributes)
+						throws IOException {
+					Files.delete(paramT);
+					return super.visitFile(paramT, paramBasicFileAttributes);
+				}
+			});
+			return true;
+		}
+		return false;
 	}
 
 	@Override

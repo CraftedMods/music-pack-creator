@@ -472,9 +472,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 		MusicPackProject project = createMockMusicPackProject("1.2.0");
 		Path projectDir = projectsDir.resolve("project1");
 
-		mockFileManager.deleteDirAndContent(projectDir);
-
-		EasyMock.expectLastCall().once();
+		EasyMock.expect(mockFileManager.deleteDirAndContent(projectDir)).andReturn(true).once();
 
 		this.replayAll();
 		EasyMock.replay(project);
@@ -493,9 +491,8 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport 
 
 		MusicPackProject project = createMockMusicPackProject("1.2.0");
 
-		mockFileManager.deleteDirAndContent(null);
-
-		EasyMock.expectLastCall().andThrow(new IOException("Couldn't delete the project directory"));
+		EasyMock.expect(mockFileManager.deleteDirAndContent(null))
+				.andThrow(new IOException("Couldn't delete the project directory")).once();
 
 		this.replayAll();
 		EasyMock.replay(project);

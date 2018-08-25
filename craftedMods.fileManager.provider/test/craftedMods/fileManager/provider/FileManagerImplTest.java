@@ -177,6 +177,18 @@ public class FileManagerImplTest {
 	}
 
 	@Test
+	public void testDeleteDirAndContentNonExisting() throws IOException {
+		Assert.assertFalse(fileManager.deleteDirAndContent(folder.getRoot().toPath().resolve("tmp")));
+	}
+
+	@Test
+	public void testDeleteDirAndContentNoDir() throws IOException {
+		Path path = folder.getRoot().toPath().resolve("file.ogg");
+		this.fileManager.createFile(path);
+		Assert.assertFalse(fileManager.deleteDirAndContent(path));
+	}
+
+	@Test
 	public void testDeleteDirAndContent() throws IOException {
 		Path path = folder.getRoot().toPath().resolve("tmp").resolve("tmp2").resolve("tmp3");
 		this.fileManager.createDir(path);
@@ -184,7 +196,7 @@ public class FileManagerImplTest {
 		this.fileManager.createFile(path.resolveSibling("test2"));
 		this.fileManager.createFile(path.resolveSibling("test3"));
 		this.fileManager.createFile(path.resolveSibling("test4"));
-		fileManager.deleteDirAndContent(path);
+		Assert.assertTrue(fileManager.deleteDirAndContent(path));
 		Assert.assertFalse(Files.exists(path));
 	}
 

@@ -23,7 +23,7 @@ public interface FileManager {
 
 	public Path getPathAndCreateDir(String path, String... more) throws IOException;
 
-	public void deleteDirAndContent(Path dir) throws IOException;
+	public boolean deleteDirAndContent(Path dir) throws IOException;
 
 	public boolean deleteFile(Path file) throws IOException;
 
