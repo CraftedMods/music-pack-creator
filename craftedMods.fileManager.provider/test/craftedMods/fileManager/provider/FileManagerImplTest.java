@@ -1,6 +1,7 @@
 package craftedMods.fileManager.provider;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -487,6 +488,14 @@ public class FileManagerImplTest {
 		Assert.assertTrue(this.fileManager.exists(newFile));
 		Assert.assertFalse(this.fileManager.exists(file));
 		Assert.assertTrue(this.fileManager.isDirectory(newFile));
+	}
+
+	@Test
+	public void testNewInputStreamSupportsMark() throws IOException {
+		Path path = this.fileManager.getPathAndCreateFile(this.folder.getRoot().toString(), "file.fil");
+		try (InputStream in = this.fileManager.newInputStream(path)) {
+			Assert.assertTrue(in.markSupported());
+		}
 	}
 
 }

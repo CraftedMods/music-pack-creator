@@ -37,6 +37,14 @@ public interface FileManager {
 
 	public boolean exists(Path path);
 
+	/**
+	 * Returns a new input stream for the specified file. The stream supports the
+	 * mark and reset operations.
+	 * 
+	 * @param path The path relevant file
+	 * @return The input stream
+	 * @throws IOException When IO-Errors occur
+	 */
 	public InputStream newInputStream(Path path) throws IOException;
 
 	public OutputStream newOutputStream(Path path) throws IOException;

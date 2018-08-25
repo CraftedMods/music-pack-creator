@@ -125,12 +125,12 @@ public class FileManagerImpl implements FileManager {
 
 	@Override
 	public InputStream newInputStream(Path path) throws IOException {
-		return Files.newInputStream(path);
+		return new BufferedInputStream(Files.newInputStream(path));
 	}
 
 	@Override
 	public OutputStream newOutputStream(Path path) throws IOException {
-		return Files.newOutputStream(path);
+		return new BufferedOutputStream(Files.newOutputStream(path));
 	}
 
 	@Override
