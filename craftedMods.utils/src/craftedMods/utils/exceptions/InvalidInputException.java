@@ -20,7 +20,7 @@ public class InvalidInputException extends Exception {
 	}
 
 	public InvalidInputException(ErrorCode errorCode) {
-		this(null, errorCode);
+		this(errorCode.toString(), errorCode);
 	}
 
 	public ErrorCode getErrorCode() {
