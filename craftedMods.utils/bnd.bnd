@@ -10,7 +10,8 @@ Bundle-Version:					1.0.0.${tstamp}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
-	org.easymock
+	org.easymock,\
+	org.objenesis
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -1,9 +1,17 @@
 package craftedMods.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.easymock.EasyMockRunner;
+import org.easymock.EasyMockSupport;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class UtilsTest {
+@RunWith(EasyMockRunner.class)
+public class UtilsTest extends EasyMockSupport {
 
 	@Test
 	public void testIsASCIIValid() {
@@ -104,6 +112,16 @@ public class UtilsTest {
 	@Test
 	public void testGetFormattedTimeCustomSeparator() {
 		Assert.assertEquals("00||01||00", Utils.getFormattedTime(60000l, "||"));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testWriteFromInputStreamToOutputStreamInNull() throws IOException {
+		Utils.writeFromInputStreamToOutputStream(null, this.createMock(OutputStream.class));
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void testWriteFromInputStreamToOutputStreamOutNull() throws IOException {
+		Utils.writeFromInputStreamToOutputStream(this.createMock(InputStream.class),null);
 	}
 
 }
