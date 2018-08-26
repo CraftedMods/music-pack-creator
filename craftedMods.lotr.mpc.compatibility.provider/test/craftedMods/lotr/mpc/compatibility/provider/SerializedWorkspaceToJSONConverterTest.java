@@ -98,9 +98,9 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		EasyMock.expect(mockFileManager
 				.newOutputStream(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
 				.andReturn(mockOutputStream).once();
-		EasyMock.expect(mockFileManager
-				.deleteFile(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE)))
-				.andReturn(true).once();
+		mockFileManager.rename(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE),
+				SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE_RENAMED);
+		EasyMock.expectLastCall().once();
 
 		mockMusicPackProjectWriter.writeMusicPackProject(mockMusicPackProject, mockOutputStream);
 
@@ -192,9 +192,9 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		EasyMock.expect(mockFileManager
 				.newOutputStream(projectFolder.resolve(SerializedWorkspaceToJSONConverter.NEW_PROJECT_FILE)))
 				.andStubReturn(mockOutputStream);
-		EasyMock.expect(mockFileManager
-				.deleteFile(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE)))
-				.andThrow(new IOException("Error"));
+		mockFileManager.rename(Paths.get(projectFolder.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE),
+				SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE_RENAMED);
+		EasyMock.expectLastCall().andThrow(new IOException("Error")).once();
 
 		mockMusicPackProjectWriter.writeMusicPackProject(mockMusicPackProject, mockOutputStream);
 

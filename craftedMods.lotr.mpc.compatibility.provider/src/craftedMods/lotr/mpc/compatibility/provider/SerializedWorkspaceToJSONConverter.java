@@ -28,6 +28,7 @@ import craftedMods.versionChecker.api.SemanticVersion;
 public class SerializedWorkspaceToJSONConverter {
 
 	public static final String OLD_PROJECT_FILE = "project.lmpp";
+	public static final String OLD_PROJECT_FILE_RENAMED = "old_project.lmpp";
 	public static final String NEW_PROJECT_FILE = "project.json";
 
 	@Reference(target = "(application=mpc)")
@@ -67,7 +68,7 @@ public class SerializedWorkspaceToJSONConverter {
 		newProject.getProperties().setString(MusicPackProject.PROPERTY_MPC_VERSION,
 				version == null ? mpcVersion.toString() : version);
 		this.saveNewMusicPackProject(workspacePath, newProject);
-		this.deleteOldProjectFile(workspacePath);
+		this.renameOldProjectFile(workspacePath);
 		oldProjects.put(workspacePath, oldProject.getMusicPack().getTracks());
 	}
 
@@ -95,11 +96,11 @@ public class SerializedWorkspaceToJSONConverter {
 		}
 	}
 
-	private void deleteOldProjectFile(Path workspacePath) {
+	private void renameOldProjectFile(Path workspacePath) {
 		Path serializedProjectFile = Paths.get(workspacePath.toString(),
 				SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE);
 		try {
-			fileManager.deleteFile(serializedProjectFile);
+			fileManager.rename(serializedProjectFile, OLD_PROJECT_FILE_RENAMED);
 		} catch (IOException e) {
 			throw new ServiceException(
 					String.format("Couldn't delete the old project file at \"%s\"", serializedProjectFile.toString()),
