@@ -26,6 +26,7 @@ import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.core.api.MusicPack;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
 import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
@@ -54,10 +55,16 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 	@Reference
 	private TrackStoreManager trackStoreManager;
 
+	@Reference
+	private MusicPackProjectManager musicPackProjectManager;
+
 	@Override
 	public void exportMusicPackProject(Path exportLocation, MusicPackProject project) {
 		Objects.requireNonNull(exportLocation);
 		Objects.requireNonNull(project);
+		if (!musicPackProjectManager.getRegisteredMusicPackProjects().contains(project))
+			throw new IllegalArgumentException(
+					String.format("The Music Pack Project \"%s\" isn't registered", project.getName()));
 		MusicPack pack = project.getMusicPack();
 		boolean delete = false;
 		boolean cancel = false;
@@ -99,10 +106,10 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 						TrackStore trackStore = trackStoreManager.getTrackStore(project);
 						for (Track track : pack.getTracks()) {
 							Path trackZipLocation = tracksDir.resolve(track.getName());
-							
+
 							try (InputStream trackIn = trackStore.openInputStream(track.getName());
 									OutputStream trackOut = fileManager.newOutputStream(trackZipLocation)) {
-								
+
 								if (!EventUtils.proceed(this.dispatchEvent(COPYING_TRACK_EVENT, exportLocation, project,
 										MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_NAME, track.getName()),
 										MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED)) {

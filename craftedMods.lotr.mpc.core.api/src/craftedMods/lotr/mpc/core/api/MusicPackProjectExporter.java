@@ -62,6 +62,13 @@ public interface MusicPackProjectExporter {
 	public static final String PACK_PROJECT_NAME_KEY = "projectName";
 	public static final String PACK_TRACKS_KEY = "trackCount";
 
+	/**
+	 * Exports the specified, registered Music Pack Project to a .zip, being in the
+	 * format of a LOTR Mod Music Pack.
+	 * 
+	 * @param location The export location
+	 * @param packProject The project to export
+	 */
 	public void exportMusicPackProject(Path location, MusicPackProject packProject);
 
 }

@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +38,7 @@ import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.core.api.MusicPack;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
 import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.TrackStore;
@@ -71,6 +73,9 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	@Mock
 	private TrackStoreManager mockTrackStoreManager;
 
+	@Mock
+	private MusicPackProjectManager mockMusicPackProjectManager;
+
 	private Path exportLocation;
 
 	private MusicPackProject mockMusicPackProject;
@@ -85,6 +90,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	private String trackName1;
 	private String trackName2;
 	private String trackName3;
+
+	private Collection<MusicPackProject> registeredMPPs;
 
 	@Before
 	public void setup() {
@@ -117,6 +124,11 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockMusicPackProject.getProperties()).andStubReturn(musicPackProjectProperties);
 
 		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracksList);
+
+		registeredMPPs = new ArrayList<>();
+
+		EasyMock.expect(mockMusicPackProjectManager.getRegisteredMusicPackProjects()).andReturn(registeredMPPs)
+				.atLeastOnce();
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -129,10 +141,19 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		exporter.exportMusicPackProject(Paths.get("path", "toPack.zip"), null);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testExportUnregisteredPack() {
+		this.replayAll();
+		
+		exporter.exportMusicPackProject(Paths.get("path", "toPack.zip"), mockMusicPackProject);
+	}
+
 	@Test
 	public void testExportPack() throws Exception {
 		PowerMock.mockStatic(FileSystems.class);
 		PowerMock.mockStaticPartial(EventUtils.class, "proceed");
+
+		registeredMPPs.add(mockMusicPackProject);
 
 		OutputStream mockOutputStream = this.createMock(OutputStream.class);
 		ZipOutputStream mockZipOutputStream = this.createMock(ZipOutputStream.class);
@@ -312,6 +333,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	public void testExportPackOverrideNotPermitted() throws Exception {
 		PowerMock.mockStaticPartial(EventUtils.class, "proceed");
 
+		registeredMPPs.add(mockMusicPackProject);
+
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(true).once();
 
 		Capture<WriteableEventProperties> overrideEventProperties = Capture.newInstance();
@@ -345,6 +368,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	public void testExportPackOverridePermitted() throws Exception {
 		PowerMock.mockStatic(FileSystems.class);
 		PowerMock.mockStaticPartialNice(EventUtils.class, "proceed");
+
+		registeredMPPs.add(mockMusicPackProject);
 
 		EasyMock.resetToNice(this.mockWriter);
 
@@ -459,6 +484,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		PowerMock.mockStatic(FileSystems.class);
 		PowerMock.mockStaticPartialNice(EventUtils.class, "proceed");
 
+		registeredMPPs.add(mockMusicPackProject);
+
 		EasyMock.resetToNice(this.mockWriter);
 
 		OutputStream mockOutputStream = this.createMock(OutputStream.class);
@@ -558,6 +585,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		PowerMock.mockStatic(FileSystems.class);
 		PowerMock.mockStaticPartialNice(EventUtils.class, "proceed");
 
+		registeredMPPs.add(mockMusicPackProject);
+
 		EasyMock.resetToNice(this.mockWriter);
 
 		OutputStream mockOutputStream = this.createMock(OutputStream.class);
@@ -631,7 +660,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		Utils.writeFromInputStreamToOutputStream(track1MockInputStream, track1MockOutputStream);
 		EasyMock.expectLastCall().asStub();
-		
+
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
@@ -660,6 +689,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	@Test
 	public void testExportPackException() throws Exception {
 		PowerMock.mockStaticPartial(EventUtils.class, "proceed");
+
+		registeredMPPs.add(mockMusicPackProject);
 
 		Exception exception = new IOException("IO Error");
 
