@@ -205,8 +205,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 			try {
 				this.fileManager
 						.deleteDirAndContent(this.musicPackProjectManager.getManagedMusicPackProjects().get(project));
-				this.musicPackProjectManager.getManagedMusicPackProjects().remove(project);
 				this.trackStoreManager.deleteTrackStore(project);
+				this.musicPackProjectManager.getManagedMusicPackProjects().remove(project);
 				return true;
 			} catch (IOException e) {
 				throw new ServiceException(String.format(
