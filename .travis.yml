@@ -2,12 +2,14 @@ sudo: false
 
 language: java
 
+dist: precise
+
 jdk:
   - oraclejdk8
 
 install: ./gradlew --version
 
-script: ./gradlew test
+script: ./gradlew test --stacktrace
 
 before_install:
  - chmod +x gradlew
