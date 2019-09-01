@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,9 +32,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 	public void testExecuteFailableTask() {
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			// Do nothing
 		}, mockLogger, mockErrorHandler, mockErrorCodeHandler);
+		
+		Assert.assertFalse(result);
 
 		this.verifyAll();
 	}
@@ -42,9 +45,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 	public void testExecuteFailableAllHandlersNull() {
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			// Do nothing
 		}, null, null, null);
+		
+		Assert.assertFalse(result);
 
 		this.verifyAll();
 	}
@@ -55,10 +60,12 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw new InvalidInputException(DummyErrorCode.ERROR1);
 		}, mockLogger, mockErrorHandler, mockErrorCodeHandler);
-
+		
+		Assert.assertTrue(result);
+		
 		this.verifyAll();
 	}
 
@@ -72,9 +79,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw exception;
 		}, mockLogger, mockErrorHandler, mockErrorCodeHandler);
+		
+		Assert.assertTrue(result);
 
 		this.verifyAll();
 	}
@@ -85,9 +94,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw new InvalidInputException(DummyErrorCode.ERROR1);
 		}, null, mockErrorHandler, mockErrorCodeHandler);
+		
+		Assert.assertTrue(result);
 
 		this.verifyAll();
 	}
@@ -98,9 +109,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw new InvalidInputException(DummyErrorCode.ERROR1);
 		}, null, mockErrorHandler, null);
+		
+		Assert.assertTrue(result);
 
 		this.verifyAll();
 	}
@@ -115,9 +128,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw exception;
 		}, mockLogger, mockErrorHandler, null);
+		
+		Assert.assertTrue(result);
 
 		this.verifyAll();
 	}
@@ -134,9 +149,11 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw exception;
 		}, mockLogger, mockErrorHandler, null);
+		
+		Assert.assertTrue(result);
 
 		this.verifyAll();
 	}
@@ -145,10 +162,12 @@ public class ExceptionUtilsTest extends EasyMockSupport {
 	public void testExecuteFailableTaskInputErrorAllNull() {
 		this.replayAll();
 
-		ExceptionUtils.executeFailableTask(() -> {
+		boolean result = ExceptionUtils.executeFailableTask(() -> {
 			throw new IOException("Error");
 		}, null, null, null);
-
+		
+		Assert.assertTrue(result);
+		
 		this.verifyAll();
 	}
 

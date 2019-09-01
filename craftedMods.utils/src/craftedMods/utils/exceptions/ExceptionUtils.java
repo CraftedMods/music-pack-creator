@@ -14,10 +14,12 @@ public class ExceptionUtils {
 		return writer.getBuffer().toString();
 	}
 
-	public static void executeFailableTask(FailableExecutable task, Consumer<Exception> logger,
+	// Returns true if the task did fail
+	public static boolean executeFailableTask(FailableExecutable task, Consumer<Exception> logger,
 			Consumer<Exception> errorHandler, Predicate<ErrorCode> invalidInputCodeHandler) {
 		try {
 			task.execute();
+			return false;
 		} catch (InvalidInputException ie) {
 			if (invalidInputCodeHandler != null) {
 				if (!invalidInputCodeHandler.test(ie.getErrorCode()))
@@ -32,5 +34,6 @@ public class ExceptionUtils {
 			if (errorHandler != null)
 				errorHandler.accept(e);
 		}
+		return true;
 	}
 }
