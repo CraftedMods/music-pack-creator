@@ -17,7 +17,8 @@ Bundle-ClassPath: ., jorbis-0.0.15.jar, tritonus_share.jar, vorbisspi1.0.3.jar
 	craftedMods.utils;version=latest,\
 	craftedMods.eventManager.api;version=latest,\
 	craftedMods.eventManager.base;version=latest,\
-	tritonus_share.jar;version=file
+	tritonus_share.jar;version=file,\
+	craftedMods.audioPlayer.base;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
