@@ -12,7 +12,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.preferences.api.Preferences;
@@ -28,8 +29,8 @@ public class PreferencesManagerImpl implements PreferencesManager {
 	@Reference
 	private FileManager fileManager;
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	private String configDirString;
 
@@ -41,7 +42,7 @@ public class PreferencesManagerImpl implements PreferencesManager {
 	public void onActivate(Configuration config) throws IOException {
 		configDirString = config.configurationDirectory();
 		configDir = fileManager.getPathAndCreateDir(configDirString);
-		this.logger.log(LogService.LOG_INFO, String.format("Configuration directory: \"%s\"", configDir.toString()));
+		this.logger.info("Configuration directory: \"%s\"", configDir.toString());
 	}
 
 	@Modified
@@ -55,12 +56,12 @@ public class PreferencesManagerImpl implements PreferencesManager {
 					pref.setConfigFile(getAndCreateConfigFile(pref.getPID()));
 					pref.flush();
 				} catch (IOException e) {
-					logger.log(LogService.LOG_ERROR, String.format(
-							"Couldn't move the preferences for the PID \"%s\" to the new location", pref.getPID()), e);
+					logger.error(
+							"Couldn't move the preferences for the PID \"%s\" to the new location", pref.getPID(), e);
 				}
 			}
-			this.logger.log(LogService.LOG_INFO, String.format(
-					"The configuration directory was moved from \"%s\" to \"%s\"", oldDir, configDir.toString()));
+			this.logger.info(
+					"The configuration directory was moved from \"%s\" to \"%s\"", oldDir, configDir.toString());
 		}
 	}
 
@@ -74,8 +75,7 @@ public class PreferencesManagerImpl implements PreferencesManager {
 			try {
 				pref.flush();
 			} catch (IOException e) {
-				logger.log(LogService.LOG_ERROR,
-						String.format("Couldn't save the preferences for the PID \"%s\"", pref.getPID()), e);
+				logger.error("Couldn't save the preferences for the PID \"%s\"", pref.getPID(), e);
 			}
 		});
 		managedPreferences.clear();

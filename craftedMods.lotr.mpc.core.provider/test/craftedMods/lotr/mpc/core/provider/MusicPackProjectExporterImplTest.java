@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -56,7 +56,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	public MusicPackProjectExporterImpl exporter = new MusicPackProjectExporterImpl();
 
 	@Mock(type = MockType.NICE)
-	private LogService mockLogger;
+	private Logger mockLogger;
 
 	@Mock(type = MockType.NICE)
 	private SemanticVersion mockVersion;

@@ -13,7 +13,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
@@ -46,8 +47,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	@Reference
 	private MusicPackProjectWriter writer;
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Reference
 	private EventManager eventManager;
@@ -69,9 +70,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	@Activate
 	public void onActivate(Configuration configuration) throws IOException {
 		this.projectsDir = this.fileManager.getPathAndCreateDir(configuration.projectsDirectory());
-		this.logger.log(LogService.LOG_INFO,
-				String.format("The projects directory is located at \"%s\"", this.projectsDir.toString()));
-		this.logger.log(LogService.LOG_INFO,
+		this.logger.info("The projects directory is located at \"%s\"", this.projectsDir.toString());
+		this.logger.info(
 				this.compatibilityManager == null ? "No compatibility manager service was found"
 						: "Found a compatibility manager service");
 	}
@@ -86,16 +86,15 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 				try {
 					this.loadMusicPackProject(projectFolder);
 				} catch (Exception e) {
-					this.logger.log(LogService.LOG_ERROR,
-							String.format("The Music Pack Project at \"%s\" couldn't be loaded: ", projectFolder), e);
+					this.logger.error("The Music Pack Project at \"%s\" couldn't be loaded: ", projectFolder, e);
 					WriteableEventProperties properties = new DefaultWriteableEventProperties();
 					properties.put(MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
 					this.eventManager.dispatchEvent(MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT,
 							properties);
 				}
 			}
-			this.logger.log(LogService.LOG_INFO, String.format("Loaded %d Music Pack Projects",
-					this.musicPackProjectManager.getManagedMusicPackProjects().keySet().size()));
+			this.logger.info("Loaded %d Music Pack Projects",
+					this.musicPackProjectManager.getManagedMusicPackProjects().keySet().size());
 		} catch (IOException e) {
 			throw new ServiceException("Couldn't load the Music Pack Projects from the workspace: ", e);
 		}
@@ -156,10 +155,8 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 						String.format("Couldn't load the Music Pack Project from \"%s\"", projectFolder.toString()), e);
 			}
 		} else {
-			this.logger.log(LogService.LOG_WARNING,
-					String.format(
-							"Found a directory \"%s\" in the projects folder which didn't contain the project file",
-							projectFolder.toString()));
+			this.logger.warn("Found a directory \"%s\" in the projects folder which didn't contain the project file",
+							projectFolder.toString());
 		}
 
 	}

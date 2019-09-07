@@ -1,13 +1,24 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-import org.osgi.service.component.annotations.*;
-import org.osgi.service.log.LogService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
-import craftedMods.eventManager.api.*;
+import craftedMods.eventManager.api.EventManager;
+import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
+import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
 import craftedMods.versionChecker.api.SemanticVersion;
@@ -15,8 +26,8 @@ import craftedMods.versionChecker.api.SemanticVersion;
 @Component
 public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Reference
 	private EventManager eventManager;
@@ -39,9 +50,8 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 			try {
 				this.registerMusicPackProject(loadedProject);
 			} catch (Exception e) {
-				this.logger.log(LogService.LOG_ERROR,
-						String.format("The Music Pack Project \"%s\" couldn't be registered during loading",
-								loadedProject.getName()),e);
+				this.logger.error("The Music Pack Project \"%s\" couldn't be registered during loading",
+								loadedProject.getName(),e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
@@ -61,7 +71,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		MusicPackProjectImpl impl = (MusicPackProjectImpl) suggestedInstance;
 		impl.setName(suggestedInstance.getName().trim());
 		this.musicPackProjects.add(impl);
-		this.logger.log(LogService.LOG_INFO, String.format("Registered the Music Pack Project \"%s\"", impl.getName()));
+		this.logger.info("Registered the Music Pack Project \"%s\"", impl.getName());
 		return suggestedInstance;
 	}
 
@@ -102,8 +112,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		String oldName = project.getName();
 		if (!newName.trim().equals(oldName)) {
 			((MusicPackProjectImpl) project).setName(newName.trim());
-			this.logger.log(LogService.LOG_INFO,
-					String.format("Renamed the Music Pack Project \"%s\" to \"%s\"", oldName, newName));
+			this.logger.info("Renamed the Music Pack Project \"%s\" to \"%s\"", oldName, newName);
 			return true;
 		}
 		return false;
@@ -145,7 +154,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		this.validateRegisteredProject(project);
 		this.persistenceManager.deleteMusicPackProject(project);
 		this.musicPackProjects.remove(project);
-		this.logger.log(LogService.LOG_INFO, String.format("Deleted the Music Pack Project \"%s\"", project.getName()));
+		this.logger.info("Deleted the Music Pack Project \"%s\"", project.getName());
 	}
 
 	@Override
@@ -155,8 +164,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 			try {
 				this.saveMusicPackProject(project);
 			} catch (Exception e) {
-				this.logger.log(LogService.LOG_ERROR,
-						String.format("The Music Pack Project \"%s\" couldn't be saved: ", project.getName()), e);
+				this.logger.error("The Music Pack Project \"%s\" couldn't be saved: ", project.getName(), e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT, project);
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
@@ -172,7 +180,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 		this.validateRegisteredProject(project);
 		this.addSaveProperties(project);
 		this.persistenceManager.saveMusicPackProject(project);
-		this.logger.log(LogService.LOG_DEBUG, String.format("Saved the Music Pack Project \"%s\"", project.getName()));
+		this.logger.debug("Saved the Music Pack Project \"%s\"", project.getName());
 	}
 
 	private void addSaveProperties(MusicPackProject project) {

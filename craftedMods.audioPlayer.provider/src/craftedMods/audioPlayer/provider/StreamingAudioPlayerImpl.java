@@ -14,7 +14,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.audioPlayer.api.AudioPlayer;
 import craftedMods.eventManager.api.EventManager;
@@ -23,8 +24,8 @@ import craftedMods.eventManager.api.EventManager;
 		AudioPlayer.PLAYING_MODE_PROPERTY_KEY + "=" + AudioPlayer.PLAYING_MODE_STREAM }, service = AudioPlayer.class)
 public class StreamingAudioPlayerImpl extends AbstractAudioPlayer {
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Reference
 	private EventManager eventManager;

@@ -1,13 +1,38 @@
 package craftedMods.eventManager.provider;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import org.osgi.service.component.annotations.*;
-import org.osgi.service.log.LogService;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
-import craftedMods.eventManager.api.*;
-import craftedMods.eventManager.base.*;
+import craftedMods.eventManager.api.Event;
+import craftedMods.eventManager.api.EventDispatchPolicy;
+import craftedMods.eventManager.api.EventHandler;
+import craftedMods.eventManager.api.EventHandlerPolicy;
+import craftedMods.eventManager.api.EventInfo;
+import craftedMods.eventManager.api.EventManager;
+import craftedMods.eventManager.api.EventProperties;
+import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.base.DefaultEventInfo;
+import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 
 @Component(scope = ServiceScope.SINGLETON)
 public class EventManagerImpl implements EventManager {
@@ -16,8 +41,8 @@ public class EventManagerImpl implements EventManager {
 
 	private List<Runnable> preActivationEventHandlerQuery = new ArrayList<>();
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Activate
 	public void onActivate() {
@@ -43,8 +68,8 @@ public class EventManagerImpl implements EventManager {
 				this.eventHandlers.get(info.getTopic()).get(policy).add(eventHandler);
 			}
 			Runnable task = () -> {
-				this.logger.log(LogService.LOG_DEBUG, String.format("Registered the event handler \"%s\" listening for %d events", eventHandler,
-						eventHandler.getSupportedEvents().size()));
+				this.logger.debug("Registered the event handler \"%s\" listening for %d events", eventHandler,
+						eventHandler.getSupportedEvents().size());
 			};
 			if (this.logger != null) task.run();
 			else this.preActivationEventHandlerQuery.add(task);
@@ -59,7 +84,7 @@ public class EventManagerImpl implements EventManager {
 				if (this.eventHandlers.containsKey(info.getTopic()))
 					if (this.eventHandlers.get(info.getTopic()).containsKey(policy)) this.eventHandlers.get(info.getTopic()).get(policy).remove(eventHandler);
 			}
-			this.logger.log(LogService.LOG_DEBUG, "Unregistered the event handler " + eventHandler);
+			this.logger.debug("Unregistered the event handler %s", eventHandler);
 		}
 	}
 

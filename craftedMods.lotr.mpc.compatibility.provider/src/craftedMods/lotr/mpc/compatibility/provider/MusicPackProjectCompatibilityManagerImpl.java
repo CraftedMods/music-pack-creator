@@ -8,7 +8,8 @@ import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
@@ -34,8 +35,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	@Reference
 	private SerializedWorkspaceToJSONConverter serializedWorkspaceToJsonConverter;
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Reference
 	private FileManager fileManager;
@@ -51,9 +52,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	private void fixSerializedWorkspace(Path projectDir) {
 		Objects.requireNonNull(projectDir);
 		if (fileManager.exists(Paths.get(projectDir.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE))) {
-			this.logger.log(LogService.LOG_WARNING,
-					String.format("Found a Music Pack Project at \"%s\" which contains a serialized project file",
-							projectDir.toString()));
+			this.logger.warn("Found a Music Pack Project at \"%s\" which contains a serialized project file",
+							projectDir.toString());
 			// if (GuiUtils.showWarningConfirmDialog(null,
 			// this.creator.getLanguageRegistry()
 			// .getEntry("musicPackCreator.musicPackProjectManager.loadProject.convertProject.serializedWorkspace.confirmation",
@@ -66,8 +66,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 					MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED))
 				try {
 					this.serializedWorkspaceToJsonConverter.convertWorkspace(projectDir);
-					this.logger.log(LogService.LOG_INFO,
-							String.format("Converted the Music Pack Project at \"%s\" to the JSON format", projectDir));
+					this.logger.info("Converted the Music Pack Project at \"%s\" to the JSON format", projectDir);
 					properties = new DefaultWriteableEventProperties();
 					properties.put(
 							MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_CONVERTED_EVENT_PATH,
@@ -76,9 +75,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 							MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_CONVERTED_EVENT,
 							properties);
 				} catch (Exception e) {
-					this.logger.log(LogService.LOG_ERROR,
-							String.format("Couldn't convert the Music Pack Project at \"%s\": ", projectDir.toString()),
-							e);
+					this.logger.error("Couldn't convert the Music Pack Project at \"%s\": ", projectDir.toString(), e);
 					properties = new DefaultWriteableEventProperties();
 					properties.put(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT_PATH,
 							projectDir);
@@ -92,8 +89,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 					// projectDir.toString()), e);
 				}
 			else
-				this.logger.log(LogService.LOG_DEBUG,
-						"The user skipped the conversion of the Music Pack Project - it won't be loaded");
+				this.logger.debug("The user skipped the conversion of the Music Pack Project - it won't be loaded");
 		}
 
 	}
@@ -125,9 +121,9 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 					// this.creator.getLanguageRegistry().getEntry(
 					// "musicPackCreator.musicPackProjectManager.fixProject.andrastRegion.success",
 					// project.getName()));
-					this.logger.log(LogService.LOG_INFO, String.format(
+					this.logger.info(
 							"The region \"andrast\" was found in the Music Pack Project \"%s\" - it was changed to \"pukel\".",
-							project.getName()));
+							project.getName());
 				}
 	}
 
@@ -159,14 +155,13 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 					++notFoundTracks;
 				}
 			}
-			this.logger.log(LogService.LOG_INFO, String.format(
+			this.logger.info(
 					"Copied %d of %d tracks of the old Music Pack Project \"%s\" to the track store (%s were already present and %s weren't found)",
 					copiedTracks, project.getMusicPack().getTracks().size(), project.getName(), presentTracks,
-					notFoundTracks));
+					notFoundTracks);
 		} catch (Exception e) {
-			this.logger.log(LogService.LOG_ERROR,
-					String.format("Couldn't copy the tracks of the old Music Pack Project \"%s\" to the track store",
-							project.getName()),
+			this.logger.error("Couldn't copy the tracks of the old Music Pack Project \"%s\" to the track store",
+							project.getName(),
 					e);
 			WriteableEventProperties properties = new DefaultWriteableEventProperties();
 			properties.put(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_MUSIC_PACK_PROJECT, project);

@@ -17,7 +17,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.LineUnavailableException;
 
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
 
 import craftedMods.audioPlayer.api.AudioPlayer;
 import craftedMods.audioPlayer.api.PlayableTrack;
@@ -33,7 +33,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 		long shutdownTimeout() default 1000l;
 	}
 
-	private LogService logger;
+	private Logger logger;
 	private EventManager eventManager;
 
 	private ExecutorService audioPlayerThread;
@@ -62,7 +62,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 	protected Map<PlayableTrack, Long> trackDurationsCache;
 
-	protected void onActivate(LogService logger, EventManager eventManager, Configuration config) {
+	protected void onActivate(Logger logger, EventManager eventManager, Configuration config) {
 		this.logger = logger;
 		this.eventManager = eventManager;
 
@@ -83,7 +83,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 		try {
 			this.audioPlayerThread.awaitTermination(this.shutdownTimeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.log(LogService.LOG_ERROR, "Couldn't shutdown the audio player: ", e);
+			logger.error("Couldn't shutdown the audio player: ", e);
 		}
 	}
 
@@ -168,7 +168,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 					String trackName = currentTrack != null ? currentTrack.getName() : UNDEFINED_TRACK_NAME;
 
-					logger.log(LogService.LOG_ERROR, String.format("Couldn't play the track \"%s\"", trackName), e);
+					logger.error("Couldn't play the track \"%s\"", trackName, e);
 
 					WriteableEventProperties properties = new DefaultWriteableEventProperties();
 					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_NAME, trackName);

@@ -11,7 +11,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.language.api.LanguageRegistry;
 import craftedMods.preferences.api.Preferences;
@@ -39,8 +40,8 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	@Reference
 	private ResourceBundleLoader resourceBundleLoader;
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Activate
 	public void onActivate() {
@@ -134,13 +135,18 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 		ResourceBundle bundle = resourceBundleLoader.loadResourceBunde(locale, searchSimilar);
 		if (bundle != null) {
 			this.entries.put(locale, bundle);
-			this.logger.log(LogService.LOG_INFO,
-					String.format("Successfully loaded %d language entries for the %s locale (%s)",
-							bundle.keySet().size(), isDefault ? "default" : "current", locale.toString()));
+			this.logger.info("Successfully loaded %d language entries for the %s locale (%s)",
+							bundle.keySet().size(), isDefault ? "default" : "current", locale.toString());
 			return;
 		}
-		this.logger.log(isDefault ? LogService.LOG_ERROR : LogService.LOG_WARNING,
-				String.format("The language entries for the %s locale (%s) couldn't be loaded",
-						isDefault ? "default" : "current", locale.toString()));
+		
+		String message = String.format("The language entries for the %s locale (%s) couldn't be loaded",
+				isDefault ? "default" : "current", locale.toString());
+		
+		if(isDefault) {
+			this.logger.error(message);
+		}else {
+			this.logger.warn(message);
+		}
 	}
 }

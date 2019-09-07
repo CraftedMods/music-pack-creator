@@ -13,7 +13,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
@@ -37,8 +38,8 @@ import craftedMods.versionChecker.api.SemanticVersion;
 @Component
 public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Reference(target = "(application=mpc)")
 	private SemanticVersion version;
@@ -126,9 +127,8 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 			if (!cancel && !delete && EventUtils.proceed(this.dispatchEvent(PRE_SUCCESS_EVENT, exportLocation, project),
 					MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED)) {
 				dispatchEvent(SUCCESS_EVENT, exportLocation, project);
-				this.logger.log(LogService.LOG_INFO,
-						String.format("Successfully exported the Music Pack Project \"%s\" to \"%s\"",
-								project.getName(), exportLocation));
+				this.logger.info("Successfully exported the Music Pack Project \"%s\" to \"%s\"",
+								project.getName(), exportLocation);
 			} else {
 				/*
 				 * Cancel is true if overriding an existing file wasn't permitted, otherwise
@@ -142,17 +142,14 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 			delete = true;
 			this.dispatchEvent(ERROR_EVENT, exportLocation, project, MusicPackProjectExporter.ERROR_EVENT_EXCEPTION, e);
 
-			this.logger.log(LogService.LOG_ERROR,
-					String.format("Couldn't export the Music Pack Project \"%s\" to \"%s\"", project.getName(),
-							exportLocation.toString()),
-					e);
+			this.logger.error("Couldn't export the Music Pack Project \"%s\" to \"%s\"", project.getName(),
+							exportLocation.toString(), e);
 		} finally {
 			if (delete) {
 				try {
 					fileManager.deleteFile(exportLocation);
 				} catch (IOException e) {
-					logger.log(LogService.LOG_ERROR, String.format(
-							"Couldn't delete the exported but corrupted Music Pack from \"%s\"", exportLocation), e);
+					logger.error("Couldn't delete the exported but corrupted Music Pack from \"%s\"", exportLocation, e);
 				}
 			}
 		}

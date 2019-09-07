@@ -11,7 +11,8 @@ import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.versionChecker.api.RemoteVersion;
 import craftedMods.versionChecker.api.SemanticVersion;
@@ -22,8 +23,8 @@ import craftedMods.versionChecker.base.DefaultSemanticVersion;
 @Component
 public class VersionCheckerImpl implements VersionChecker {
 
-	@Reference
-	private LogService logger;
+	@Reference(service=LoggerFactory.class)
+	private Logger logger;
 
 	@Override
 	public RemoteVersion retrieveRemoteVersion(URL versionFileURL) {
@@ -32,11 +33,10 @@ public class VersionCheckerImpl implements VersionChecker {
 			try {
 				return this.parseVersionFile(this.downloadVersionFile(versionFileURL));
 			} catch (IOException e) {
-				logger.log(LogService.LOG_ERROR,
-						String.format("Couldn't download the version file \"%s\"", versionFileURL.toString()), e);
+				logger.error("Couldn't download the version file \"%s\"", versionFileURL.toString(), e);
 			} catch (Exception e) {
-				logger.log(LogService.LOG_ERROR, String.format("Couldn't parse the contents of the version file \"%s\"",
-						versionFileURL.toString()), e);
+				logger.error("Couldn't parse the contents of the version file \"%s\"",
+						versionFileURL.toString(), e);
 			}
 		}
 		return null;
@@ -50,8 +50,7 @@ public class VersionCheckerImpl implements VersionChecker {
 				conn.connect();
 				return true;
 			} catch (IOException e) {
-				this.logger.log(LogService.LOG_ERROR,
-						String.format("Cannot connect to the version file \"%s\"", versionFileURL.toString()), e);
+				this.logger.error("Cannot connect to the version file \"%s\"", versionFileURL.toString(), e);
 			}
 		}
 		return false;

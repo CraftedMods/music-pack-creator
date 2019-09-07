@@ -1,14 +1,32 @@
 package craftedMods.eventManager.provider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.easymock.*;
-import org.junit.*;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockRunner;
+import org.easymock.Mock;
+import org.easymock.MockType;
+import org.easymock.TestSubject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
 
-import craftedMods.eventManager.api.*;
-import craftedMods.eventManager.base.*;
+import craftedMods.eventManager.api.Event;
+import craftedMods.eventManager.api.EventDispatchPolicy;
+import craftedMods.eventManager.api.EventHandler;
+import craftedMods.eventManager.api.EventHandlerPolicy;
+import craftedMods.eventManager.api.EventInfo;
+import craftedMods.eventManager.api.EventProperties;
+import craftedMods.eventManager.api.PropertyKey;
+import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.base.DefaultEventInfo;
+import craftedMods.eventManager.base.DefaultPropertyKey;
+import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.eventManager.base.EventUtils;
 import craftedMods.utils.data.ArrayUtils;
 
 @RunWith(EasyMockRunner.class)
@@ -18,7 +36,7 @@ public class EventManagerImplTest {
 	private EventManagerImpl eventManager = new EventManagerImpl();
 
 	@Mock(type = MockType.NICE)
-	private LogService mockLogger;
+	private Logger mockLogger;
 
 	private EventInfo synchronousDispatchedEvent;
 	private EventInfo asynchronousDispatchedEvent;

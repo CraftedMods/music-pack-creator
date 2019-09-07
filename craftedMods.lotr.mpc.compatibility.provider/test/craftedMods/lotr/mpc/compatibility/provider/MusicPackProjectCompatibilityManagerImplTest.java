@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -59,7 +59,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	private MusicPackProjectFactory mockMusicPackProjectFactory;
 
 	@Mock(type = MockType.NICE)
-	private LogService mockLogService;
+	private Logger mockLogService;
 
 	@Mock
 	private FileManager mockFileManager;
