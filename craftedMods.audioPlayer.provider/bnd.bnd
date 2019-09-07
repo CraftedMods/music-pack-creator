@@ -12,7 +12,9 @@ Bundle-ClassPath: ., jorbis-0.0.15.jar, tritonus_share.jar, vorbisspi1.0.3.jar
 -includeresource: {readme.md},\{jorbis-0.0.15.jar},\{tritonus_share.jar},\{vorbisspi1.0.3.jar}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	osgi.annotation; version=7.0.0,\
+	osgi.core; version=7.0.0,\
+	osgi.cmpn; version=7.0.0,\
 	craftedMods.audioPlayer.api;version=latest,\
 	craftedMods.utils;version=latest,\
 	craftedMods.eventManager.api;version=latest,\
@@ -21,8 +23,13 @@ Bundle-ClassPath: ., jorbis-0.0.15.jar, tritonus_share.jar, vorbisspi1.0.3.jar
 	craftedMods.audioPlayer.base;version=latest
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${junit},\
+	${mockito},\
+	${mockito-deps}
+
+javac.source: 1.8
+javac.target: 1.8
+
 Import-Package: \
 	org.tritonus.*;resolution:=optional,\
 	*

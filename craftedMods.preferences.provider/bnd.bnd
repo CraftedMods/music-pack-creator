@@ -11,10 +11,15 @@ Private-Package:  \
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
+	osgi.annotation; version=7.0.0,\
+	osgi.core; version=7.0.0,\
+	osgi.cmpn; version=7.0.0,\
 	craftedMods.preferences.api;version=latest,\
 	craftedMods.utils;version=latest,\
-	craftedMods.fileManager.api;version=latest,\
+	craftedMods.fileManager.api;version=latest
+
+-testpath: \
+	${junit},\
 	org.easymock,\
 	org.objenesis,\
 	javassist,\
@@ -25,6 +30,5 @@ Private-Package:  \
 	org.powermock:powermock-module-junit4-common,\
 	org.powermock:powermock-reflect
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+javac.source: 1.8
+javac.target: 1.8

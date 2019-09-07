@@ -11,11 +11,15 @@ Private-Package:  \
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	craftedMods.fileManager.api;version=latest,\
-	org.easymock
+	osgi.annotation; version=7.0.0,\
+	osgi.core; version=7.0.0,\
+	osgi.cmpn; version=7.0.0,\
+	craftedMods.fileManager.api;version=latest
 
 -testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+	${junit},\
+	org.easymock;version=3.5
+
+javac.source: 1.8
+javac.target: 1.8
 

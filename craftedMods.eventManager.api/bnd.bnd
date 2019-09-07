@@ -10,10 +10,10 @@ Export-Package:  \
 
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-baseline: *
+-buildpath: \
+  osgi.annotation; version=7.0.0
 
--testpath: \
-	osgi.enroute.junit.wrapper;version=4.12, \
-	osgi.enroute.hamcrest.wrapper;version=1.3
+javac.source: 1.8
+javac.target: 1.8
 

@@ -9,7 +9,7 @@ jdk:
 
 install: ./gradlew --version
 
-script: ./gradlew test --stacktrace
+script: ./gradlew test --continue
 
 before_install:
  - chmod +x gradlew
