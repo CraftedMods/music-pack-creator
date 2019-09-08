@@ -11,12 +11,14 @@ Private-Package:  \
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.annotation; version=7.0.0,\
-	osgi.core; version=7.0.0,\
-	osgi.cmpn; version=7.0.0,\
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
 	craftedMods.language.api;version=latest,\
 	craftedMods.preferences.api;version=latest,\
-	craftedMods.utils;version=latest
+	craftedMods.utils;version=latest,\
+	craftedMods.eventManager.api;version=latest,\
+	craftedMods.eventManager.base;version=latest
 
 -testpath: \
 	${junit},\

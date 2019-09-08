@@ -14,6 +14,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
+import craftedMods.eventManager.api.EventManager;
+import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.language.api.LanguageRegistry;
 import craftedMods.preferences.api.Preferences;
 import craftedMods.preferences.api.PreferencesManager;
@@ -40,8 +43,11 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	@Reference
 	private ResourceBundleLoader resourceBundleLoader;
 
-	@Reference(service=LoggerFactory.class)
+	@Reference(service = LoggerFactory.class)
 	private FormatterLogger logger;
+
+	@Reference
+	private EventManager eventManager;
 
 	@Activate
 	public void onActivate() {
@@ -51,7 +57,11 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 		defaultLanguage = Locale.forLanguageTag(prefs.getString(DEFAULT_LANGUAGE_KEY, "en-US"));
 		currentLanguage = Locale
 				.forLanguageTag(prefs.getString(CURRENT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag()));
+
 		this.reload();
+
+		fireDefaultLanguageChangedEvent(null);
+		fireCurrentLanguageChangedEvent(null);
 	}
 
 	@Deactivate
@@ -68,12 +78,25 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	public boolean setDefaultLanguage(Locale defaultLanguage) {
 		Objects.requireNonNull(defaultLanguage);
 		if (!defaultLanguage.equals(this.defaultLanguage)) {
+			Locale oldLanguage = this.defaultLanguage;
+
 			this.defaultLanguage = defaultLanguage;
 			prefs.setString(DEFAULT_LANGUAGE_KEY, this.defaultLanguage.toLanguageTag());
 			this.loadResourceBundle(this.defaultLanguage, false, true);
+
+			fireDefaultLanguageChangedEvent(oldLanguage);
+
 			return true;
 		}
 		return false;
+	}
+
+	private void fireDefaultLanguageChangedEvent(Locale oldLanguage) {
+		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		properties.put(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE, oldLanguage);
+		properties.put(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE, this.defaultLanguage);
+
+		eventManager.dispatchEvent(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT, properties);
 	}
 
 	@Override
@@ -85,12 +108,25 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	public boolean setCurrentLanguage(Locale currentLanguage) {
 		Objects.requireNonNull(currentLanguage);
 		if (!currentLanguage.equals(this.currentLanguage)) {
+			Locale oldLanguage = this.currentLanguage;
+
 			this.currentLanguage = currentLanguage;
 			prefs.setString(CURRENT_LANGUAGE_KEY, this.currentLanguage.toLanguageTag());
 			this.loadResourceBundle(this.currentLanguage, true, false);
+
+			fireCurrentLanguageChangedEvent(oldLanguage);
+
 			return true;
 		}
 		return false;
+	}
+
+	private void fireCurrentLanguageChangedEvent(Locale oldLanguage) {
+		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		properties.put(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_OLD_LANGUAGE, oldLanguage);
+		properties.put(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE, this.currentLanguage);
+
+		eventManager.dispatchEvent(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT, properties);
 	}
 
 	@Override
@@ -135,17 +171,17 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 		ResourceBundle bundle = resourceBundleLoader.loadResourceBunde(locale, searchSimilar);
 		if (bundle != null) {
 			this.entries.put(locale, bundle);
-			this.logger.info("Successfully loaded %d language entries for the %s locale (%s)",
-							bundle.keySet().size(), isDefault ? "default" : "current", locale.toString());
+			this.logger.info("Successfully loaded %d language entries for the %s locale (%s)", bundle.keySet().size(),
+					isDefault ? "default" : "current", locale.toString());
 			return;
 		}
-		
+
 		String message = String.format("The language entries for the %s locale (%s) couldn't be loaded",
 				isDefault ? "default" : "current", locale.toString());
-		
-		if(isDefault) {
+
+		if (isDefault) {
 			this.logger.error(message);
-		}else {
+		} else {
 			this.logger.warn(message);
 		}
 	}
