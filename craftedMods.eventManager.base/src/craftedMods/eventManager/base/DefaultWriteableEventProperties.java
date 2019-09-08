@@ -1,12 +1,16 @@
 package craftedMods.eventManager.base;
 
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-import craftedMods.eventManager.api.*;
+import craftedMods.eventManager.api.PropertyKey;
+import craftedMods.eventManager.api.WriteableEventProperties;
 
 public class DefaultWriteableEventProperties implements WriteableEventProperties {
 
-	private Hashtable<PropertyKey<?>, Object> properties = new Hashtable<>();
+	private Map<PropertyKey<?>, Object> properties = Collections.synchronizedMap(new HashMap<>());
 
 	private boolean isLocked = false;
 
@@ -14,6 +18,7 @@ public class DefaultWriteableEventProperties implements WriteableEventProperties
 	@SuppressWarnings("unchecked")
 	public <T> T put(PropertyKey<T> key, T value) {
 		this.checkState();
+		Objects.requireNonNull(key);
 		return (T) this.properties.put(key, value);
 	}
 
