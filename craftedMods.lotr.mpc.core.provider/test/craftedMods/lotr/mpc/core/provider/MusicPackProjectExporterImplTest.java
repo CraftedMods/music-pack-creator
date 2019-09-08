@@ -1,9 +1,9 @@
 package craftedMods.lotr.mpc.core.provider;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -11,8 +11,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.zip.ZipOutputStream;
+import java.util.Map;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -93,9 +94,15 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 	private Collection<MusicPackProject> registeredMPPs;
 
+	private Map<String, Object> envs;
+
 	@Before
 	public void setup() {
 		exportLocation = Paths.get("test", "music", "pack.zip");
+
+		envs = new HashMap<>();
+		envs.put("create", "true");
+		envs.put("useTempFile", Boolean.TRUE);
 
 		mockMusicPackProject = this.createMock(MusicPackProject.class);
 		mockMusicPack = this.createMock(MusicPack.class);
@@ -144,7 +151,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	@Test(expected = IllegalArgumentException.class)
 	public void testExportUnregisteredPack() {
 		this.replayAll();
-		
+
 		exporter.exportMusicPackProject(Paths.get("path", "toPack.zip"), mockMusicPackProject);
 	}
 
@@ -155,17 +162,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		registeredMPPs.add(mockMusicPackProject);
 
-		OutputStream mockOutputStream = this.createMock(OutputStream.class);
-		ZipOutputStream mockZipOutputStream = this.createMock(ZipOutputStream.class);
-
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(false).once();
-		EasyMock.expect(mockFileManager.createFile(exportLocation)).andReturn(true).once();
-		EasyMock.expect(mockFileManager.newOutputStream(exportLocation)).andReturn(mockOutputStream).once();
-
-		PowerMock.expectNew(ZipOutputStream.class, mockOutputStream).andReturn(mockZipOutputStream).once();
-
-		mockZipOutputStream.close();
-		EasyMock.expectLastCall().atLeastOnce();
 
 		FileSystem mockFileSystem = this.createMock(FileSystem.class);
 
@@ -183,7 +180,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 					}
 				});
 
-		EasyMock.expect(FileSystems.newFileSystem(exportLocation, null)).andReturn(mockFileSystem).once();
+		EasyMock.expect(FileSystems.newFileSystem(URI.create("jar:" + exportLocation.toUri()), envs))
+				.andReturn(mockFileSystem).once();
 
 		Capture<WriteableEventProperties> createFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 
@@ -373,9 +371,6 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.resetToNice(this.mockWriter);
 
-		OutputStream mockOutputStream = this.createMock(OutputStream.class);
-		ZipOutputStream mockZipOutputStream = this.createMock(ZipOutputStream.class);
-
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(true).once();
 
 		Capture<WriteableEventProperties> overrideEventProperties = Capture.newInstance();
@@ -387,12 +382,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectExporter.EXPORT_LOCATION_EXISTS_EVENT_RESULT_OVERRIDE), EasyMock.eq(false)))
 				.andReturn(true).once();
 
-		EasyMock.expect(mockFileManager.newOutputStream(exportLocation)).andStubReturn(mockOutputStream);
-
-		PowerMock.expectNew(ZipOutputStream.class, mockOutputStream).andStubReturn(mockZipOutputStream);
-
-		mockZipOutputStream.close();
-		EasyMock.expectLastCall().asStub();
+		EasyMock.expect(this.mockFileManager.deleteFile(exportLocation)).andReturn(true).once();
 
 		FileSystem mockFileSystem = this.createMock(FileSystem.class);
 
@@ -410,7 +400,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 					}
 				});
 
-		EasyMock.expect(FileSystems.newFileSystem(exportLocation, null)).andStubReturn(mockFileSystem);
+		EasyMock.expect(FileSystems.newFileSystem(URI.create("jar:" + exportLocation.toUri()), envs))
+				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
@@ -488,17 +479,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.resetToNice(this.mockWriter);
 
-		OutputStream mockOutputStream = this.createMock(OutputStream.class);
-		ZipOutputStream mockZipOutputStream = this.createMock(ZipOutputStream.class);
-
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(false).once();
-		EasyMock.expect(mockFileManager.createFile(exportLocation)).andReturn(true).once();
-		EasyMock.expect(mockFileManager.newOutputStream(exportLocation)).andStubReturn(mockOutputStream);
-
-		PowerMock.expectNew(ZipOutputStream.class, mockOutputStream).andStubReturn(mockZipOutputStream);
-
-		mockZipOutputStream.close();
-		EasyMock.expectLastCall().asStub();
 
 		FileSystem mockFileSystem = this.createMock(FileSystem.class);
 
@@ -516,7 +497,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 					}
 				});
 
-		EasyMock.expect(FileSystems.newFileSystem(exportLocation, null)).andStubReturn(mockFileSystem);
+		EasyMock.expect(FileSystems.newFileSystem(URI.create("jar:" + exportLocation.toUri()), envs))
+				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
@@ -589,17 +571,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.resetToNice(this.mockWriter);
 
-		OutputStream mockOutputStream = this.createMock(OutputStream.class);
-		ZipOutputStream mockZipOutputStream = this.createMock(ZipOutputStream.class);
-
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(false).once();
-		EasyMock.expect(mockFileManager.createFile(exportLocation)).andReturn(true).once();
-		EasyMock.expect(mockFileManager.newOutputStream(exportLocation)).andStubReturn(mockOutputStream);
-
-		PowerMock.expectNew(ZipOutputStream.class, mockOutputStream).andStubReturn(mockZipOutputStream);
-
-		mockZipOutputStream.close();
-		EasyMock.expectLastCall().asStub();
 
 		FileSystem mockFileSystem = this.createMock(FileSystem.class);
 
@@ -617,7 +589,8 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 					}
 				});
 
-		EasyMock.expect(FileSystems.newFileSystem(exportLocation, null)).andStubReturn(mockFileSystem);
+		EasyMock.expect(FileSystems.newFileSystem(URI.create("jar:" + exportLocation.toUri()), envs))
+				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
 				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
@@ -692,10 +665,9 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		registeredMPPs.add(mockMusicPackProject);
 
-		Exception exception = new IOException("IO Error");
+		RuntimeException exception = new RuntimeException("IO Error");
 
-		EasyMock.expect(mockFileManager.exists(exportLocation)).andStubReturn(false);
-		EasyMock.expect(mockFileManager.createFile(exportLocation)).andThrow(exception).once();
+		EasyMock.expect(mockFileManager.exists(exportLocation)).andThrow(exception).once();
 
 		Capture<WriteableEventProperties> exceptionEventProperties = Capture.newInstance();
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.ERROR_EVENT),
