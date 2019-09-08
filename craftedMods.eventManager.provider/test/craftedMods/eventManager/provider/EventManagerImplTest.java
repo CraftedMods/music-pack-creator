@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 
 import craftedMods.eventManager.api.Event;
 import craftedMods.eventManager.api.EventDispatchPolicy;
@@ -36,7 +36,7 @@ public class EventManagerImplTest {
 	private EventManagerImpl eventManager = new EventManagerImpl();
 
 	@Mock(type = MockType.NICE)
-	private Logger mockLogger;
+	private FormatterLogger mockLogger;
 
 	private EventInfo synchronousDispatchedEvent;
 	private EventInfo asynchronousDispatchedEvent;

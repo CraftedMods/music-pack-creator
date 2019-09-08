@@ -11,7 +11,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.language.api.LanguageRegistry;
@@ -41,7 +41,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	private ResourceBundleLoader resourceBundleLoader;
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Activate
 	public void onActivate() {

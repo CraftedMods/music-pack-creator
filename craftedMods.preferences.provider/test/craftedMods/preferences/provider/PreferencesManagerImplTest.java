@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.ServiceException;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -37,7 +37,7 @@ public class PreferencesManagerImplTest extends EasyMockSupport {
 	private FileManager mockFileManager;
 
 	@Mock(type = MockType.NICE)
-	private Logger mockLogger;
+	private FormatterLogger mockLogger;
 
 	private String configDirString;
 

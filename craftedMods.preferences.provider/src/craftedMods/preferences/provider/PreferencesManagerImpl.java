@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.fileManager.api.FileManager;
@@ -30,7 +30,7 @@ public class PreferencesManagerImpl implements PreferencesManager {
 	private FileManager fileManager;
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	private String configDirString;
 

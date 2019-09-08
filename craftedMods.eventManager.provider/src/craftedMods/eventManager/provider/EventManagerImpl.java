@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.Event;
@@ -42,7 +42,7 @@ public class EventManagerImpl implements EventManager {
 	private List<Runnable> preActivationEventHandlerQuery = new ArrayList<>();
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Activate
 	public void onActivate() {

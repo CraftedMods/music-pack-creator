@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventManager;
@@ -36,7 +36,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	private SerializedWorkspaceToJSONConverter serializedWorkspaceToJsonConverter;
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Reference
 	private FileManager fileManager;

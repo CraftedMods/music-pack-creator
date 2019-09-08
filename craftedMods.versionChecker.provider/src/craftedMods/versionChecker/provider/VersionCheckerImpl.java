@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.versionChecker.api.RemoteVersion;
@@ -24,7 +24,7 @@ import craftedMods.versionChecker.base.DefaultSemanticVersion;
 public class VersionCheckerImpl implements VersionChecker {
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Override
 	public RemoteVersion retrieveRemoteVersion(URL versionFileURL) {

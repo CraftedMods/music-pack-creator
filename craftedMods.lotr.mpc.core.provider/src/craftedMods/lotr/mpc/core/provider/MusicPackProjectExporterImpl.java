@@ -13,7 +13,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventInfo;
@@ -39,7 +39,7 @@ import craftedMods.versionChecker.api.SemanticVersion;
 public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Reference(target = "(application=mpc)")
 	private SemanticVersion version;

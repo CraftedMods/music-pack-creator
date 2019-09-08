@@ -15,7 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
@@ -35,7 +35,7 @@ public class MusicPackProjectManagerImplTest {
 	private MusicPackProjectManagerImpl musicPackProjectManager = new MusicPackProjectManagerImpl();
 
 	@Mock(type = MockType.NICE)
-	private Logger mockLogger;
+	private FormatterLogger mockLogger;
 
 	private SemanticVersion mpcVersion;
 

@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
+import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventManager;
@@ -48,7 +48,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	private MusicPackProjectWriter writer;
 
 	@Reference(service=LoggerFactory.class)
-	private Logger logger;
+	private FormatterLogger logger;
 
 	@Reference
 	private EventManager eventManager;
