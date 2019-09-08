@@ -33,7 +33,7 @@ public class DefaultWriteableEventPropertiesTest {
 	}
 
 	@Test
-	public void testisEmpty() {
+	public void testIsEmpty() {
 		Assert.assertTrue(this.properties.isEmpty());
 		this.properties.put(this.key, "Test");
 		Assert.assertFalse(this.properties.isEmpty());
