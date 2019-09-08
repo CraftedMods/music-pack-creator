@@ -98,35 +98,10 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	public void applyPostLoadFixes(Path workspacePath, MusicPackProject project, String loadedVersion) {
 		Objects.requireNonNull(workspacePath);
 		Objects.requireNonNull(project);
-		if (loadedVersion != null) {
-			if (loadedVersion.startsWith("Music Pack Creator")
-					&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
-				this.fixAndrastRegion(project);
-		}
 		if (serializedWorkspaceToJsonConverter.getOldProjects().containsKey(workspacePath))
 			copyTracksToStore(workspacePath, project);
 	}
-
-	private void fixAndrastRegion(MusicPackProject project) {
-		for (Track track : project.getMusicPack().getTracks())
-			for (Region region : track.getRegions())
-				if (region.getName().equals("andrast")) {
-					region.setName("pukel");
-					WriteableEventProperties properties = new DefaultWriteableEventProperties();
-					properties.put(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT,
-							project);
-					this.eventManager.dispatchEvent(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT,
-							properties);
-					// GuiUtils.showInformationMessageDialog(null,
-					// this.creator.getLanguageRegistry().getEntry(
-					// "musicPackCreator.musicPackProjectManager.fixProject.andrastRegion.success",
-					// project.getName()));
-					this.logger.info(
-							"The region \"andrast\" was found in the Music Pack Project \"%s\" - it was changed to \"pukel\".",
-							project.getName());
-				}
-	}
-
+	
 	private void copyTracksToStore(Path projectPath, MusicPackProject project) {
 		try {
 			TrackStore store = trackStoreManager.getTrackStore(project);
@@ -134,7 +109,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 			int copiedTracks = 0;
 			int presentTracks = 0;
 			int notFoundTracks = 0;
-
+	
 			for (craftedMods.lotrTools.musicPackCreator.data.Track oldTrack : serializedWorkspaceToJsonConverter
 					.getOldProjects().get(projectPath)) {
 				/*
@@ -170,6 +145,36 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 		} finally {
 			serializedWorkspaceToJsonConverter.getOldProjects().remove(projectPath);
 		}
+	}
+
+	@Override
+	public void applyPreRegisterFixes(MusicPackProject project, String loadedVersion) {
+		Objects.requireNonNull(project);
+		if (loadedVersion != null) {
+			if (loadedVersion.startsWith("Music Pack Creator")
+					&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
+				this.fixAndrastRegion(project);
+		}
+	}
+
+	private void fixAndrastRegion(MusicPackProject project) {
+		for (Track track : project.getMusicPack().getTracks())
+			for (Region region : track.getRegions())
+				if (region.getName().equals("andrast")) {
+					region.setName("pukel");
+					WriteableEventProperties properties = new DefaultWriteableEventProperties();
+					properties.put(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT,
+							project);
+					this.eventManager.dispatchEvent(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT,
+							properties);
+					// GuiUtils.showInformationMessageDialog(null,
+					// this.creator.getLanguageRegistry().getEntry(
+					// "musicPackCreator.musicPackProjectManager.fixProject.andrastRegion.success",
+					// project.getName()));
+					this.logger.info(
+							"The region \"andrast\" was found in the Music Pack Project \"%s\" - it was changed to \"pukel\".",
+							project.getName());
+				}
 	}
 
 }

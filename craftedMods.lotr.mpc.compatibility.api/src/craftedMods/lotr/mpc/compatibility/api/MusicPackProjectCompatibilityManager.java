@@ -49,5 +49,7 @@ public interface MusicPackProjectCompatibilityManager {
 
 	public void applyPostLoadFixes(Path workspacePath, MusicPackProject project, String loadedVersion);// Version can be
 																										// null
+	public void applyPreRegisterFixes(MusicPackProject project, String loadedVersion);// Version can be
+	// null
 
 }

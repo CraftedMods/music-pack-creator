@@ -20,6 +20,7 @@ import org.osgi.service.log.FormatterLogger;
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
@@ -47,6 +48,9 @@ public class MusicPackProjectManagerImplTest {
 
 	@Mock
 	private MusicPackProjectFactory mockMusicPackProjectFactory;
+	
+	@Mock(type=MockType.STRICT)
+	private MusicPackProjectCompatibilityManager mockCompatibilityManager;
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -68,10 +72,13 @@ public class MusicPackProjectManagerImplTest {
 				.andStubAnswer(() -> {
 					return new MusicPackProjectImpl(EasyMock.getCurrentArguments()[0].toString());
 				});
+		this.mockCompatibilityManager.applyPreRegisterFixes(EasyMock.anyObject(), EasyMock.anyString());
+		EasyMock.expectLastCall().anyTimes();
 
 		EasyMock.replay(this.mockPersistenceManager);
 		EasyMock.replay(this.mockEventManager);
 		EasyMock.replay(this.mockMusicPackProjectFactory);
+		EasyMock.replay(this.mockCompatibilityManager);
 
 		this.musicPackProjectManager.onActivate();
 
@@ -92,20 +99,28 @@ public class MusicPackProjectManagerImplTest {
 	}
 
 	@Test
-	public void testActivationWithLoadedProjects() {
+	public void testActivationWithLoadedProjectsAndCompatibilityManager() {
 		EasyMock.reset(this.mockPersistenceManager);
 		EasyMock.expect(this.mockPersistenceManager.loadMusicPackProjects())
 				.andReturn(Arrays.asList(this.loadedProject)).once();
+		
+		EasyMock.reset(this.mockCompatibilityManager);
+		this.mockCompatibilityManager.applyPreRegisterFixes(this.loadedProject, null);
+		EasyMock.expectLastCall().once();
+		
+		
 		EasyMock.replay(this.mockPersistenceManager);
+		EasyMock.replay(this.mockCompatibilityManager);
 
 		this.musicPackProjectManager.onActivate();
 
 		EasyMock.verify(this.mockPersistenceManager);
+		EasyMock.verify(this.mockCompatibilityManager);
 
 		Assert.assertEquals(1, this.musicPackProjectManager.getRegisteredMusicPackProjects().size());
 		Assert.assertTrue(this.musicPackProjectManager.getRegisteredMusicPackProjects().contains(this.loadedProject));
 	}
-
+	
 	@Test
 	public void testActivationWithLoadedProjectsAndOneError() {
 		EasyMock.reset(this.mockPersistenceManager);

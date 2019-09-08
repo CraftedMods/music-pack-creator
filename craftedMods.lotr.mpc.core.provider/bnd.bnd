@@ -10,9 +10,9 @@ Private-Package: craftedMods.lotr.mpc.core.provider
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.annotation; version=7.0.0,\
-	osgi.core; version=7.0.0,\
-	osgi.cmpn; version=7.0.0,\
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
 	craftedMods.eventManager.api;version=latest,\
 	craftedMods.eventManager.base;version=latest,\
 	craftedMods.lotr.mpc.core.api;version=latest,\
@@ -22,7 +22,8 @@ Private-Package: craftedMods.lotr.mpc.core.provider
 	craftedMods.versionChecker.api;version=latest,\
 	craftedMods.versionChecker.base;version=latest,\
 	com.google.gson,\
-	craftedMods.fileManager.api;version=latest
+	craftedMods.fileManager.api;version=latest,\
+	craftedMods.lotr.mpc.compatibility.api;version=latest
 
 -testpath: \
 	${junit},\

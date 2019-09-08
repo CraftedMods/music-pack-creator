@@ -234,105 +234,6 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 		compatibilityManager.applyPreLoadFixes(null);
 	}
 
-	@Test
-	public void testApplyPostLoadFixesAndrastFix() {
-		Path projectFolder = Paths.get("project1");
-		MusicPackProject mockMusicPackProject = createMockProject();
-		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
-
-		EasyMock.reset(mockMusicPackProject);
-
-		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
-		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
-		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Name");
-
-		tracks.add(new DefaultTrack("track1", "title",
-				Arrays.asList(new DefaultRegion("andrast", Arrays.asList("test"), Arrays.asList(), null)),
-				Arrays.asList()));
-		tracks.add(new DefaultTrack("track2", "2title",
-				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
-		tracks.add(new DefaultTrack("track3", "2titl3e",
-				Arrays.asList(new DefaultRegion("andrast", Arrays.asList(), Arrays.asList(), null)),
-				Arrays.asList("s")));
-
-		Capture<WriteableEventProperties> capturedProject = Capture.newInstance();
-
-		EasyMock.expect(mockEventManager.dispatchEvent(
-				EasyMock.eq(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT),
-				EasyMock.capture(capturedProject))).andReturn(null).times(2);
-
-		this.replayAll();
-
-		compatibilityManager.applyPostLoadFixes(projectFolder, mockMusicPackProject, "Music Pack Creator Beta 2.0");
-
-		WriteableEventProperties properties = capturedProject.getValue();
-
-		Assert.assertEquals(mockMusicPackProject, properties
-				.getProperty(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT));
-
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPostLoadFixesAndrastFixNoTracksToFix() {
-		Path projectFolder = Paths.get("project1");
-		MusicPackProject mockMusicPackProject = createMockProject();
-
-		EasyMock.reset(mockMusicPackProject);
-
-		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
-
-		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
-		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
-
-		tracks.add(new DefaultTrack("track4", "title",
-				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
-
-		this.replayAll();
-
-		compatibilityManager.applyPostLoadFixes(projectFolder, mockMusicPackProject, "Music Pack Creator Beta 2.0");
-
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPostLoadFixesAndrastFixWrongVersion() {
-		Path projectFolder = Paths.get("project1");
-		MusicPackProject mockMusicPackProject = createMockProject();
-
-		this.replayAll();
-
-		compatibilityManager.applyPostLoadFixes(projectFolder, mockMusicPackProject, "Music Pack Creator Beta 3.3");
-
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPostLoadFixesAndrastFixUnprefixedVersion() {
-		Path projectFolder = Paths.get("project1");
-		MusicPackProject mockMusicPackProject = createMockProject();
-
-		this.replayAll();
-
-		compatibilityManager.applyPostLoadFixes(projectFolder, mockMusicPackProject, "2.0");
-
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPostLoadFixesAndrastFixNullVersion() {
-		Path projectFolder = Paths.get("project1");
-		MusicPackProject mockMusicPackProject = createMockProject();
-
-		this.replayAll();
-
-		compatibilityManager.applyPostLoadFixes(projectFolder, mockMusicPackProject, null);
-
-		this.verifyAll();
-	}
-
 	@Test(expected = NullPointerException.class)
 	public void testApplyPostLoadFixesNullPath() {
 		compatibilityManager.applyPostLoadFixes(null, createMockProject(), "Version");
@@ -477,7 +378,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 		TrackStore mockTrackStore = this.createMock(TrackStore.class);
 
 		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andReturn(mockTrackStore).once();
-		
+
 		Collection<String> storedTracks = new ArrayList<>();
 
 		EasyMock.expect(mockTrackStore.getStoredTracks()).andReturn(storedTracks).atLeastOnce();
@@ -574,6 +475,110 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		this.verifyAll();
 		PowerMock.verifyAll();
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testApplyPreRegisterFixesNullProject() {
+		compatibilityManager.applyPreRegisterFixes(null, "Version");
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesNullVersion() {
+		compatibilityManager.applyPreRegisterFixes(createMockProject(), null);
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesAndrastFix() {
+		MusicPackProject mockMusicPackProject = createMockProject();
+		MusicPack mockMusicPack = this.createMock(MusicPack.class);
+		List<Track> tracks = new ArrayList<>();
+	
+		EasyMock.reset(mockMusicPackProject);
+	
+		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
+		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
+		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Name");
+	
+		tracks.add(new DefaultTrack("track1", "title",
+				Arrays.asList(new DefaultRegion("andrast", Arrays.asList("test"), Arrays.asList(), null)),
+				Arrays.asList()));
+		tracks.add(new DefaultTrack("track2", "2title",
+				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
+		tracks.add(new DefaultTrack("track3", "2titl3e",
+				Arrays.asList(new DefaultRegion("andrast", Arrays.asList(), Arrays.asList(), null)),
+				Arrays.asList("s")));
+	
+		Capture<WriteableEventProperties> capturedProject = Capture.newInstance();
+	
+		EasyMock.expect(mockEventManager.dispatchEvent(
+				EasyMock.eq(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT),
+				EasyMock.capture(capturedProject))).andReturn(null).times(2);
+	
+		this.replayAll();
+	
+		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 2.0");
+	
+		WriteableEventProperties properties = capturedProject.getValue();
+	
+		Assert.assertEquals(mockMusicPackProject, properties
+				.getProperty(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT));
+	
+		this.verifyAll();
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesAndrastFixNoTracksToFix() {
+		MusicPackProject mockMusicPackProject = createMockProject();
+	
+		EasyMock.reset(mockMusicPackProject);
+	
+		MusicPack mockMusicPack = this.createMock(MusicPack.class);
+		List<Track> tracks = new ArrayList<>();
+	
+		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
+		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
+	
+		tracks.add(new DefaultTrack("track4", "title",
+				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
+	
+		this.replayAll();
+	
+		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 2.0");
+	
+		this.verifyAll();
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesAndrastFixWrongVersion() {
+		MusicPackProject mockMusicPackProject = createMockProject();
+	
+		this.replayAll();
+	
+		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 3.3");
+	
+		this.verifyAll();
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesAndrastFixUnprefixedVersion() {
+		MusicPackProject mockMusicPackProject = createMockProject();
+	
+		this.replayAll();
+	
+		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "2.0");
+	
+		this.verifyAll();
+	}
+
+	@Test
+	public void testApplyPreRegisterFixesAndrastFixNullVersion() {
+		MusicPackProject mockMusicPackProject = createMockProject();
+	
+		this.replayAll();
+	
+		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, null);
+	
+		this.verifyAll();
 	}
 
 	private MusicPackProject createMockProject() {

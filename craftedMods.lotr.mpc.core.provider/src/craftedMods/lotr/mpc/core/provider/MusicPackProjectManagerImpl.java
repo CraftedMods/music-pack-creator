@@ -16,6 +16,7 @@ import org.osgi.service.log.LoggerFactory;
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
@@ -26,7 +27,7 @@ import craftedMods.versionChecker.api.SemanticVersion;
 @Component
 public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 
-	@Reference(service=LoggerFactory.class)
+	@Reference(service = LoggerFactory.class)
 	private FormatterLogger logger;
 
 	@Reference
@@ -41,17 +42,27 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 	@Reference(target = "(application=mpc)")
 	SemanticVersion mpcVersion;
 
+	@Reference
+	private MusicPackProjectCompatibilityManager compatibilityManager;
+
 	private List<MusicPackProjectImpl> musicPackProjects;
 
 	@Activate
 	public void onActivate() {
+		this.logger.debug(this.compatibilityManager == null ? "No compatibility manager service was found"
+				: "Found a compatibility manager service");
+
 		this.musicPackProjects = new ArrayList<>();
 		for (MusicPackProject loadedProject : this.persistenceManager.loadMusicPackProjects())
 			try {
-				this.registerMusicPackProject(loadedProject);
+				if (compatibilityManager != null) {
+					compatibilityManager.applyPreRegisterFixes(loadedProject,
+							loadedProject.getProperties().getString(MusicPackProject.PROPERTY_MPC_VERSION, null));
+					this.registerMusicPackProject(loadedProject);
+				}
 			} catch (Exception e) {
 				this.logger.error("The Music Pack Project \"%s\" couldn't be registered during loading",
-								loadedProject.getName(),e);
+						loadedProject.getName(), e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
