@@ -71,7 +71,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
 	public void onActivate(Configuration configuration) throws IOException {
 		this.projectsDir = this.fileManager.getPathAndCreateDir(configuration.projectsDirectory());
 		this.logger.info("The projects directory is located at \"%s\"", this.projectsDir.toString());
-		this.logger.info(
+		this.logger.debug(
 				this.compatibilityManager == null ? "No compatibility manager service was found"
 						: "Found a compatibility manager service");
 	}
