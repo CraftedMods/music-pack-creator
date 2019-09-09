@@ -50,9 +50,8 @@ public interface AudioPlayer {
 	 * don't have to be computed every time they are required then. Generally this
 	 * provides a much better experience, because loading times are reduced and the
 	 * maximum track duration can be retrieved for tracks where it isn't accessible
-	 * otherwise. The caching is disableable via
-	 * {@link AudioPlayer#setIsCacheEnabled(boolean)}. Otherwise, the method works
-	 * exactly like {@link AudioPlayer#play(InputStream, String)}.
+	 * otherwise. Otherwise, the method works exactly like
+	 * {@link AudioPlayer#play(InputStream, String)}.
 	 * 
 	 * @param track The track to play
 	 * @return Whether the track could be submitted
@@ -147,27 +146,5 @@ public interface AudioPlayer {
 	 * @param volume The new volume
 	 */
 	public void setVolume(int volume);
-
-	/**
-	 * Returns whether caching is enabled for tracks submitted via the
-	 * {@link AudioPlayer#play(PlayableTrack)} function. See there for a more
-	 * detailed explanation about caching.
-	 * 
-	 * @return Whether caching is enabled
-	 */
-	public boolean isCacheEnabled();
-
-	/**
-	 * Disables or enables the track cache. See
-	 * {@link AudioPlayer#play(PlayableTrack)} for a detailed explanation.
-	 * 
-	 * @param isCacheEnabled The new cache state
-	 */
-	public void setIsCacheEnabled(boolean isCacheEnabled);
-
-	/**
-	 * Flushes the cache if it's enabled.
-	 */
-	public void flushCache();
 
 }

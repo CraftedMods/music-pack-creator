@@ -55,7 +55,7 @@ public class ClipAudioPlayerImpl extends AbstractAudioPlayer {
 		return AudioSystem.getClip();
 	}
 
-	private Clip clip;
+	private volatile Clip clip;
 
 	@Override
 	public void setPlayingPositionMillis(long playingPosition) {
@@ -64,14 +64,14 @@ public class ClipAudioPlayerImpl extends AbstractAudioPlayer {
 	}
 
 	@Override
-	protected void openDataLine(AudioInputStream decodedAudioInputStream) throws LineUnavailableException, IOException {
-		clip = (Clip) this.dataLine;
+	protected void openDataLine(DataLine dataLine, AudioInputStream decodedAudioInputStream) throws LineUnavailableException, IOException {
+		clip = (Clip) dataLine;
 		clip.open(decodedAudioInputStream);
 		this.trackLengthMillis = clip.getMicrosecondLength() / 1000;
 	}
 
 	@Override
-	protected boolean playbackLoop(AudioInputStream decodedAudioInputStream) throws IOException {
+	protected boolean playbackLoop(DataLine dataLine, AudioInputStream decodedAudioInputStream) throws IOException {
 		return this.trackLengthMillis > this.playingPositionMillis;
 	}
 

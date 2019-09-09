@@ -40,9 +40,10 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 	private long shutdownTimeout;
 
-	protected volatile DataLine dataLine;
+	private volatile PlayableTrack currentTrack;
 
 	protected volatile boolean isPaused = false;
+
 	protected volatile long trackLengthMillis = UNDEFINED;
 	protected volatile long playingPositionMillis = 0l;
 
@@ -55,10 +56,6 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 	private enum EnumState {
 		INIT, PLAYING, ERROR;
 	}
-
-	private volatile PlayableTrack currentTrack;
-
-	protected boolean isCacheEnabled = true;
 
 	protected Map<PlayableTrack, Long> trackDurationsCache;
 
@@ -78,7 +75,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 	protected void onDeactivate() {
 		this.stop();
-		this.flushCache();
+		trackDurationsCache.clear();
 		this.audioPlayerThread.shutdown();
 		try {
 			this.audioPlayerThread.awaitTermination(this.shutdownTimeout, TimeUnit.MILLISECONDS);
@@ -107,98 +104,103 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 	@Override
 	public boolean play(PlayableTrack track) {
-		if (this.dataLine == null) {
+		if (this.currentTrack == null) {
 			this.isPaused = false;
+			this.currentTrack = track;
 			this.trackLengthMillis = UNDEFINED;
 			this.playingPositionMillis = 0;
 			this.currentState = EnumState.INIT;
-			this.currentTrack = track;
-			this.audioPlayerThread.execute(() -> {
-				try (InputStream in = track.openInputStream();
-						AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(in)) {
-					AudioFormat baseAudioFormat = audioInputStream.getFormat();
-					AudioFileFormat baseAudioFileFormat = AudioSystem.getAudioFileFormat(in);
-					if (baseAudioFileFormat.properties().containsKey("duration")) {
-						this.trackLengthMillis = (long) baseAudioFileFormat.properties().get("duration");
-					} else if (this.isCacheEnabled && !(track instanceof UncacheablePlayableTrack)
-							&& this.trackDurationsCache.containsKey(track)) {
-						this.trackLengthMillis = this.trackDurationsCache.get(track);
-					}
-					AudioFormat decodedAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-							baseAudioFormat.getSampleRate(), 16, baseAudioFormat.getChannels(),
-							baseAudioFormat.getChannels() * 2, baseAudioFormat.getSampleRate(), false);
-					try (AudioInputStream decodedAudioInputStream = AudioSystem.getAudioInputStream(decodedAudioFormat,
-							audioInputStream); DataLine dataLine = this.constructDataLine(decodedAudioFormat)) {
-						boolean replay = true;
 
-						this.dataLine = dataLine;
+			this.audioPlayerThread.submit(() -> this.audioPlayerThread(track));
 
-						this.openDataLine(decodedAudioInputStream);
-
-						dataLine.start();
-
-						FloatControl volume = (FloatControl) dataLine.getControl(Type.MASTER_GAIN);
-						this.maximumVolume = AbstractAudioPlayer.getLinearGain(volume.getMaximum());
-						this.minimumVolume = AbstractAudioPlayer.getLinearGain(volume.getMinimum());
-						this.volume = (int) (AbstractAudioPlayer.getLinearGain(volume.getValue())
-								/ (this.maximumVolume - this.minimumVolume) * 100.0f);
-						this.currentState = EnumState.PLAYING;
-
-						while (replay) {
-							while (this.dataLine != null) {
-								if (!this.isPaused) {
-									volume.setValue(
-											getGain((this.maximumVolume - this.minimumVolume) * (this.volume / 100.0f)
-													+ this.minimumVolume));
-									this.playingPositionMillis = dataLine.getMicrosecondPosition() / 1000;
-									if (!this.playbackLoop(decodedAudioInputStream)) {
-										if (this.isCacheEnabled && !(track instanceof UncacheablePlayableTrack))
-											this.trackDurationsCache.put(track, this.playingPositionMillis);
-										break;
-									}
-								}
-							}
-							this.playingPositionMillis = this.trackLengthMillis;
-							dataLine.drain();
-							replay = isTrackActive() ? this.onTrackEnd() : false;
-						}
-					}
-				} catch (Exception e) {
-					this.currentState = EnumState.ERROR;
-
-					String trackName = currentTrack != null ? currentTrack.getName() : UNDEFINED_TRACK_NAME;
-
-					logger.error("Couldn't play the track \"%s\"", trackName, e);
-
-					WriteableEventProperties properties = new DefaultWriteableEventProperties();
-					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_NAME, trackName);
-					properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_EXCEPTION, e);
-					eventManager.dispatchEvent(AudioPlayer.PLAY_TRACK_ERROR_EVENT, properties,
-							EventDispatchPolicy.ASYNCHRONOUS);
-
-				} finally {
-					this.isPaused = false;
-					if (this.dataLine != null)
-						this.dataLine.close();
-					this.dataLine = null;
-					this.playingPositionMillis = 0;
-					this.trackLengthMillis = UNDEFINED;
-					this.currentTrack = null;
-				}
-			});
 			while (this.currentState == EnumState.INIT) {
 			}
+
 			return this.currentState != EnumState.ERROR;
 		}
 		return false;
 	}
 
+	private void audioPlayerThread(PlayableTrack track) {
+		try (InputStream in = track.openInputStream();
+				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(in)) {
+			AudioFormat baseAudioFormat = audioInputStream.getFormat();
+			AudioFileFormat baseAudioFileFormat = AudioSystem.getAudioFileFormat(in);
+			if (baseAudioFileFormat.properties().containsKey("duration")) {
+				this.trackLengthMillis = (long) baseAudioFileFormat.properties().get("duration");
+			} else if (!(track instanceof UncacheablePlayableTrack) && this.trackDurationsCache.containsKey(track)) {
+				this.trackLengthMillis = this.trackDurationsCache.get(track);
+			}
+			AudioFormat decodedAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+					baseAudioFormat.getSampleRate(), 16, baseAudioFormat.getChannels(),
+					baseAudioFormat.getChannels() * 2, baseAudioFormat.getSampleRate(), false);
+			try (AudioInputStream decodedAudioInputStream = AudioSystem.getAudioInputStream(decodedAudioFormat,
+					audioInputStream); DataLine dataLine = this.constructDataLine(decodedAudioFormat)) {
+				this.openDataLine(dataLine, decodedAudioInputStream);
+
+				dataLine.start();
+
+				FloatControl volume = (FloatControl) dataLine.getControl(Type.MASTER_GAIN);
+				this.maximumVolume = AbstractAudioPlayer.getLinearGain(volume.getMaximum());
+				this.minimumVolume = AbstractAudioPlayer.getLinearGain(volume.getMinimum());
+
+				this.currentState = EnumState.PLAYING;
+				
+				boolean replay = true;
+
+				while (replay) {
+					while (this.currentTrack != null) {
+						if (!this.isPaused) {
+							if (!dataLine.isActive())
+								dataLine.start();
+
+							dataLine.start();
+
+							volume.setValue(getGain((this.maximumVolume - this.minimumVolume) * (this.volume / 100.0f)
+									+ this.minimumVolume));
+							this.playingPositionMillis = dataLine.getMicrosecondPosition() / 1000;
+							if (!this.playbackLoop(dataLine, decodedAudioInputStream)) {
+								if (!(track instanceof UncacheablePlayableTrack)) {
+									this.trackDurationsCache.put(track, this.playingPositionMillis);
+									break;
+								}
+							}
+						} else {
+							if (dataLine.isActive())
+								dataLine.stop();
+						}
+					}
+					replay = isTrackActive() ? this.onTrackEnd() : false;
+				}
+			}
+		} catch (Exception e) {
+			this.currentState = EnumState.ERROR;
+
+			String trackName = currentTrack != null ? currentTrack.getName() : UNDEFINED_TRACK_NAME;
+
+			logger.error("Couldn't play the track \"%s\"", trackName, e);
+
+			WriteableEventProperties properties = new DefaultWriteableEventProperties();
+			properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_NAME, trackName);
+			properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_EXCEPTION, e);
+			eventManager.dispatchEvent(AudioPlayer.PLAY_TRACK_ERROR_EVENT, properties,
+					EventDispatchPolicy.ASYNCHRONOUS);
+
+		} finally {
+			this.isPaused = false;
+			this.currentTrack = null;
+			this.playingPositionMillis = 0;
+			this.trackLengthMillis = UNDEFINED;
+		}
+	}
+
 	protected abstract DataLine constructDataLine(AudioFormat decodedAudioFormat) throws LineUnavailableException;
 
-	protected abstract void openDataLine(AudioInputStream decodedAudioInputStream)
+	protected abstract void openDataLine(DataLine dataLine, AudioInputStream decodedAudioInputStream)
 			throws LineUnavailableException, IOException;
 
-	protected abstract boolean playbackLoop(AudioInputStream decodedAudioInputStream) throws IOException;
+	protected abstract boolean playbackLoop(DataLine dataLine, AudioInputStream decodedAudioInputStream)
+			throws IOException;
 
 	/*
 	 * Invoked if the end of the track is reached.
@@ -206,27 +208,16 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 	protected abstract boolean onTrackEnd();
 
 	public void pause() {
-		if (this.dataLine != null) {
-			this.isPaused = true;
-			this.dataLine.stop();
-		}
+		this.isPaused = true;
 	}
 
 	public void resume() {
-		if (this.dataLine != null) {
-			this.isPaused = false;
-			this.dataLine.start();
-		}
+		this.isPaused = false;
 	}
 
 	public void stop() {
 		this.pause();
-		if (this.dataLine != null)
-			this.dataLine.close();
-		this.dataLine = null;
-		this.playingPositionMillis = 0;
-		this.trackLengthMillis = UNDEFINED;
-		this.currentTrack = null;
+		currentTrack = null;
 	}
 
 	public long getPlayingPositionMillis() {
@@ -260,26 +251,11 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 	}
 
 	public boolean isTrackActive() {
-		return this.dataLine != null;
+		return currentTrack != null;
 	}
 
 	public boolean isPaused() {
 		return this.isPaused;
-	}
-
-	@Override
-	public boolean isCacheEnabled() {
-		return isCacheEnabled;
-	}
-
-	@Override
-	public void setIsCacheEnabled(boolean isCacheEnabled) {
-		this.isCacheEnabled = isCacheEnabled;
-	}
-
-	@Override
-	public void flushCache() {
-		this.trackDurationsCache.clear();
 	}
 
 }

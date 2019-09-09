@@ -24,7 +24,7 @@ import craftedMods.eventManager.api.EventManager;
 		AudioPlayer.PLAYING_MODE_PROPERTY_KEY + "=" + AudioPlayer.PLAYING_MODE_STREAM }, service = AudioPlayer.class)
 public class StreamingAudioPlayerImpl extends AbstractAudioPlayer {
 
-	@Reference(service=LoggerFactory.class)
+	@Reference(service = LoggerFactory.class)
 	private FormatterLogger logger;
 
 	@Reference
@@ -51,15 +51,7 @@ public class StreamingAudioPlayerImpl extends AbstractAudioPlayer {
 
 	@Override
 	public boolean canSetPlayingPosition() {
-		return true;
-	}
-
-	private boolean wasPlayingPositionSet = false;
-
-	@Override
-	public void setPlayingPositionMillis(long playingPosition) {
-		super.setPlayingPositionMillis(playingPosition);
-		wasPlayingPositionSet = true;
+		return false;
 	}
 
 	@Override
@@ -69,17 +61,14 @@ public class StreamingAudioPlayerImpl extends AbstractAudioPlayer {
 	}
 
 	@Override
-	protected void openDataLine(AudioInputStream decodedAudioInputStream) throws LineUnavailableException {
+	protected void openDataLine(DataLine dataLine, AudioInputStream decodedAudioInputStream)
+			throws LineUnavailableException {
 		streamingBuffer = new byte[4096];
 		sourceDataLine.open(decodedAudioInputStream.getFormat());
 	}
 
 	@Override
-	protected boolean playbackLoop(AudioInputStream decodedAudioInputStream) throws IOException {
-		if (wasPlayingPositionSet) {
-			decodedAudioInputStream.skip(streamingBuffer.length);
-			wasPlayingPositionSet = false;
-		}
+	protected boolean playbackLoop(DataLine dataLine, AudioInputStream decodedAudioInputStream) throws IOException {
 		int bytesRead = decodedAudioInputStream.read(streamingBuffer, 0, streamingBuffer.length);
 		if (bytesRead != -1) {
 			sourceDataLine.write(streamingBuffer, 0, bytesRead);
