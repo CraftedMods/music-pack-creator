@@ -54,7 +54,7 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 			if (track.hasTitle())
 				writer.name(MusicPackProjectWriterImpl.JSON_TRACK_TITLE).value(track.getTitle());
 			this.writeRegions(track, writer);
-			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS, track.getAuthors());
+			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS, track.getAuthors());
 			writer.endObject();
 		}
 		writer.endArray();
@@ -66,8 +66,8 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 		for (Region region : track.getRegions()) {
 			writer.beginObject();
 			writer.name(MusicPackProjectWriterImpl.JSON_REGION_NAME).value(region.getName());
-			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, region.getSubregions());
-			this.writeStringArray(writer, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, region.getCategories());
+			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, region.getSubregions());
+			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, region.getCategories());
 			if (region.getWeight() != null)
 				writer.name(MusicPackProjectWriterImpl.JSON_REGION_WEIGHT).value(region.getWeight());
 			writer.endObject();
@@ -75,7 +75,7 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 		writer.endArray();
 	}
 
-	private void writeStringArray(JsonWriter writer, String name, List<String> strings) throws IOException {
+	private void writeStrinCollection(JsonWriter writer, String name, Collection<String> strings) throws IOException {
 		writer.name(name);
 		writer.beginArray();
 		for (String string : strings)

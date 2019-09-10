@@ -7,17 +7,17 @@ import craftedMods.lotr.mpc.core.api.Region;
 public class DefaultRegion implements Region {
 
 	private String name;
-	private List<String> subregions = new ArrayList<>();
-	private List<String> categories = new ArrayList<>();
+	private Set<String> subregions = new HashSet<>();
+	private Set<String> categories = new HashSet<>();
 	private Float weight;
 
 	public DefaultRegion() {
 	}
 
-	public DefaultRegion(String name, List<String> subregions, List<String> categories, Float weight) {
+	public DefaultRegion(String name, Collection<String> subregions, Collection<String> categories, Float weight) {
 		this.name = name;
-		this.subregions = subregions;
-		this.categories = categories;
+		this.subregions.addAll(subregions);
+		this.categories.addAll(categories);
 		this.weight = weight;
 	}
 
@@ -32,12 +32,12 @@ public class DefaultRegion implements Region {
 	}
 
 	@Override
-	public List<String> getSubregions() {
+	public Set<String> getSubregions() {
 		return this.subregions;
 	}
 
 	@Override
-	public List<String> getCategories() {
+	public Set<String> getCategories() {
 		return this.categories;
 	}
 

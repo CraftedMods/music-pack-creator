@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -154,7 +156,7 @@ public class MusicPackProjectWriterImplTest {
 			this.checkWrittenRegion(reader, region);
 		}
 		reader.endArray();
-		checkStringArray(reader, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS, comparison.getAuthors());
+		checkStringCollection(reader, MusicPackProjectWriterImpl.JSON_TRACK_AUTHORS, comparison.getAuthors());
 		reader.endObject();
 	}
 
@@ -162,8 +164,8 @@ public class MusicPackProjectWriterImplTest {
 		reader.beginObject();
 		Assert.assertEquals(MusicPackProjectWriterImpl.JSON_REGION_NAME, reader.nextName());
 		Assert.assertEquals(comparison.getName(), reader.nextString());
-		checkStringArray(reader, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, comparison.getSubregions());
-		checkStringArray(reader, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, comparison.getCategories());
+		checkStringCollection(reader, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, comparison.getSubregions());
+		checkStringCollection(reader, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, comparison.getCategories());
 		if (comparison.getWeight() != null) {
 			Assert.assertEquals(MusicPackProjectWriterImpl.JSON_REGION_WEIGHT, reader.nextName());
 			Assert.assertEquals(comparison.getWeight().toString(), reader.nextString());
@@ -171,12 +173,14 @@ public class MusicPackProjectWriterImplTest {
 		reader.endObject();
 	}
 
-	private void checkStringArray(JsonReader reader, String arrayName, List<String> values) throws IOException {
+	private void checkStringCollection(JsonReader reader, String arrayName, Collection<String> values) throws IOException {
 		Assert.assertEquals(arrayName, reader.nextName());
 		reader.beginArray();
+		Collection<String> readValues = new HashSet<>();
 		for (int i = 0; i < values.size(); i++) {
-			Assert.assertEquals(values.get(i), reader.nextString());
+			readValues.add(reader.nextString());
 		}
+		Assert.assertEquals(values, readValues);
 		reader.endArray();
 	}
 

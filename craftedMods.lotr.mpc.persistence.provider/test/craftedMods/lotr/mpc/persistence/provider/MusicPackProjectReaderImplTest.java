@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -108,18 +110,16 @@ public class MusicPackProjectReaderImplTest {
 		Assert.assertEquals(2, track1.getRegions().size());
 		Region track1Region1 = track1.getRegions().get(0);
 		Assert.assertEquals(track1Region1.getName(), "Name");
-		Assert.assertArrayEquals(new String[] { "subregion1", "subregion2", "subregion3", "subregion4" },
-				track1Region1.getSubregions().toArray(new String[4]));
-		Assert.assertArrayEquals(new String[] { "category1", "category2" },
-				track1Region1.getCategories().toArray(new String[2]));
+		Assert.assertEquals(new HashSet<>(Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4")),
+				track1Region1.getSubregions());
+		Assert.assertEquals(new HashSet<>(Arrays.asList("category1", "category2")), track1Region1.getCategories());
 		Assert.assertNull(track1Region1.getWeight());
 		Region track1Region2 = track1.getRegions().get(1);
 		Assert.assertEquals(track1Region2.getName(), "Name2");
-		Assert.assertArrayEquals(new String[] { "subregionPi" }, track1Region2.getSubregions().toArray(new String[1]));
+		Assert.assertEquals(new HashSet<>(Arrays.asList("subregionPi")), track1Region2.getSubregions());
 		Assert.assertTrue(track1Region2.getCategories().isEmpty());
 		Assert.assertEquals(Float.valueOf(1.5f), track1Region2.getWeight());
-		Assert.assertArrayEquals(new String[] { "CraftedMods", "J.S. Bach" },
-				track1.getAuthors().toArray(new String[2]));
+		Assert.assertEquals(new HashSet<>(Arrays.asList("CraftedMods", "J.S. Bach")), track1.getAuthors());
 
 		Track track2 = project.getMusicPack().getTracks().get(1);
 		Assert.assertEquals("track2.ogg", track2.getName());

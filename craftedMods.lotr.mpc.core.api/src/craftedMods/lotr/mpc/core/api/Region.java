@@ -1,6 +1,6 @@
 package craftedMods.lotr.mpc.core.api;
 
-import java.util.List;
+import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -11,9 +11,9 @@ public interface Region {
 
 	public void setName(String name);
 
-	public List<String> getSubregions();
+	public Set<String> getSubregions();
 
-	public List<String> getCategories();
+	public Set<String> getCategories();
 
 	public Float getWeight();
 	

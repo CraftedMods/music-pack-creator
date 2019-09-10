@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Assert;
@@ -84,13 +86,15 @@ public class MusicPackJSONFileWriterTest {
 		reader.endObject();
 	}
 
-	private void checkStringArray(JsonReader reader, String arrayName, List<String> values) throws IOException {
+	private void checkStringArray(JsonReader reader, String arrayName, Collection<String> values) throws IOException {
 		if (!values.isEmpty()) {
 			Assert.assertEquals(arrayName, reader.nextName());
 			reader.beginArray();
+			Collection<String> readValues = new HashSet<>();
 			for (int i = 0; i < values.size(); i++) {
-				Assert.assertEquals(values.get(i), reader.nextString());
+				readValues.add(reader.nextString());
 			}
+			Assert.assertEquals(values, readValues);
 			reader.endArray();
 		}
 	}
