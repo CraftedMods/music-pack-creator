@@ -1,6 +1,5 @@
 package craftedMods.lotr.mpc.core.api;
 
-import java.util.List;
 import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -18,7 +17,7 @@ public interface Track {
 
 	public void setTitle(String title);
 
-	public List<Region> getRegions();
+	public Set<Region> getRegions();
 
 	public Set<String> getAuthors();
 

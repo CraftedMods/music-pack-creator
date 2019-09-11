@@ -3,7 +3,7 @@ package craftedMods.lotr.mpc.core.provider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.List;
+import java.util.Collection;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -16,7 +16,7 @@ import craftedMods.lotr.mpc.core.api.Track;
 @Component(service = MusicPackJSONFileWriter.class)
 public class MusicPackJSONFileWriter {
 
-	public byte[] writeJSONFile(List<Track> tracks) throws IOException {
+	public byte[] writeJSONFile(Collection<Track> tracks) throws IOException {
 		byte[] ret = null;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
 				JsonWriter writer = new JsonWriter(new OutputStreamWriter(out))) {

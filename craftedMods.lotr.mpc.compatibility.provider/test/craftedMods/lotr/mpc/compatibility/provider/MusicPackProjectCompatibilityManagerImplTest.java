@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -491,7 +492,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	public void testApplyPreRegisterFixesAndrastFix() {
 		MusicPackProject mockMusicPackProject = createMockProject();
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 	
 		EasyMock.reset(mockMusicPackProject);
 	
@@ -533,7 +534,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 		EasyMock.reset(mockMusicPackProject);
 	
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 	
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
 		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
@@ -584,7 +585,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	private MusicPackProject createMockProject() {
 		MusicPackProject mockMusicPackProject = this.createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("proj");
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
 		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);

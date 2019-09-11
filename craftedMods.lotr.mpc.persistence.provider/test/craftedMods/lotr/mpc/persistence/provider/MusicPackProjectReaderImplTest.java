@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
@@ -65,7 +66,7 @@ public class MusicPackProjectReaderImplTest {
 
 		MusicPack mockMusicPack = EasyMock.createNiceMock(MusicPack.class);
 
-		List<Track> tracksList = new ArrayList<>();
+		Set<Track> tracksSet = new HashSet<>();
 
 		EasyMock.expect(mockFactory.createMusicPackProjectInstance("TestProject")).andAnswer(() -> {
 			return new MusicPackProject() {
@@ -87,7 +88,7 @@ public class MusicPackProjectReaderImplTest {
 			};
 		}).once();
 
-		EasyMock.expect(mockMusicPack.getTracks()).andReturn(tracksList).anyTimes();
+		EasyMock.expect(mockMusicPack.getTracks()).andReturn(tracksSet).anyTimes();
 
 		EasyMock.replay(mockFactory);
 		EasyMock.replay(mockMusicPack);
@@ -103,25 +104,44 @@ public class MusicPackProjectReaderImplTest {
 	private void checkReadMusicPackProject(MusicPackProject project) {
 		Assert.assertEquals("TestProject", project.getName());
 		Assert.assertEquals(2, project.getMusicPack().getTracks().size());
+		
+		List<Track> tracksList = new ArrayList<>(project.getMusicPack().getTracks());
+		
+		Track track1 = tracksList.get(0);
+		Track track2 = tracksList.get(1);
+		
+		if(track2.getName().contains("1")) {
+			Track tmp = track2;
+			track2 = track1;
+			track1 = tmp;
+		}
 
-		Track track1 = project.getMusicPack().getTracks().get(0);
 		Assert.assertEquals("track1.ogg", track1.getName());
 		Assert.assertEquals("Example Track", track1.getTitle());
 		Assert.assertEquals(2, track1.getRegions().size());
-		Region track1Region1 = track1.getRegions().get(0);
+		
+		List<Region> track1RegionsList = new ArrayList<>(track1.getRegions());
+		
+		Region track1Region1 = track1RegionsList.get(0);
+		Region track1Region2 = track1RegionsList.get(1);
+		
+		if(track1Region1.getName().contains("2")) {
+			Region tmp = track1Region1;
+			track1Region1 = track1Region2;
+			track1Region2 = tmp;
+		}
+		
 		Assert.assertEquals(track1Region1.getName(), "Name");
 		Assert.assertEquals(new HashSet<>(Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4")),
 				track1Region1.getSubregions());
 		Assert.assertEquals(new HashSet<>(Arrays.asList("category1", "category2")), track1Region1.getCategories());
 		Assert.assertNull(track1Region1.getWeight());
-		Region track1Region2 = track1.getRegions().get(1);
 		Assert.assertEquals(track1Region2.getName(), "Name2");
 		Assert.assertEquals(new HashSet<>(Arrays.asList("subregionPi")), track1Region2.getSubregions());
 		Assert.assertTrue(track1Region2.getCategories().isEmpty());
 		Assert.assertEquals(Float.valueOf(1.5f), track1Region2.getWeight());
 		Assert.assertEquals(new HashSet<>(Arrays.asList("CraftedMods", "J.S. Bach")), track1.getAuthors());
 
-		Track track2 = project.getMusicPack().getTracks().get(1);
 		Assert.assertEquals("track2.ogg", track2.getName());
 		Assert.assertNull(track2.getTitle());
 		Assert.assertTrue(track2.getRegions().isEmpty());

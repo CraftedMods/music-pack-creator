@@ -1,9 +1,7 @@
 package craftedMods.lotr.mpc.core.base;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import craftedMods.lotr.mpc.core.api.Region;
@@ -13,7 +11,7 @@ public class DefaultTrack implements Track {
 
 	private String name;
 	private String title;
-	private List<Region> regions = new ArrayList<>();
+	private Set<Region> regions = new HashSet<>();
 	private Set<String> authors = new HashSet<>();
 
 	public DefaultTrack() {
@@ -52,7 +50,7 @@ public class DefaultTrack implements Track {
 	}
 
 	@Override
-	public List<Region> getRegions() {
+	public Set<Region> getRegions() {
 		return this.regions;
 	}
 

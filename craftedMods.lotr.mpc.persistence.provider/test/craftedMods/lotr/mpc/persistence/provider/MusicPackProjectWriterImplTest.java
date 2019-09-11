@@ -3,11 +3,10 @@ package craftedMods.lotr.mpc.persistence.provider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.easymock.EasyMock;
@@ -36,9 +35,9 @@ public class MusicPackProjectWriterImplTest {
 
 	private MusicPack mockMusicPack;
 
-	private List<Track> tracks;
+	private LinkedHashSet<Track> tracks;
 
-	private List<Region> regions;
+	private LinkedHashSet<Region> regions;
 
 	private PrimitiveProperties packProperties;
 
@@ -55,8 +54,8 @@ public class MusicPackProjectWriterImplTest {
 
 		this.mockMusicPack = EasyMock.mock(MusicPack.class);
 
-		this.tracks = new ArrayList<>();
-		this.regions = new ArrayList<>();
+		this.tracks = new LinkedHashSet<>();
+		this.regions = new LinkedHashSet<>();
 
 		this.regions
 				.add(new DefaultRegion("Name", Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4"),
@@ -125,8 +124,9 @@ public class MusicPackProjectWriterImplTest {
 			Assert.assertEquals("TestProject", reader.nextString());
 			Assert.assertEquals(MusicPackProjectWriterImpl.JSON_PROJECT_TRACKS, reader.nextName());
 			reader.beginArray();
-			checkWrittenTrack(reader, tracks.get(0));
-			checkWrittenTrack(reader, tracks.get(1));
+			for(Track track : tracks) {
+				checkWrittenTrack(reader, track);
+			}
 			reader.endArray();
 			Assert.assertEquals(MusicPackProjectWriterImpl.JSON_PROJECT_PROPERTIES, reader.nextName());
 			reader.beginArray();

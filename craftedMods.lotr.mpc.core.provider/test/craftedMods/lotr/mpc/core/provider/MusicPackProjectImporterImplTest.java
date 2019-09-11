@@ -11,7 +11,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -189,14 +191,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -396,14 +398,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -625,14 +627,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -952,7 +954,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expectLastCall().once();
 
 		MusicPack pack = this.createMock(MusicPack.class);
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new HashSet<>();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(pack).once();
 		EasyMock.expect(pack.getTracks()).andReturn(tracks).once();
@@ -1074,14 +1076,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -1222,14 +1224,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -1363,14 +1365,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -1593,14 +1595,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -1753,14 +1755,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -1915,14 +1917,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -2125,14 +2127,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
-		EasyMock.expect(packTracksList.addAll(readTracksList)).andReturn(true).once();
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
+		EasyMock.expect(packTracksSet.addAll(readTracksList)).andReturn(true).once();
 
 		Path mockTracksDir = this.createMock(Path.class);
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
@@ -2391,10 +2393,10 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		List<Track> packTracksList = this.createMock(List.class);
+		Set<Track> packTracksSet = this.createMock(Set.class);
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
-		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksList);
+		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
 
 		RuntimeException exception = new RuntimeException("Error");
 

@@ -6,9 +6,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
@@ -78,7 +78,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
@@ -125,9 +125,11 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 				Arrays.asList(new DefaultRegion("dale", Arrays.asList(), Arrays.asList(), null)),
 				Arrays.asList("Someone"));
 
-		Assert.assertEquals(track1, mockMusicPack.getTracks().get(0));
-		Assert.assertEquals(track2, mockMusicPack.getTracks().get(1));
-		Assert.assertEquals(track3, mockMusicPack.getTracks().get(2));
+		int c = 1;
+		for (Track track : mockMusicPack.getTracks()) {
+			Assert.assertEquals(c == 1 ? track1 : c == 2 ? track2 : track3, track);
+			++c;
+		}
 
 		Assert.assertTrue(converter.getOldProjects().containsKey(projectFolder));
 		Assert.assertEquals(3, converter.getOldProjects().get(projectFolder).size());
@@ -140,7 +142,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
@@ -172,7 +174,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		List<Track> tracks = new ArrayList<>();
+		Set<Track> tracks = new LinkedHashSet<>();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");

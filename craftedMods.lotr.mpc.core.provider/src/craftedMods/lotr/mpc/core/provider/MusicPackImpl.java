@@ -6,11 +6,11 @@ import craftedMods.lotr.mpc.core.api.*;
 
 public class MusicPackImpl implements MusicPack {
 
-	private List<Track> tracksList = new ArrayList<>();
+	private Set<Track> tracksSet = new HashSet<>();
 
 	@Override
-	public List<Track> getTracks() {
-		return this.tracksList;
+	public Set<Track> getTracks() {
+		return this.tracksSet;
 	}
 
 }

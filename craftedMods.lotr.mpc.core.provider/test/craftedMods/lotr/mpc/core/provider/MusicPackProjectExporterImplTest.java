@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -82,7 +83,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	private MusicPackProject mockMusicPackProject;
 	private MusicPack mockMusicPack;
 	private PrimitiveProperties musicPackProjectProperties;
-	private List<Track> tracksList;
+	private Set<Track> tracksSet;
 
 	private Track track1;
 	private Track track2;
@@ -106,7 +107,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		mockMusicPackProject = this.createMock(MusicPackProject.class);
 		mockMusicPack = this.createMock(MusicPack.class);
-		tracksList = new ArrayList<>();
+		tracksSet = new LinkedHashSet<>();
 
 		track1 = new DefaultTrack();
 		track2 = new DefaultTrack();
@@ -120,9 +121,9 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		track2.setName(trackName2);
 		track3.setName(trackName3);
 
-		tracksList.add(track1);
-		tracksList.add(track2);
-		tracksList.add(track3);
+		tracksSet.add(track1);
+		tracksSet.add(track2);
+		tracksSet.add(track3);
 
 		musicPackProjectProperties = this.createMock(PrimitiveProperties.class);
 
@@ -130,7 +131,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Names3");
 		EasyMock.expect(mockMusicPackProject.getProperties()).andStubReturn(musicPackProjectProperties);
 
-		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracksList);
+		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracksSet);
 
 		registeredMPPs = new ArrayList<>();
 
@@ -190,7 +191,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		byte[] mockArray = new byte[] {};
 
-		EasyMock.expect(mockWriter.writeJSONFile(tracksList)).andReturn(mockArray).once();
+		EasyMock.expect(mockWriter.writeJSONFile(tracksSet)).andReturn(mockArray).once();
 		mockFileManager.write(Paths.get(".", MusicPackProjectExporter.BASE_FILE), mockArray);
 		EasyMock.expectLastCall().once();
 
