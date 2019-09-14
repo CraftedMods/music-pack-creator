@@ -1,24 +1,17 @@
 package craftedMods.lotr.mpc.core.api;
 
-import java.util.Set;
-
 import org.osgi.annotation.versioning.ProviderType;
 
-@ProviderType
-public interface Track {
+import craftedMods.utils.data.NonNullSet;
 
-	public String getName();
+@ProviderType
+public interface Track extends ReadOnlyTrack{
 
 	public void setName(String name);
 
-	public boolean hasTitle();
-
-	public String getTitle();
-
 	public void setTitle(String title);
 
-	public Set<Region> getRegions();
-
-	public Set<String> getAuthors();
-
+	@Override
+	public NonNullSet<Region> getRegions();
+	
 }

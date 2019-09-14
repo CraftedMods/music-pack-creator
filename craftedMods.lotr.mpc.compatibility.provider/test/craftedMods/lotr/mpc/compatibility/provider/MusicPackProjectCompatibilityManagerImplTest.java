@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -45,6 +43,8 @@ import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.CollectionUtils;
+import craftedMods.utils.data.NonNullSet;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MusicPackProjectCompatibilityManagerImpl.class, Utils.class })
@@ -492,7 +492,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	public void testApplyPreRegisterFixesAndrastFix() {
 		MusicPackProject mockMusicPackProject = createMockProject();
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 	
 		EasyMock.reset(mockMusicPackProject);
 	
@@ -534,7 +534,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 		EasyMock.reset(mockMusicPackProject);
 	
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 	
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
 		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
@@ -585,7 +585,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	private MusicPackProject createMockProject() {
 		MusicPackProject mockMusicPackProject = this.createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("proj");
 		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
 		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);

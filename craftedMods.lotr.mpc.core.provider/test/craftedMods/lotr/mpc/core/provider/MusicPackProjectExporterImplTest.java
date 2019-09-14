@@ -12,9 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -46,7 +44,9 @@ import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.NonNullSet;
 import craftedMods.utils.data.PrimitiveProperties;
 import craftedMods.versionChecker.api.SemanticVersion;
 
@@ -83,7 +83,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 	private MusicPackProject mockMusicPackProject;
 	private MusicPack mockMusicPack;
 	private PrimitiveProperties musicPackProjectProperties;
-	private Set<Track> tracksSet;
+	private NonNullSet<Track> tracksSet;
 
 	private Track track1;
 	private Track track2;
@@ -107,7 +107,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		mockMusicPackProject = this.createMock(MusicPackProject.class);
 		mockMusicPack = this.createMock(MusicPack.class);
-		tracksSet = new LinkedHashSet<>();
+		tracksSet = CollectionUtils.createNonNullLinkedHashSet();
 
 		track1 = new DefaultTrack();
 		track2 = new DefaultTrack();

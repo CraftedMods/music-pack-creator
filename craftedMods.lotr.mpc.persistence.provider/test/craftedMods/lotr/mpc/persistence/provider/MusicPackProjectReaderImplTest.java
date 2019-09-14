@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
@@ -27,7 +26,9 @@ import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
+import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.NonNullSet;
 import craftedMods.utils.data.PrimitiveProperties;
 
 @RunWith(EasyMockRunner.class)
@@ -66,7 +67,7 @@ public class MusicPackProjectReaderImplTest {
 
 		MusicPack mockMusicPack = EasyMock.createNiceMock(MusicPack.class);
 
-		Set<Track> tracksSet = new HashSet<>();
+		NonNullSet<Track> tracksSet = CollectionUtils.createNonNullHashSet();
 
 		EasyMock.expect(mockFactory.createMusicPackProjectInstance("TestProject")).andAnswer(() -> {
 			return new MusicPackProject() {

@@ -1,20 +1,25 @@
 package craftedMods.lotr.mpc.core.base;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
 
 import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.utils.data.CollectionUtils;
+import craftedMods.utils.data.NonNullSet;
 
 public class DefaultRegion implements Region {
 
 	private String name;
-	private Set<String> subregions = new HashSet<>();
-	private Set<String> categories = new HashSet<>();
+	private NonNullSet<String> subregions = CollectionUtils.createNonNullHashSet();
+	private NonNullSet<String> categories = CollectionUtils.createNonNullHashSet();
 	private Float weight;
 
 	public DefaultRegion() {
 	}
 
 	public DefaultRegion(String name, Collection<String> subregions, Collection<String> categories, Float weight) {
+		Objects.requireNonNull(name);
+		
 		this.name = name;
 		this.subregions.addAll(subregions);
 		this.categories.addAll(categories);
@@ -28,16 +33,18 @@ public class DefaultRegion implements Region {
 
 	@Override
 	public void setName(String name) {
+		Objects.requireNonNull(name);
+		
 		this.name = name;
 	}
 
 	@Override
-	public Set<String> getSubregions() {
+	public NonNullSet<String> getSubregions() {
 		return this.subregions;
 	}
 
 	@Override
-	public Set<String> getCategories() {
+	public NonNullSet<String> getCategories() {
 		return this.categories;
 	}
 

@@ -6,7 +6,6 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.easymock.EasyMock;
@@ -26,7 +25,9 @@ import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.NonNullSet;
 import craftedMods.utils.data.PrimitiveProperties;
 
 public class MusicPackProjectWriterImplTest {
@@ -35,9 +36,9 @@ public class MusicPackProjectWriterImplTest {
 
 	private MusicPack mockMusicPack;
 
-	private LinkedHashSet<Track> tracks;
+	private NonNullSet<Track> tracks;
 
-	private LinkedHashSet<Region> regions;
+	private NonNullSet<Region> regions;
 
 	private PrimitiveProperties packProperties;
 
@@ -54,8 +55,8 @@ public class MusicPackProjectWriterImplTest {
 
 		this.mockMusicPack = EasyMock.mock(MusicPack.class);
 
-		this.tracks = new LinkedHashSet<>();
-		this.regions = new LinkedHashSet<>();
+		this.tracks = CollectionUtils.createNonNullLinkedHashSet();
+		this.regions = CollectionUtils.createNonNullLinkedHashSet();
 
 		this.regions
 				.add(new DefaultRegion("Name", Arrays.asList("subregion1", "subregion2", "subregion3", "subregion4"),

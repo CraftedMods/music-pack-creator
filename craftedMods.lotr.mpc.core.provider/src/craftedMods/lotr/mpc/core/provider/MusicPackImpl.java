@@ -1,15 +1,16 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.util.*;
-
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPack;
+import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.utils.data.CollectionUtils;
+import craftedMods.utils.data.NonNullSet;
 
 public class MusicPackImpl implements MusicPack {
 
-	private Set<Track> tracksSet = new HashSet<>();
+	private NonNullSet<Track> tracksSet = CollectionUtils.createNonNullHashSet();
 
 	@Override
-	public Set<Track> getTracks() {
+	public NonNullSet<Track> getTracks() {
 		return this.tracksSet;
 	}
 

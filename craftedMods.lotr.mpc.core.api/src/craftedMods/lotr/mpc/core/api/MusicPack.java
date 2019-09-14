@@ -1,12 +1,13 @@
 package craftedMods.lotr.mpc.core.api;
 
-import java.util.Set;
-
 import org.osgi.annotation.versioning.ProviderType;
 
-@ProviderType
-public interface MusicPack {
+import craftedMods.utils.data.NonNullSet;
 
-	public Set<Track> getTracks();
+@ProviderType
+public interface MusicPack extends ReadOnlyMusicPack {
+
+	@Override
+	public NonNullSet<Track> getTracks();
 
 }

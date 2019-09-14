@@ -7,8 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
@@ -32,7 +30,9 @@ import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.NonNullSet;
 import craftedMods.utils.data.PrimitiveProperties;
 
 @RunWith(EasyMockRunner.class)
@@ -78,7 +78,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
@@ -142,7 +142,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");
@@ -174,7 +174,7 @@ public class SerializedWorkspaceToJSONConverterTest extends EasyMockSupport {
 		MusicPackProject mockMusicPackProject = createMock(MusicPackProject.class);
 		MusicPack mockMusicPack = createMock(MusicPack.class);
 
-		Set<Track> tracks = new LinkedHashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
 		PrimitiveProperties properties = new ExtendedProperties();
 
 		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Testproject");

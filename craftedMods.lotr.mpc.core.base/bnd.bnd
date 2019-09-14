@@ -10,10 +10,11 @@ Export-Package: craftedMods.lotr.mpc.core.base
 -includeresource: {readme.md}
 
 -buildpath: \
-	osgi.annotation; version=7.0.0,\
-	osgi.core; version=7.0.0,\
-	osgi.cmpn; version=7.0.0,\
-	craftedMods.lotr.mpc.core.api;version=latest
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
+	craftedMods.lotr.mpc.core.api;version=latest,\
+	craftedMods.utils;version=latest
 
 -testpath: \
 	${junit}

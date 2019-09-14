@@ -1,18 +1,18 @@
 package craftedMods.lotr.mpc.core.base;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.utils.data.CollectionUtils;
+import craftedMods.utils.data.NonNullSet;
 
 public class DefaultTrack implements Track {
 
 	private String name;
 	private String title;
-	private Set<Region> regions = new HashSet<>();
-	private Set<String> authors = new HashSet<>();
+	private NonNullSet<Region> regions = CollectionUtils.createNonNullHashSet();
+	private NonNullSet<String> authors = CollectionUtils.createNonNullHashSet();
 
 	public DefaultTrack() {
 	}
@@ -50,12 +50,12 @@ public class DefaultTrack implements Track {
 	}
 
 	@Override
-	public Set<Region> getRegions() {
+	public NonNullSet<Region> getRegions() {
 		return this.regions;
 	}
 
 	@Override
-	public Set<String> getAuthors() {
+	public NonNullSet<String> getAuthors() {
 		return this.authors;
 	}
 

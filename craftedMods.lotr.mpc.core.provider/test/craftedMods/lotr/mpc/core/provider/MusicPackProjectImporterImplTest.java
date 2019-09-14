@@ -11,9 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -47,7 +45,9 @@ import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.NonNullSet;
 import craftedMods.utils.data.PrimitiveProperties;
 import craftedMods.versionChecker.api.SemanticVersion;
 import junit.framework.AssertionFailedError;
@@ -191,7 +191,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -398,7 +398,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -627,7 +627,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -954,7 +954,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expectLastCall().once();
 
 		MusicPack pack = this.createMock(MusicPack.class);
-		Set<Track> tracks = new HashSet<>();
+		NonNullSet<Track> tracks = CollectionUtils.createNonNullHashSet();
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(pack).once();
 		EasyMock.expect(pack.getTracks()).andReturn(tracks).once();
@@ -1076,7 +1076,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -1224,7 +1224,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -1365,7 +1365,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -1595,7 +1595,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -1755,7 +1755,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -1917,7 +1917,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -2127,7 +2127,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		List<Track> readTracksList = new ArrayList<>();
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andReturn(readTracksList).once();
@@ -2393,7 +2393,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		byte[] readContent = new byte[] { 1, 2, 3 };
 		MusicPack musicPack = this.createMock(MusicPack.class);
-		Set<Track> packTracksSet = this.createMock(Set.class);
+		NonNullSet<Track> packTracksSet = this.createMock(NonNullSet.class);
 
 		EasyMock.expect(mockPackImpl.getMusicPack()).andReturn(musicPack).once();
 		EasyMock.expect(musicPack.getTracks()).andReturn(packTracksSet);
