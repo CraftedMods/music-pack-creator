@@ -1,6 +1,7 @@
 package craftedMods.audioPlayer.provider;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -31,8 +32,8 @@ public class ClipAudioPlayerImpl extends AbstractAudioPlayer {
 	private EventManager eventManager;
 
 	@Activate
-	public void onActivate(Configuration config) {
-		super.onActivate(logger, eventManager, config);
+	public void onActivate(Configuration config, Map<String, Object> properties) {
+		super.onActivate(logger, eventManager, config, properties);
 	}
 
 	@Deactivate

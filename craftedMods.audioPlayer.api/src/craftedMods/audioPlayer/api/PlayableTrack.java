@@ -10,6 +10,6 @@ public interface PlayableTrack {
 
 	public String getName();
 
-	public InputStream openInputStream() throws IOException;
+	public InputStream openInputStream(String playingMode) throws IOException;
 
 }

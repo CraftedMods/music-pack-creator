@@ -22,7 +22,7 @@ public class DefaultPlayableTrack implements PlayableTrack {
 	}
 
 	@Override
-	public InputStream openInputStream() throws IOException {
+	public InputStream openInputStream(String playingMode) throws IOException {
 		return trackStreamCreator.get();
 	}
 

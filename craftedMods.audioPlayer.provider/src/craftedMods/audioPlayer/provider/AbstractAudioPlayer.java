@@ -32,6 +32,8 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 	public @interface Configuration {
 		long shutdownTimeout() default 1000l;
 	}
+	
+	private String playingMode;
 
 	private Logger logger;
 	private EventManager eventManager;
@@ -59,7 +61,9 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 	protected Map<PlayableTrack, Long> trackDurationsCache;
 
-	protected void onActivate(Logger logger, EventManager eventManager, Configuration config) {
+	protected void onActivate(Logger logger, EventManager eventManager, Configuration config, Map<String, Object> properties) {
+		this.playingMode = (String) properties.get(AudioPlayer.PLAYING_MODE_PROPERTY_KEY);
+		
 		this.logger = logger;
 		this.eventManager = eventManager;
 
@@ -122,7 +126,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 	}
 
 	private void audioPlayerThread(PlayableTrack track) {
-		try (InputStream in = track.openInputStream();
+		try (InputStream in = track.openInputStream(this.playingMode);
 				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(in)) {
 			AudioFormat baseAudioFormat = audioInputStream.getFormat();
 			AudioFileFormat baseAudioFileFormat = AudioSystem.getAudioFileFormat(in);
