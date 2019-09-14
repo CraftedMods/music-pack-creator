@@ -105,4 +105,12 @@ public class CollectionUtilsTest {
 		Assert.assertTrue(set.contains("e"));
 	}
 
+	@Test
+	public void testEqualsEqualObjectsButNotSameReference() {
+		Set<String> set1 = CollectionUtils.createNonNullHashSet(Arrays.asList("str1", "str2", "str3"));
+		Set<String> set2 = CollectionUtils.createNonNullHashSet(Arrays.asList("str1", "str2", "str3"));
+
+		Assert.assertTrue(set1.equals(set2));
+	}
+
 }

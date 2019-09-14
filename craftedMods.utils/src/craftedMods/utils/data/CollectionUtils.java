@@ -109,6 +109,20 @@ public class CollectionUtils {
 			internal.clear();
 		}
 
+		@Override
+		public boolean equals(Object obj) {
+			return internal.equals(obj);
+		}
+
+		@Override
+		public int hashCode() {
+			return internal.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return internal.toString();
+		}
 	}
 
 }
