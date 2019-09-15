@@ -14,13 +14,12 @@ public class DefaultRegion implements Region {
 	private NonNullSet<String> categories = CollectionUtils.createNonNullHashSet();
 	private Float weight;
 
-	public DefaultRegion() {
+	public DefaultRegion(String name) {
+		this.setName(name);
 	}
 
 	public DefaultRegion(String name, Collection<String> subregions, Collection<String> categories, Float weight) {
-		Objects.requireNonNull(name);
-		
-		this.name = name;
+		this.setName(name);
 		this.subregions.addAll(subregions);
 		this.categories.addAll(categories);
 		this.weight = weight;
@@ -34,7 +33,7 @@ public class DefaultRegion implements Region {
 	@Override
 	public void setName(String name) {
 		Objects.requireNonNull(name);
-		
+
 		this.name = name;
 	}
 

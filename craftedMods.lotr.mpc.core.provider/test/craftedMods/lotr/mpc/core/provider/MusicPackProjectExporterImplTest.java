@@ -108,18 +108,14 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		mockMusicPackProject = this.createMock(MusicPackProject.class);
 		mockMusicPack = this.createMock(MusicPack.class);
 		tracksSet = CollectionUtils.createNonNullLinkedHashSet();
-
-		track1 = new DefaultTrack();
-		track2 = new DefaultTrack();
-		track3 = new DefaultTrack();
-
+		
 		trackName1 = "Tracl1_2";
 		trackName2 = "Track2_2";
 		trackName3 = "Tracl4_4";
 
-		track1.setName(trackName1);
-		track2.setName(trackName2);
-		track3.setName(trackName3);
+		track1 = new DefaultTrack(trackName1);
+		track2 = new DefaultTrack(trackName2);
+		track3 = new DefaultTrack(trackName3);
 
 		tracksSet.add(track1);
 		tracksSet.add(track2);
