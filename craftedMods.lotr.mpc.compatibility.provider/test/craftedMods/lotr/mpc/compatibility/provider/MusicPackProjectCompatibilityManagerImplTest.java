@@ -29,7 +29,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.EventProperties;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
@@ -45,6 +44,7 @@ import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
 import craftedMods.utils.data.CollectionUtils;
 import craftedMods.utils.data.NonNullSet;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MusicPackProjectCompatibilityManagerImpl.class, Utils.class })
@@ -106,7 +106,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		Capture<WriteableEventProperties> capturedProperties1 = Capture.newInstance();
 
-		Collection<EventProperties> results = new ArrayList<>();
+		Collection<ReadOnlyTypedProperties> results = new ArrayList<>();
 
 		WriteableEventProperties proceedProperties = new DefaultWriteableEventProperties();
 		proceedProperties.put(
@@ -171,7 +171,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
 
-		Collection<EventProperties> results = new ArrayList<>();
+		Collection<ReadOnlyTypedProperties> results = new ArrayList<>();
 
 		WriteableEventProperties proceedProperties = new DefaultWriteableEventProperties();
 		proceedProperties.put(

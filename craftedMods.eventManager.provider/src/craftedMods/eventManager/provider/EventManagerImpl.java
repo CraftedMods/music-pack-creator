@@ -29,10 +29,10 @@ import craftedMods.eventManager.api.EventHandler;
 import craftedMods.eventManager.api.EventHandlerPolicy;
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.EventProperties;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultEventInfo;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
 
 @Component(scope = ServiceScope.SINGLETON)
 public class EventManagerImpl implements EventManager {
@@ -91,23 +91,23 @@ public class EventManagerImpl implements EventManager {
 	private ExecutorService asynchronousExecutor = Executors.newCachedThreadPool();
 
 	@Override
-	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo) {
 		return this.dispatchEvent(eventInfo, null, null);
 	}
 
 	@Override
-	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, EventDispatchPolicy policy) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, EventDispatchPolicy policy) {
 		return this.dispatchEvent(eventInfo, null, policy);
 	}
 
 	@Override
-	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties) {
 		return this.dispatchEvent(eventInfo, properties, null);
 	}
 
 	@Override
 	@SuppressWarnings("incomplete-switch")
-	public Collection<EventProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties, EventDispatchPolicy policy) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties, EventDispatchPolicy policy) {
 		String eventTopic = eventInfo.getTopic();
 
 		WriteableEventProperties writeableEventProperties = properties == null ? new DefaultWriteableEventProperties() : properties;
@@ -146,7 +146,7 @@ public class EventManagerImpl implements EventManager {
 		return ret;
 	}
 
-	private Collection<EventProperties> sendEvent(EventImpl event, Set<EventHandler> handlers) {
+	private Collection<ReadOnlyTypedProperties> sendEvent(EventImpl event, Set<EventHandler> handlers) {
 		List<WriteableEventProperties> results = new ArrayList<>();
 		for (EventHandler handler : handlers) {
 			handler.handleEvent(event);

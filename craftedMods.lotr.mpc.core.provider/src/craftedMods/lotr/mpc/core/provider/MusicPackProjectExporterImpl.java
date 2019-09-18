@@ -20,8 +20,6 @@ import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.EventProperties;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.eventManager.base.EventUtils;
@@ -35,6 +33,8 @@ import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.TypedPropertyKey;
 import craftedMods.versionChecker.api.SemanticVersion;
 
 @Component
@@ -160,12 +160,12 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 		}
 	}
 
-	private <T> Collection<EventProperties> dispatchEvent(EventInfo info, Path path, MusicPackProject project) {
+	private <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo info, Path path, MusicPackProject project) {
 		return this.dispatchEvent(info, path, project, null, null);
 	}
 
-	private <T> Collection<EventProperties> dispatchEvent(EventInfo info, Path path, MusicPackProject project,
-			PropertyKey<T> key, T value) {
+	private <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo info, Path path, MusicPackProject project,
+			TypedPropertyKey<T> key, T value) {
 		WriteableEventProperties properties = new DefaultWriteableEventProperties();
 		properties.put(MusicPackProjectExporter.COMMON_EVENT_LOCATION, path);
 		properties.put(MusicPackProjectExporter.COMMON_EVENT_MUSIC_PACK_PROJECT, project);

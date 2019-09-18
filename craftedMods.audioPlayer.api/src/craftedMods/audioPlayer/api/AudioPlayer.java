@@ -7,9 +7,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.eventManager.api.EventDispatchPolicy;
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @ProviderType
 public interface AudioPlayer {
@@ -24,8 +23,8 @@ public interface AudioPlayer {
 	public static final EventInfo PLAY_TRACK_ERROR_EVENT = new DefaultEventInfo(AudioPlayer.class, "PLAY_TRACK_ERROR",
 			EventDispatchPolicy.NOT_SPECIFIED);
 
-	public static final PropertyKey<String> PLAY_TRACK_ERROR_EVENT_NAME = DefaultPropertyKey.createStringPropertyKey();
-	public static final PropertyKey<Exception> PLAY_TRACK_ERROR_EVENT_EXCEPTION = DefaultPropertyKey
+	public static final TypedPropertyKey<String> PLAY_TRACK_ERROR_EVENT_NAME = TypedPropertyKey.createStringPropertyKey();
+	public static final TypedPropertyKey<Exception> PLAY_TRACK_ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
 
 	public static final long UNDEFINED = -1l;

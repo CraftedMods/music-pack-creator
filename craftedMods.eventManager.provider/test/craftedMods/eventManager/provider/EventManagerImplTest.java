@@ -20,14 +20,13 @@ import craftedMods.eventManager.api.EventDispatchPolicy;
 import craftedMods.eventManager.api.EventHandler;
 import craftedMods.eventManager.api.EventHandlerPolicy;
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventProperties;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.eventManager.base.EventUtils;
 import craftedMods.utils.data.ArrayUtils;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @RunWith(EasyMockRunner.class)
 public class EventManagerImplTest {
@@ -378,9 +377,9 @@ public class EventManagerImplTest {
 		EasyMock.replay(this.mockEventHandler1);
 
 		WriteableEventProperties properties = new DefaultWriteableEventProperties();
-		PropertyKey<String> property1 = DefaultPropertyKey.createStringPropertyKey();
+		TypedPropertyKey<String> property1 = TypedPropertyKey.createStringPropertyKey();
 		properties.put(property1, "Test");
-		PropertyKey<Integer> property2 = DefaultPropertyKey.createIntegerPropertyKey();
+		TypedPropertyKey<Integer> property2 = TypedPropertyKey.createIntegerPropertyKey();
 		properties.put(property2, 6);
 
 		this.eventManager.addHandler(this.mockEventHandler1);
@@ -409,8 +408,8 @@ public class EventManagerImplTest {
 		EasyMock.expect(this.mockEventHandler3.getSupportedEvents())
 				.andStubReturn(EventUtils.getSupportedEvents(EventHandlerPolicy.SYNCHRONOUS, this.synchronousDispatchedEvent));
 
-		PropertyKey<String> property1 = DefaultPropertyKey.createStringPropertyKey();
-		PropertyKey<Integer> property2 = DefaultPropertyKey.createIntegerPropertyKey();
+		TypedPropertyKey<String> property1 = TypedPropertyKey.createStringPropertyKey();
+		TypedPropertyKey<Integer> property2 = TypedPropertyKey.createIntegerPropertyKey();
 
 		this.mockEventHandler1.handleEvent(EasyMock.anyObject(Event.class));
 		EasyMock.expectLastCall().andAnswer(() -> {
@@ -438,20 +437,20 @@ public class EventManagerImplTest {
 		this.eventManager.addHandler(this.mockEventHandler2);
 		this.eventManager.addHandler(this.mockEventHandler3);
 
-		List<EventProperties> results = new ArrayList<>(this.eventManager.dispatchEvent(this.synchronousDispatchedEvent));
+		List<ReadOnlyTypedProperties> results = new ArrayList<>(this.eventManager.dispatchEvent(this.synchronousDispatchedEvent));
 
 		EasyMock.verify(this.mockEventHandler1);
 
 		Assert.assertEquals(2, results.size());
 
-		EventProperties properties1 = results.get(0);
-		EventProperties properties2 = results.get(1);
+		ReadOnlyTypedProperties properties1 = results.get(0);
+		ReadOnlyTypedProperties properties2 = results.get(1);
 
 		Assert.assertNotNull(properties1);
 		Assert.assertNotNull(properties2);
 
 		if (!properties1.containsProperty(property2)) {
-			EventProperties tmp2 = properties2;
+			ReadOnlyTypedProperties tmp2 = properties2;
 			properties2 = properties1;
 			properties1 = tmp2;
 		}
@@ -488,7 +487,7 @@ public class EventManagerImplTest {
 		this.eventManager.addHandler(this.mockEventHandler2);
 		this.eventManager.addHandler(this.mockEventHandler3);
 
-		List<EventProperties> results = new ArrayList<>(this.eventManager.dispatchEvent(this.asynchronousDispatchedEvent));
+		List<ReadOnlyTypedProperties> results = new ArrayList<>(this.eventManager.dispatchEvent(this.asynchronousDispatchedEvent));
 
 		this.eventManager.onDeactivate();
 

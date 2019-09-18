@@ -7,9 +7,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.eventManager.api.EventDispatchPolicy;
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @ProviderType
 public interface MusicPackProjectImporter {
@@ -39,37 +38,37 @@ public interface MusicPackProjectImporter {
 	public static final EventInfo UNEXPECTED_ERROR_EVENT = new DefaultEventInfo(MusicPackProjectImporter.class,
 			"ERROR");
 
-	public static final PropertyKey<Path> COMMON_EVENT_LOCATION = DefaultPropertyKey.createPropertyKey(Path.class);
+	public static final TypedPropertyKey<Path> COMMON_EVENT_LOCATION = TypedPropertyKey.createPropertyKey(Path.class);
 
-	public static final PropertyKey<String> READING_FILE_EVENT_FILENAME = DefaultPropertyKey.createStringPropertyKey();
+	public static final TypedPropertyKey<String> READING_FILE_EVENT_FILENAME = TypedPropertyKey.createStringPropertyKey();
 
-	public static final PropertyKey<String> FILE_NOT_FOUND_EVENT_FILENAME = DefaultPropertyKey
+	public static final TypedPropertyKey<String> FILE_NOT_FOUND_EVENT_FILENAME = TypedPropertyKey
 			.createStringPropertyKey();
-	public static final PropertyKey<Boolean> FILE_NOT_FOUND_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> FILE_NOT_FOUND_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
 	@SuppressWarnings("unchecked")
-	public static final PropertyKey<Collection<String>> NON_OGG_TRACK_FILES_FOUND_EVENT_FILENAMES = (PropertyKey<Collection<String>>) (PropertyKey<?>) DefaultPropertyKey
+	public static final TypedPropertyKey<Collection<String>> NON_OGG_TRACK_FILES_FOUND_EVENT_FILENAMES = (TypedPropertyKey<Collection<String>>) (TypedPropertyKey<?>) TypedPropertyKey
 			.createPropertyKey(Collection.class);
-	public static final PropertyKey<Boolean> NON_OGG_TRACK_FILES_FOUND_EVENT_ENTRIES_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> NON_OGG_TRACK_FILES_FOUND_EVENT_ENTRIES_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<Integer> TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT = DefaultPropertyKey
+	public static final TypedPropertyKey<Integer> TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT = TypedPropertyKey
 			.createIntegerPropertyKey();
-	public static final PropertyKey<Boolean> TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<String> COPYING_TRACK_EVENT_TRACK_NAME = DefaultPropertyKey
+	public static final TypedPropertyKey<String> COPYING_TRACK_EVENT_TRACK_NAME = TypedPropertyKey
 			.createStringPropertyKey();
-	public static final PropertyKey<Boolean> COPYING_TRACK_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> COPYING_TRACK_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<Boolean> PRE_SUCCESS_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> PRE_SUCCESS_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<String> SUCCESS_EVENT_PROJECT_NAME = DefaultPropertyKey.createStringPropertyKey();
+	public static final TypedPropertyKey<String> SUCCESS_EVENT_PROJECT_NAME = TypedPropertyKey.createStringPropertyKey();
 
-	public static final PropertyKey<Exception> UNEXPECTED_ERROR_EVENT_EXCEPTION = DefaultPropertyKey
+	public static final TypedPropertyKey<Exception> UNEXPECTED_ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
 
 	public MusicPackProject importMusicPackProject(Path location);

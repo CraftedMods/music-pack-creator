@@ -22,8 +22,6 @@ import com.google.gson.JsonSyntaxException;
 
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.EventProperties;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.eventManager.base.EventUtils;
@@ -36,6 +34,8 @@ import craftedMods.lotr.mpc.persistence.api.TrackStore;
 import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
 import craftedMods.utils.Utils;
 import craftedMods.utils.data.ExtendedProperties;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.TypedPropertyKey;
 import craftedMods.utils.exceptions.InvalidInputException;
 import craftedMods.versionChecker.api.SemanticVersion;
 
@@ -235,11 +235,11 @@ public class MusicPackProjectImporterImpl implements MusicPackProjectImporter {
 		}
 	}
 
-	private <T> Collection<EventProperties> dispatchEvent(EventInfo info, Path path) {
+	private <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo info, Path path) {
 		return this.dispatchEvent(info, path, null, null);
 	}
 
-	private <T> Collection<EventProperties> dispatchEvent(EventInfo info, Path path, PropertyKey<T> key, T value) {
+	private <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo info, Path path, TypedPropertyKey<T> key, T value) {
 		WriteableEventProperties properties = new DefaultWriteableEventProperties();
 		properties.put(MusicPackProjectImporter.COMMON_EVENT_LOCATION, path);
 		if (key != null)

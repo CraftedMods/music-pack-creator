@@ -11,10 +11,11 @@ Export-Package:  \
 
 -baseline: *
 -buildpath: \
-  osgi.annotation; version=7.0.0,\
-  craftedMods.lotr.mpc.core.api;version=latest,\
-  craftedMods.eventManager.api;version=latest,\
-  craftedMods.eventManager.base;version=latest
+	osgi.annotation;version=7.0.0,\
+	craftedMods.lotr.mpc.core.api;version=latest,\
+	craftedMods.eventManager.api;version=latest,\
+	craftedMods.eventManager.base;version=latest,\
+	craftedMods.utils;version=latest
 
 javac.source: 1.8
 javac.target: 1.8

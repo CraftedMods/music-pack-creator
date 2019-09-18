@@ -5,9 +5,8 @@ import java.util.Locale;
 import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @ProviderType
 public interface LanguageRegistry {
@@ -18,14 +17,14 @@ public interface LanguageRegistry {
 	public static EventInfo CURRENT_LANGUAGE_CHANGED_EVENT = new DefaultEventInfo(LanguageRegistry.class,
 			"CURRENT_LANGUAGE_CHANGED");
 
-	public static PropertyKey<Locale> DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE = DefaultPropertyKey
+	public static TypedPropertyKey<Locale> DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE = TypedPropertyKey
 			.createPropertyKey(Locale.class);
-	public static PropertyKey<Locale> DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE = DefaultPropertyKey
+	public static TypedPropertyKey<Locale> DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE = TypedPropertyKey
 			.createPropertyKey(Locale.class);
 
-	public static PropertyKey<Locale> CURRENT_LANGUAGE_CHANGED_OLD_LANGUAGE = DefaultPropertyKey
+	public static TypedPropertyKey<Locale> CURRENT_LANGUAGE_CHANGED_OLD_LANGUAGE = TypedPropertyKey
 			.createPropertyKey(Locale.class);
-	public static PropertyKey<Locale> CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE = DefaultPropertyKey
+	public static TypedPropertyKey<Locale> CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE = TypedPropertyKey
 			.createPropertyKey(Locale.class);
 
 	public Locale getDefaultLanguage();

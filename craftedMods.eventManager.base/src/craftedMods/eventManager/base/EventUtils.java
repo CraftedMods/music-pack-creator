@@ -9,9 +9,9 @@ import craftedMods.eventManager.api.EventDispatchPolicy;
 import craftedMods.eventManager.api.EventHandlerPolicy;
 import craftedMods.eventManager.api.EventInfo;
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.EventProperties;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.TypedPropertyKey;
 
 public class EventUtils {
 
@@ -36,12 +36,13 @@ public class EventUtils {
 		return ret;
 	}
 
-	public static boolean proceed(Collection<EventProperties> results, PropertyKey<Boolean> proceedProperty) {
+	public static boolean proceed(Collection<ReadOnlyTypedProperties> results,
+			TypedPropertyKey<Boolean> proceedProperty) {
 		return proceed(results, proceedProperty, true);
 	}
 
-	public static boolean proceed(Collection<EventProperties> results, PropertyKey<Boolean> proceedProperty,
-			boolean defaultValue) {
+	public static boolean proceed(Collection<ReadOnlyTypedProperties> results,
+			TypedPropertyKey<Boolean> proceedProperty, boolean defaultValue) {
 		Objects.requireNonNull(results);
 		Objects.requireNonNull(proceedProperty);
 		return results.isEmpty() ? defaultValue : results.stream().map(result -> {
@@ -50,13 +51,13 @@ public class EventUtils {
 		}).allMatch(proceed -> proceed.booleanValue());
 	}
 
-	public static <T> Collection<EventProperties> dispatchEvent(EventManager manager, EventInfo info,
-			PropertyKey<T> key, T value) {
+	public static <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventManager manager, EventInfo info,
+			TypedPropertyKey<T> key, T value) {
 		return dispatchEvent(manager, info, key, value, null);
 	}
 
-	public static <T> Collection<EventProperties> dispatchEvent(EventManager manager, EventInfo info,
-			PropertyKey<T> key, T value, EventDispatchPolicy policy) {
+	public static <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventManager manager, EventInfo info,
+			TypedPropertyKey<T> key, T value, EventDispatchPolicy policy) {
 		Objects.requireNonNull(manager);
 		Objects.requireNonNull(info);
 		Objects.requireNonNull(key);

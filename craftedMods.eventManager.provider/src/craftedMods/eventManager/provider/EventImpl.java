@@ -2,14 +2,15 @@ package craftedMods.eventManager.provider;
 
 import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.utils.data.ReadOnlyTypedProperties;
 
 public class EventImpl implements Event {
 
 	private final EventInfo eventInfo;
-	private final EventProperties eventProperties;
+	private final ReadOnlyTypedProperties eventProperties;
 	private WriteableEventProperties eventResults = new DefaultWriteableEventProperties();
 
-	public EventImpl(EventInfo eventInfo, EventProperties eventProperties) {
+	public EventImpl(EventInfo eventInfo, ReadOnlyTypedProperties eventProperties) {
 		this.eventInfo = eventInfo;
 		this.eventProperties = eventProperties;
 	}
@@ -20,7 +21,7 @@ public class EventImpl implements Event {
 	}
 
 	@Override
-	public EventProperties getEventProperties() {
+	public ReadOnlyTypedProperties getEventProperties() {
 		return this.eventProperties;
 	}
 

@@ -1,51 +1,28 @@
 package craftedMods.eventManager.base;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.utils.data.DefaultTypedProperties;
+import craftedMods.utils.data.TypedPropertyKey;
 
-public class DefaultWriteableEventProperties implements WriteableEventProperties {
-
-	private Map<PropertyKey<?>, Object> properties = Collections.synchronizedMap(new HashMap<>());
+public class DefaultWriteableEventProperties extends DefaultTypedProperties implements WriteableEventProperties {
 
 	private boolean isLocked = false;
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T put(PropertyKey<T> key, T value) {
+	public <T> T put(TypedPropertyKey<T> key, T value) {
 		this.checkState();
-		Objects.requireNonNull(key);
-		return (T) this.properties.put(key, value);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return this.properties.isEmpty();
-	}
-
-	@Override
-	public <T> boolean containsProperty(PropertyKey<T> property) {
-		return this.properties.containsKey(property);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getProperty(PropertyKey<T> property) {
-		return (T) this.properties.get(property);
+		return super.put(key, value);
 	}
 
 	@Override
 	public void clear() {
 		this.checkState();
-		this.properties.clear();
+		super.clear();
 	}
 
 	private void checkState() throws IllegalStateException {
-		if (this.isLocked) throw new IllegalStateException("The writeable event properties were locked");
+		if (this.isLocked)
+			throw new IllegalStateException("The writeable event properties were locked");
 	}
 
 	@Override

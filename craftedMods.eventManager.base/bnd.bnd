@@ -11,10 +11,11 @@ Export-Package: craftedMods.eventManager.base
 -baseline: *
 	
 -buildpath: \
-	osgi.annotation; version=7.0.0,\
-	osgi.core; version=7.0.0,\
-	osgi.cmpn; version=7.0.0,\
-	craftedMods.eventManager.api;version=latest
+	osgi.annotation;version=7.0.0,\
+	osgi.core;version=7.0.0,\
+	osgi.cmpn;version=7.0.0,\
+	craftedMods.eventManager.api;version=latest,\
+	craftedMods.utils;version=latest
 
 -testpath: \
 	${junit},\

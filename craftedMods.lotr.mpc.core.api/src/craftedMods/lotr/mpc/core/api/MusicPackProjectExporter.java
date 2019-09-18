@@ -6,9 +6,8 @@ import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.eventManager.api.EventDispatchPolicy;
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @ProviderType
 public interface MusicPackProjectExporter {
@@ -25,23 +24,23 @@ public interface MusicPackProjectExporter {
 	public static final EventInfo CANCEL_EVENT = new DefaultEventInfo(MusicPackProjectExporter.class, "CANCEL");
 	public static final EventInfo ERROR_EVENT = new DefaultEventInfo(MusicPackProjectExporter.class, "ERROR");
 
-	public static final PropertyKey<Path> COMMON_EVENT_LOCATION = DefaultPropertyKey.createPropertyKey(Path.class);
-	public static final PropertyKey<MusicPackProject> COMMON_EVENT_MUSIC_PACK_PROJECT = DefaultPropertyKey
+	public static final TypedPropertyKey<Path> COMMON_EVENT_LOCATION = TypedPropertyKey.createPropertyKey(Path.class);
+	public static final TypedPropertyKey<MusicPackProject> COMMON_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
 			.createPropertyKey(MusicPackProject.class);
 
-	public static final PropertyKey<Boolean> EXPORT_LOCATION_EXISTS_EVENT_RESULT_OVERRIDE = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> EXPORT_LOCATION_EXISTS_EVENT_RESULT_OVERRIDE = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<String> CREATING_FILE_EVENT_FILENAME = DefaultPropertyKey.createStringPropertyKey();
+	public static final TypedPropertyKey<String> CREATING_FILE_EVENT_FILENAME = TypedPropertyKey.createStringPropertyKey();
 
-	public static final PropertyKey<String> COPYING_TRACK_EVENT_TRACK_NAME = DefaultPropertyKey
+	public static final TypedPropertyKey<String> COPYING_TRACK_EVENT_TRACK_NAME = TypedPropertyKey
 			.createStringPropertyKey();
-	public static final PropertyKey<Boolean> COPYING_TRACK_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> COPYING_TRACK_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
 
-	public static final PropertyKey<Boolean> PRE_SUCCESS_EVENT_RESULT_PROCEED = DefaultPropertyKey
+	public static final TypedPropertyKey<Boolean> PRE_SUCCESS_EVENT_RESULT_PROCEED = TypedPropertyKey
 			.createBooleanPropertyKey();
-	public static final PropertyKey<Exception> ERROR_EVENT_EXCEPTION = DefaultPropertyKey
+	public static final TypedPropertyKey<Exception> ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
 
 	// LOTR specification

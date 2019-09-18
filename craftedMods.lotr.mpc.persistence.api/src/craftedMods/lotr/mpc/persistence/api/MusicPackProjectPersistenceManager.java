@@ -5,10 +5,9 @@ import java.util.Collection;
 import org.osgi.annotation.versioning.ProviderType;
 
 import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.PropertyKey;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultPropertyKey;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.utils.data.TypedPropertyKey;
 
 @ProviderType
 public interface MusicPackProjectPersistenceManager {
@@ -21,17 +20,17 @@ public interface MusicPackProjectPersistenceManager {
 	public static final EventInfo NEWER_SAVE_VERSION_EVENT = new DefaultEventInfo(
 			MusicPackProjectPersistenceManager.class, "NEWER_SAVE_VERSION");
 
-	public static final PropertyKey<Exception> LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION = DefaultPropertyKey
+	public static final TypedPropertyKey<Exception> LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
 
-	public static final PropertyKey<MusicPackProject> OLDER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT = DefaultPropertyKey
+	public static final TypedPropertyKey<MusicPackProject> OLDER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
 			.createPropertyKey(MusicPackProject.class);
-	public static final PropertyKey<String> OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION = DefaultPropertyKey
+	public static final TypedPropertyKey<String> OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION = TypedPropertyKey
 			.createStringPropertyKey();
 
-	public static final PropertyKey<MusicPackProject> NEWER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT = DefaultPropertyKey
+	public static final TypedPropertyKey<MusicPackProject> NEWER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
 			.createPropertyKey(MusicPackProject.class);
-	public static final PropertyKey<String> NEWER_SAVE_VERSION_EVENT_DETECTED_VERSION = DefaultPropertyKey
+	public static final TypedPropertyKey<String> NEWER_SAVE_VERSION_EVENT_DETECTED_VERSION = TypedPropertyKey
 			.createStringPropertyKey();
 
 	/**
