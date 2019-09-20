@@ -13,6 +13,7 @@ import javax.sound.sampled.SourceDataLine;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.log.FormatterLogger;
@@ -40,7 +41,7 @@ public class StreamingAudioPlayerImpl extends AbstractAudioPlayer {
 		super.onActivate(logger, eventManager, config, properties);
 	}
 
-	@Deactivate
+	@Modified
 	public void onModify(Configuration config) {
 		super.onModify(config);
 	}
