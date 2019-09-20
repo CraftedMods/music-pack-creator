@@ -9,7 +9,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.FormatterLogger;
 import org.osgi.service.log.LoggerFactory;
@@ -22,9 +24,25 @@ import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @Component
 public class VersionCheckerImpl implements VersionChecker {
+	
+	public @interface Configuration {
+		int pingTimeout() default 2000;
+	}
 
 	@Reference(service=LoggerFactory.class)
 	private FormatterLogger logger;
+	
+	private int pingTimeout;
+	
+	@Activate
+	public void onActivate(Configuration config) {
+		pingTimeout = config.pingTimeout();
+	}
+	
+	@Modified
+	public void onModify(Configuration config) {
+		pingTimeout = config.pingTimeout();
+	}
 
 	@Override
 	public RemoteVersion retrieveRemoteVersion(URL versionFileURL) {
@@ -46,7 +64,7 @@ public class VersionCheckerImpl implements VersionChecker {
 		if (versionFileURL != null) {
 			try {
 				URLConnection conn = versionFileURL.openConnection();
-				conn.setConnectTimeout(2000);
+				conn.setConnectTimeout(pingTimeout);
 				conn.connect();
 				return true;
 			} catch (IOException e) {
