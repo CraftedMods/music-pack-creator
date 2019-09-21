@@ -1,5 +1,6 @@
 package craftedMods.language.provider;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -17,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
+import org.osgi.service.log.LogLevel;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -24,6 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import craftedMods.eventManager.api.EventManager;
 import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.language.api.LanguageRegistry;
+import craftedMods.language.provider.LanguageRegistryImpl.Configuration;
 import craftedMods.preferences.api.Preferences;
 import craftedMods.preferences.api.PreferencesManager;
 
@@ -46,11 +49,31 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 	@Mock
 	private EventManager mockEventManager;
 
+	private Configuration configuration;
+
 	@Before
 	public void setup() {
 		if (Locale.getDefault().equals(Locale.US)) {
 			Locale.setDefault(Locale.GERMANY);
 		}
+
+		configuration = new Configuration() {
+
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return Configuration.class;
+			}
+
+			@Override
+			public boolean unknownKeysLogged() {
+				return true;
+			}
+
+			@Override
+			public LogLevel unknownKeysLogLevel() {
+				return LogLevel.DEBUG;
+			}
+		};
 	}
 
 	@Test
@@ -77,7 +100,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate();
+		languageRegistry.onActivate(configuration);
 
 		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
 		Assert.assertEquals(Locale.getDefault(), languageRegistry.getCurrentLanguage());
@@ -123,7 +146,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate();
+		languageRegistry.onActivate(configuration);
 
 		Assert.assertEquals(Locale.US, languageRegistry.getDefaultLanguage());
 		Assert.assertEquals(Locale.CANADA, languageRegistry.getCurrentLanguage());
@@ -164,7 +187,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate();
+		languageRegistry.onActivate(configuration);
 
 		Assert.assertTrue(languageRegistry.getEntries().isEmpty());
 
@@ -345,6 +368,11 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 	public void testGetLocalizedValueNoParamsNoMatch() {
 		powerMockActivate();
 
+		EasyMock.resetToDefault(mockLogger);
+
+		mockLogger.debug((String) EasyMock.anyObject());
+		EasyMock.expectLastCall().once();
+
 		ResourceBundle currentBundle = languageRegistry.getEntries().get(Locale.getDefault());
 		ResourceBundle defaultBundle = languageRegistry.getEntries().get(Locale.US);
 
@@ -403,6 +431,11 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 	public void testGetDefaultValueNoParamsNoMatch() {
 		powerMockActivate();
 
+		EasyMock.resetToDefault(mockLogger);
+
+		mockLogger.debug((String) EasyMock.anyObject());
+		EasyMock.expectLastCall().once();
+
 		ResourceBundle defaultBundle = languageRegistry.getEntries().get(Locale.US);
 
 		EasyMock.expect(defaultBundle.getString("language.key"))
@@ -438,7 +471,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 
 		this.replayAll();
 
-		languageRegistry.onActivate();
+		languageRegistry.onActivate(configuration);
 
 		this.verifyAll();
 
@@ -467,7 +500,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		this.replayAll();
 		PowerMock.replayAll();
 
-		languageRegistry.onActivate();
+		languageRegistry.onActivate(configuration);
 
 		this.verifyAll();
 		PowerMock.verifyAll();

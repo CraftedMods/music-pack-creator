@@ -10,8 +10,10 @@ import java.util.ResourceBundle;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.FormatterLogger;
+import org.osgi.service.log.LogLevel;
 import org.osgi.service.log.LoggerFactory;
 
 import craftedMods.eventManager.api.EventManager;
@@ -23,6 +25,12 @@ import craftedMods.preferences.api.PreferencesManager;
 
 @Component
 public class LanguageRegistryImpl implements LanguageRegistry {
+
+	public @interface Configuration {
+		boolean unknownKeysLogged() default true;
+
+		LogLevel unknownKeysLogLevel() default LogLevel.DEBUG;
+	}
 
 	public static final String CONFIG_PID = LanguageRegistryImpl.class.getName();
 
@@ -49,8 +57,12 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	@Reference
 	private EventManager eventManager;
 
+	private Configuration configuration;
+
 	@Activate
-	public void onActivate() {
+	public void onActivate(Configuration configuration) {
+		this.configuration = configuration;
+
 		entries = new HashMap<>();
 
 		prefs = preferences.getPreferences(LanguageRegistryImpl.CONFIG_PID);
@@ -62,6 +74,11 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 
 		fireDefaultLanguageChangedEvent(null);
 		fireCurrentLanguageChangedEvent(null);
+	}
+
+	@Modified
+	public void onModify(Configuration configuration) {
+		this.configuration = configuration;
 	}
 
 	@Deactivate
@@ -133,6 +150,32 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	public String getDefaultValue(String key, Object... params) {
 		String defaultEntry = this.getStringFromBundle(this.entries.get(this.defaultLanguage), key);
 		if (defaultEntry.equals(key)) {
+			if (configuration.unknownKeysLogged()) {
+
+				String message = "No language entry was found for the key \"" + key + "\"";
+
+				switch (configuration.unknownKeysLogLevel()) {
+				case AUDIT:
+					this.logger.audit(message);
+					break;
+				case ERROR:
+					this.logger.error(message);
+					break;
+				case TRACE:
+					this.logger.trace(message);
+					break;
+				case WARN:
+					this.logger.warn(message);
+					break;
+				case INFO:
+					this.logger.info(message);
+				case DEBUG:
+				default:
+					this.logger.debug(message);
+					break;
+				}
+
+			}
 			return key;
 		}
 		return String.format(defaultEntry, params);
