@@ -25,4 +25,5 @@ Export-Package: \
 	craftedMods.utils.data,\
 	craftedMods.utils.exceptions,\
 	craftedMods.utils.function,\
-	craftedMods.utils
+	craftedMods.utils,\
+	craftedMods.utils.lang
