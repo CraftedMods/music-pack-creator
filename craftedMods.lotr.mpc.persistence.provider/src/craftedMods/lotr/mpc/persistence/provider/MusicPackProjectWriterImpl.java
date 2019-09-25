@@ -1,13 +1,20 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
-import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.core.api.MusicPackProject;
+import craftedMods.lotr.mpc.core.api.Region;
+import craftedMods.lotr.mpc.core.api.Track;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
 
 @Component
@@ -30,7 +37,8 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 	public void writeMusicPackProject(MusicPackProject project, OutputStream output) throws IOException {
 		Objects.requireNonNull(project);
 		Objects.requireNonNull(output);
-		try (OutputStreamWriter bridge = new OutputStreamWriter(output); JsonWriter writer = new JsonWriter(bridge)) {
+		try (OutputStreamWriter bridge = new OutputStreamWriter(output);
+				JsonWriter writer = new GsonBuilder().setPrettyPrinting().create().newJsonWriter(bridge)) {
 			writer.beginObject();
 			writer.name(MusicPackProjectWriterImpl.JSON_PROJECT);
 			writer.beginObject();
@@ -66,8 +74,10 @@ public class MusicPackProjectWriterImpl implements MusicPackProjectWriter {
 		for (Region region : track.getRegions()) {
 			writer.beginObject();
 			writer.name(MusicPackProjectWriterImpl.JSON_REGION_NAME).value(region.getName());
-			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS, region.getSubregions());
-			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES, region.getCategories());
+			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_SUBREGIONS,
+					region.getSubregions());
+			this.writeStrinCollection(writer, MusicPackProjectWriterImpl.JSON_REGION_CATEGORIES,
+					region.getCategories());
 			if (region.getWeight() != null)
 				writer.name(MusicPackProjectWriterImpl.JSON_REGION_WEIGHT).value(region.getWeight());
 			writer.endObject();

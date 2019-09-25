@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import org.osgi.service.component.annotations.Component;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 
 import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
@@ -19,7 +20,8 @@ public class MusicPackJSONFileWriter {
 	public byte[] writeJSONFile(Collection<Track> tracks) throws IOException {
 		byte[] ret = null;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-				JsonWriter writer = new JsonWriter(new OutputStreamWriter(out))) {
+				JsonWriter writer = new GsonBuilder().setPrettyPrinting().create()
+						.newJsonWriter(new OutputStreamWriter(out))) {
 			writer.beginObject();
 			writer.name(MusicPackProjectExporter.JSON_TRACKS);
 			writer.beginArray();
