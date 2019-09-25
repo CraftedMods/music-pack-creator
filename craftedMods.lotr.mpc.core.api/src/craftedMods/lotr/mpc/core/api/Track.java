@@ -14,4 +14,7 @@ public interface Track extends ReadOnlyTrack{
 	@Override
 	public NonNullSet<Region> getRegions();
 	
+	@Override
+	public Track clone();
+	
 }

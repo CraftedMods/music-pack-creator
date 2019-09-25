@@ -2,6 +2,7 @@ package craftedMods.lotr.mpc.core.base;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.api.Track;
@@ -104,6 +105,12 @@ public class DefaultTrack implements Track {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+
+	@Override
+	public DefaultTrack clone() {
+		return new DefaultTrack(this.name, this.title,
+				this.regions.stream().map(region -> region.clone()).collect(Collectors.toList()), this.authors);
 	}
 
 	@Override

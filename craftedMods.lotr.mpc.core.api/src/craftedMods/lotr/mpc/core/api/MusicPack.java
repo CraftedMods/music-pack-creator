@@ -9,5 +9,8 @@ public interface MusicPack extends ReadOnlyMusicPack {
 
 	@Override
 	public NonNullSet<Track> getTracks();
+	
+	@Override
+	public MusicPack clone();
 
 }

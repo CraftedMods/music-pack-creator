@@ -8,5 +8,8 @@ public interface Region extends ReadOnlyRegion {
 	public void setName(String name);
 
 	public void setWeight(Float weight);
+	
+	@Override
+	public Region clone();
 
 }

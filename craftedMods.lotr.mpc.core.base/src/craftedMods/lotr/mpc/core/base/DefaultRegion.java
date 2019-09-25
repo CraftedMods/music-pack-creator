@@ -101,6 +101,11 @@ public class DefaultRegion implements Region {
 	}
 
 	@Override
+	public DefaultRegion clone() {
+		return new DefaultRegion(this.name, this.subregions, this.categories, this.weight);
+	}
+
+	@Override
 	public String toString() {
 		return this.name;
 	}

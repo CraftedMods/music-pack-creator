@@ -1,6 +1,7 @@
 package craftedMods.lotr.mpc.core.base;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import craftedMods.lotr.mpc.core.api.MusicPack;
 import craftedMods.lotr.mpc.core.api.Track;
@@ -46,6 +47,11 @@ public class DefaultMusicPack implements MusicPack {
 		} else if (!tracksSet.equals(other.tracksSet))
 			return false;
 		return true;
+	}
+
+	@Override
+	public DefaultMusicPack clone() {
+		return new DefaultMusicPack(this.tracksSet.stream().map(track -> track.clone()).collect(Collectors.toList()));
 	}
 
 }
