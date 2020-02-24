@@ -19,7 +19,6 @@ public interface TrackStoreManager {
 	 * Deletes the track store for the specified, managed Music Pack Project
 	 * 
 	 * @param project The managed Music Pack Project
-	 * @return The track store
 	 */
 	public void deleteTrackStore(MusicPackProject project);
 
