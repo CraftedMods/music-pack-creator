@@ -10,8 +10,8 @@ import craftedMods.utils.data.NonNullSet;
 public class DefaultRegion implements Region {
 
 	private String name;
-	private NonNullSet<String> subregions = CollectionUtils.createNonNullHashSet();
-	private NonNullSet<String> categories = CollectionUtils.createNonNullHashSet();
+	private NonNullSet<String> subregions = CollectionUtils.createNonNullLinkedHashSet();
+	private NonNullSet<String> categories = CollectionUtils.createNonNullLinkedHashSet();
 	private Float weight;
 
 	public DefaultRegion(String name) {

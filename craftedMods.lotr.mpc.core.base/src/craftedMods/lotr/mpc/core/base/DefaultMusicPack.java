@@ -10,7 +10,7 @@ import craftedMods.utils.data.NonNullSet;
 
 public class DefaultMusicPack implements MusicPack {
 
-	private NonNullSet<Track> tracksSet = CollectionUtils.createNonNullHashSet();
+	private NonNullSet<Track> tracksSet = CollectionUtils.createNonNullLinkedHashSet();
 
 	public DefaultMusicPack() {
 	}

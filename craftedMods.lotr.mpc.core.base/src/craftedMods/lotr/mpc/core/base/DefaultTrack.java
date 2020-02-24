@@ -13,8 +13,8 @@ public class DefaultTrack implements Track {
 
 	private String name;
 	private String title;
-	private NonNullSet<Region> regions = CollectionUtils.createNonNullHashSet();
-	private NonNullSet<String> authors = CollectionUtils.createNonNullHashSet();
+	private NonNullSet<Region> regions = CollectionUtils.createNonNullLinkedHashSet();
+	private NonNullSet<String> authors = CollectionUtils.createNonNullLinkedHashSet();
 
 	public DefaultTrack(String name) {
 		this.setName(name);
