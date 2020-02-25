@@ -11,6 +11,8 @@ public interface MusicPackData {
 	public String getLOTRModVersion();
 
 	public Map<String, Collection<String>> getRegions();
+	
+	public String getDefaultRegion();
 
 	public Collection<String> getCategories();
 
