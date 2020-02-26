@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.*;
 
 import craftedMods.lotr.mpc.data.api.MusicPackData;
 
@@ -17,8 +16,8 @@ import craftedMods.lotr.mpc.data.api.MusicPackData;
 public class MusicPackDataImpl implements MusicPackData
 {
 
-    private Map<String, Collection<String>> regions = new TreeMap<> ();
-    private List<String> categories = new ArrayList<> ();
+    private Map<String, Collection<String>> regions;
+    private List<String> categories;
 
     @Activate
     public void onActivate ()
@@ -29,6 +28,8 @@ public class MusicPackDataImpl implements MusicPackData
 
     private void initRegions ()
     {
+        this.regions = new TreeMap<> ();
+
         this.regions.put ("all", Arrays.asList ());
         this.regions.put ("menu", Arrays.asList ());
         this.regions.put ("sea", Arrays.asList ("sea", "meneltarma", "lake"));
@@ -78,6 +79,8 @@ public class MusicPackDataImpl implements MusicPackData
 
     private void initCategories ()
     {
+        this.categories = new ArrayList<> ();
+
         this.categories.add ("day");
         this.categories.add ("night");
         this.categories.add ("cave");
