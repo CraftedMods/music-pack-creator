@@ -1,33 +1,22 @@
 package craftedMods.lotr.mpc.compatibility.provider;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.util.Objects;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
-import craftedMods.eventManager.base.EventUtils;
+import craftedMods.eventManager.api.*;
+import craftedMods.eventManager.base.*;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.Region;
-import craftedMods.lotr.mpc.core.api.Track;
-import craftedMods.lotr.mpc.persistence.api.TrackStore;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
 
 @Component
 public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjectCompatibilityManager {
-
-	private static final String ANDRST_FIX_VERSION = "Music Pack Creator Beta 3.3";
 
 	@Reference
 	private EventManager eventManager;
@@ -151,30 +140,8 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 	public void applyPreRegisterFixes(MusicPackProject project, String loadedVersion) {
 		Objects.requireNonNull(project);
 		if (loadedVersion != null) {
-			if (loadedVersion.startsWith("Music Pack Creator")
-					&& loadedVersion.compareTo(MusicPackProjectCompatibilityManagerImpl.ANDRST_FIX_VERSION) < 0)
-				this.fixAndrastRegion(project);
+			
 		}
-	}
-
-	private void fixAndrastRegion(MusicPackProject project) {
-		for (Track track : project.getMusicPack().getTracks())
-			for (Region region : track.getRegions())
-				if (region.getName().equals("andrast")) {
-					region.setName("pukel");
-					WriteableEventProperties properties = new DefaultWriteableEventProperties();
-					properties.put(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT,
-							project);
-					this.eventManager.dispatchEvent(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT,
-							properties);
-					// GuiUtils.showInformationMessageDialog(null,
-					// this.creator.getLanguageRegistry().getEntry(
-					// "musicPackCreator.musicPackProjectManager.fixProject.andrastRegion.success",
-					// project.getName()));
-					this.logger.info(
-							"The region \"andrast\" was found in the Music Pack Project \"%s\" - it was changed to \"pukel\".",
-							project.getName());
-				}
 	}
 
 }

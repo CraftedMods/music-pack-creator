@@ -1,26 +1,11 @@
 package craftedMods.lotr.mpc.compatibility.provider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
@@ -28,23 +13,14 @@ import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPack;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
-import craftedMods.lotr.mpc.core.api.Track;
-import craftedMods.lotr.mpc.core.base.DefaultRegion;
-import craftedMods.lotr.mpc.core.base.DefaultTrack;
-import craftedMods.lotr.mpc.persistence.api.TrackStore;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
-import craftedMods.utils.data.CollectionUtils;
-import craftedMods.utils.data.NonNullSet;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MusicPackProjectCompatibilityManagerImpl.class, Utils.class })
@@ -486,89 +462,6 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	@Test
 	public void testApplyPreRegisterFixesNullVersion() {
 		compatibilityManager.applyPreRegisterFixes(createMockProject(), null);
-	}
-
-	@Test
-	public void testApplyPreRegisterFixesAndrastFix() {
-		MusicPackProject mockMusicPackProject = createMockProject();
-		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
-	
-		EasyMock.reset(mockMusicPackProject);
-	
-		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
-		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
-		EasyMock.expect(mockMusicPackProject.getName()).andStubReturn("Name");
-	
-		tracks.add(new DefaultTrack("track1", "title",
-				Arrays.asList(new DefaultRegion("andrast", Arrays.asList("test"), Arrays.asList(), null)),
-				Arrays.asList()));
-		tracks.add(new DefaultTrack("track2", "2title",
-				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
-		tracks.add(new DefaultTrack("track3", "2titl3e",
-				Arrays.asList(new DefaultRegion("andrast", Arrays.asList(), Arrays.asList(), null)),
-				Arrays.asList("s")));
-	
-		Capture<WriteableEventProperties> capturedProject = Capture.newInstance();
-	
-		EasyMock.expect(mockEventManager.dispatchEvent(
-				EasyMock.eq(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT),
-				EasyMock.capture(capturedProject))).andReturn(null).times(2);
-	
-		this.replayAll();
-	
-		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 2.0");
-	
-		WriteableEventProperties properties = capturedProject.getValue();
-	
-		Assert.assertEquals(mockMusicPackProject, properties
-				.getProperty(MusicPackProjectCompatibilityManager.POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT));
-	
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPreRegisterFixesAndrastFixNoTracksToFix() {
-		MusicPackProject mockMusicPackProject = createMockProject();
-	
-		EasyMock.reset(mockMusicPackProject);
-	
-		MusicPack mockMusicPack = this.createMock(MusicPack.class);
-		NonNullSet<Track> tracks = CollectionUtils.createNonNullLinkedHashSet();
-	
-		EasyMock.expect(mockMusicPackProject.getMusicPack()).andStubReturn(mockMusicPack);
-		EasyMock.expect(mockMusicPack.getTracks()).andStubReturn(tracks);
-	
-		tracks.add(new DefaultTrack("track4", "title",
-				Arrays.asList(new DefaultRegion("all", Arrays.asList(), Arrays.asList(), null)), Arrays.asList()));
-	
-		this.replayAll();
-	
-		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 2.0");
-	
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPreRegisterFixesAndrastFixWrongVersion() {
-		MusicPackProject mockMusicPackProject = createMockProject();
-	
-		this.replayAll();
-	
-		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "Music Pack Creator Beta 3.3");
-	
-		this.verifyAll();
-	}
-
-	@Test
-	public void testApplyPreRegisterFixesAndrastFixUnprefixedVersion() {
-		MusicPackProject mockMusicPackProject = createMockProject();
-	
-		this.replayAll();
-	
-		compatibilityManager.applyPreRegisterFixes(mockMusicPackProject, "2.0");
-	
-		this.verifyAll();
 	}
 
 	@Test
