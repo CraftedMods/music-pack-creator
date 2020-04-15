@@ -149,19 +149,6 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
                                 newer ? MusicPackProjectPersistenceManager.NEWER_SAVE_VERSION_EVENT
                                     : MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT,
                                 properties);
-                        // this.creator.getLogger().warning(String.format(newer
-                        // ? "The Music Pack Project at \"%s\" was created with a newer version (%s) of
-                        // Music Pack Creator"
-                        // : "The Music Pack Project at \"%s\" was created with an older version (%s) of
-                        // Music Pack Creator",
-                        // projectDir.toString(), version));
-                        // GuiUtils.showWarningMessageDialog(null,
-                        // this.creator.getLanguageRegistry().getEntry(
-                        // newer ?
-                        // "musicPackCreator.musicPackProjectManager.loadProject.warning.newerVersion"
-                        // :
-                        // "musicPackCreator.musicPackProjectManager.loadProject.warning.olderVersion",
-                        // projectDir.getFileName().toString(), version));
                     }
                 }
                 this.musicPackProjectManager.getManagedMusicPackProjects ().put (project, projectFolder);
