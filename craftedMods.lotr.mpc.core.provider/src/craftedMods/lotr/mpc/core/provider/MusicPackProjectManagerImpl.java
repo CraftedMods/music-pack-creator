@@ -1,25 +1,14 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
+import craftedMods.lotr.mpc.core.api.*;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
 import craftedMods.utils.exceptions.InvalidInputException;
 import craftedMods.versionChecker.api.SemanticVersion;
@@ -42,7 +31,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 	@Reference(target = "(application=mpc)")
 	SemanticVersion mpcVersion;
 
-	@Reference
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL)
 	private MusicPackProjectCompatibilityManager compatibilityManager;
 
 	private List<MusicPackProjectImpl> musicPackProjects;
@@ -58,13 +47,14 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 				if (compatibilityManager != null) {
 					compatibilityManager.applyPreRegisterFixes(loadedProject,
 							loadedProject.getProperties().getString(MusicPackProject.PROPERTY_MPC_VERSION, null));
-					this.registerMusicPackProject(loadedProject);
 				}
+				this.registerMusicPackProject(loadedProject);
 			} catch (Exception e) {
 				this.logger.error("The Music Pack Project \"%s\" couldn't be registered during loading",
 						loadedProject.getName(), e);
 				WriteableEventProperties properties = new DefaultWriteableEventProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
+				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT, loadedProject);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
 						properties);
 			}

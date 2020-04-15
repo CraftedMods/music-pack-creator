@@ -144,6 +144,8 @@ public class MusicPackProjectManagerImplTest {
 				loadingErrorEventInfoCapture.getValue());
 		Assert.assertTrue(loadingErrorEventPropertiesCapture.getValue()
 				.containsProperty(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION));
+		Assert.assertTrue(loadingErrorEventPropertiesCapture.getValue()
+            .containsProperty(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT));
 		Assert.assertEquals(1, this.musicPackProjectManager.getRegisteredMusicPackProjects().size());
 		Assert.assertTrue(this.musicPackProjectManager.getRegisteredMusicPackProjects().contains(this.loadedProject));
 	}
