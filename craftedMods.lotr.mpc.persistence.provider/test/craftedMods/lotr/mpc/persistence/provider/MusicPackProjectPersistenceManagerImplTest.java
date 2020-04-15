@@ -241,6 +241,8 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
 
         Assert.assertEquals (thrownException,
             value.getProperty (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION));
+        Assert.assertEquals (projectPath1,
+            value.getProperty (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT_PATH));
 
         this.verifyAll ();
     }

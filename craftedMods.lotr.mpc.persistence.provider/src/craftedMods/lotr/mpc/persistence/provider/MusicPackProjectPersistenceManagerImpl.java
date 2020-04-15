@@ -99,6 +99,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
                     this.logger.error ("The Music Pack Project at \"%s\" couldn't be loaded: ", projectFolder, e);
                     WriteableEventProperties properties = new DefaultWriteableEventProperties ();
                     properties.put (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
+                    properties.put (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT_PATH, projectFolder);
                     this.eventManager.dispatchEvent (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT,
                         properties);
                 }

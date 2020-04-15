@@ -1,5 +1,6 @@
 package craftedMods.lotr.mpc.persistence.api;
 
+import java.nio.file.Path;
 import java.util.Collection;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -13,7 +14,7 @@ import craftedMods.utils.data.TypedPropertyKey;
 public interface MusicPackProjectPersistenceManager {
 
 	public static final EventInfo LOAD_ALL_PROJECT_ERROR_EVENT = new DefaultEventInfo(
-			MusicPackProjectPersistenceManager.class, "LOAD_ALL_ERROR");
+			MusicPackProjectPersistenceManager.class, "LOAD_ALL_PROJECT_ERROR");
 
 	public static final EventInfo OLDER_SAVE_VERSION_EVENT = new DefaultEventInfo(
 			MusicPackProjectPersistenceManager.class, "OLDER_SAVE_VERSION");
@@ -22,6 +23,8 @@ public interface MusicPackProjectPersistenceManager {
 
 	public static final TypedPropertyKey<Exception> LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
+	public static final TypedPropertyKey<Path> LOAD_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT_PATH = TypedPropertyKey
+        .createPropertyKey(Path.class);
 
 	public static final TypedPropertyKey<MusicPackProject> OLDER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
 			.createPropertyKey(MusicPackProject.class);
