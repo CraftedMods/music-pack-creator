@@ -21,8 +21,6 @@ public interface MusicPackProjectCompatibilityManager {
 	public static final EventInfo PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT = new DefaultEventInfo(
 			MusicPackProjectCompatibilityManager.class, "PRE_LOAD/SERIALIZED_WORKSPACE/ERROR");
 
-	public static final EventInfo POST_LOAD_ANDRAST_FIX_EVENT = new DefaultEventInfo(
-			MusicPackProjectCompatibilityManager.class, "POST_LOAD/ANDRAST_FIX");
 	public static final EventInfo POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT = new DefaultEventInfo(
 			MusicPackProjectCompatibilityManager.class, "POST_LOAD/SERIALIZED_WORKSPACE/TRACK_COPY_ERROR");
 
@@ -38,9 +36,6 @@ public interface MusicPackProjectCompatibilityManager {
 			.createPropertyKey(Path.class);
 	public static final TypedPropertyKey<Exception> PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT_EXCEPTION = TypedPropertyKey
 			.createPropertyKey(Exception.class);
-
-	public static final TypedPropertyKey<MusicPackProject> POST_LOAD_ANDRAST_FIX_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
-			.createPropertyKey(MusicPackProject.class);
 
 	public static final TypedPropertyKey<MusicPackProject> POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_MUSIC_PACK_PROJECT = TypedPropertyKey
 			.createPropertyKey(MusicPackProject.class);

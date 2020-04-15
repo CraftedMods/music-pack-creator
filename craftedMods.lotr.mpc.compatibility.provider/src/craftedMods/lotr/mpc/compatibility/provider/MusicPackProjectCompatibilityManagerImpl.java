@@ -43,10 +43,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 		if (fileManager.exists(Paths.get(projectDir.toString(), SerializedWorkspaceToJSONConverter.OLD_PROJECT_FILE))) {
 			this.logger.warn("Found a Music Pack Project at \"%s\" which contains a serialized project file",
 							projectDir.toString());
-			// if (GuiUtils.showWarningConfirmDialog(null,
-			// this.creator.getLanguageRegistry()
-			// .getEntry("musicPackCreator.musicPackProjectManager.loadProject.convertProject.serializedWorkspace.confirmation",
-			// projectDir.toString()))) {
+			
 			WriteableEventProperties properties = new DefaultWriteableEventProperties();
 			properties.put(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_PATH,
 					projectDir);
@@ -73,9 +70,6 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 							e);
 					this.eventManager.dispatchEvent(
 							MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT, properties);
-					// GuiUtils.showExceptionMessageDialog(null, this.creator.getEntry(
-					// "musicPackCreator.musicPackProjectManager.loadProject.convertProject.serializedWorkspace.error",
-					// projectDir.toString()), e);
 				}
 			else
 				this.logger.debug("The user skipped the conversion of the Music Pack Project - it won't be loaded");
