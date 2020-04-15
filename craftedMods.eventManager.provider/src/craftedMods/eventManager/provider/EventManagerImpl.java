@@ -1,38 +1,14 @@
 package craftedMods.eventManager.provider;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
-import craftedMods.eventManager.api.Event;
-import craftedMods.eventManager.api.EventDispatchPolicy;
-import craftedMods.eventManager.api.EventHandler;
-import craftedMods.eventManager.api.EventHandlerPolicy;
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.*;
 
 @Component(scope = ServiceScope.SINGLETON)
 public class EventManagerImpl implements EventManager {
@@ -101,16 +77,16 @@ public class EventManagerImpl implements EventManager {
 	}
 
 	@Override
-	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, LockableTypedProperties properties) {
 		return this.dispatchEvent(eventInfo, properties, null);
 	}
 
 	@Override
 	@SuppressWarnings("incomplete-switch")
-	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, WriteableEventProperties properties, EventDispatchPolicy policy) {
+	public Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo eventInfo, LockableTypedProperties properties, EventDispatchPolicy policy) {
 		String eventTopic = eventInfo.getTopic();
 
-		WriteableEventProperties writeableEventProperties = properties == null ? new DefaultWriteableEventProperties() : properties;
+		LockableTypedProperties writeableEventProperties = properties == null ? new DefaultTypedProperties() : properties;
 		writeableEventProperties.lock();
 
 		Set<EventHandler> synchronousHandlers = new HashSet<>();
@@ -147,7 +123,7 @@ public class EventManagerImpl implements EventManager {
 	}
 
 	private Collection<ReadOnlyTypedProperties> sendEvent(EventImpl event, Set<EventHandler> handlers) {
-		List<WriteableEventProperties> results = new ArrayList<>();
+		List<LockableTypedProperties> results = new ArrayList<>();
 		for (EventHandler handler : handlers) {
 			handler.handleEvent(event);
 			if (!event.getEventResults().isEmpty()) {

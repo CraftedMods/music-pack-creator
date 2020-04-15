@@ -1,30 +1,18 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockRunner;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
 
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
+import craftedMods.eventManager.api.*;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
+import craftedMods.lotr.mpc.core.api.*;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
+import craftedMods.utils.data.LockableTypedProperties;
 import craftedMods.utils.exceptions.InvalidInputException;
 import craftedMods.versionChecker.api.SemanticVersion;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
@@ -129,7 +117,7 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.replay(this.mockPersistenceManager);
 
 		Capture<EventInfo> loadingErrorEventInfoCapture = EasyMock.newCapture();
-		Capture<WriteableEventProperties> loadingErrorEventPropertiesCapture = EasyMock.newCapture();
+		Capture<LockableTypedProperties> loadingErrorEventPropertiesCapture = EasyMock.newCapture();
 		EasyMock.resetToStrict(this.mockEventManager);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.capture(loadingErrorEventInfoCapture),
 				EasyMock.capture(loadingErrorEventPropertiesCapture))).andReturn(null).once();
@@ -400,7 +388,7 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.expectLastCall().times(3).andThrow(new RuntimeException("<--!!!Error!!!-->")).once();
 
 		Capture<EventInfo> saveAllErrorEventInfoCapture = EasyMock.newCapture();
-		Capture<WriteableEventProperties> saveAllErrorEventPropertiesCapture = EasyMock.newCapture();
+		Capture<LockableTypedProperties> saveAllErrorEventPropertiesCapture = EasyMock.newCapture();
 
 		EasyMock.resetToStrict(this.mockEventManager);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.capture(saveAllErrorEventInfoCapture),
@@ -420,7 +408,7 @@ public class MusicPackProjectManagerImplTest {
 		EasyMock.verify(this.mockPersistenceManager);
 		EasyMock.verify(this.mockEventManager);
 
-		WriteableEventProperties saveAllErrorEventProperties = saveAllErrorEventPropertiesCapture.getValue();
+		LockableTypedProperties saveAllErrorEventProperties = saveAllErrorEventPropertiesCapture.getValue();
 
 		Assert.assertEquals(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT,
 				saveAllErrorEventInfoCapture.getValue());

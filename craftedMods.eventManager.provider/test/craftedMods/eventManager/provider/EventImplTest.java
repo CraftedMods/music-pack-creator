@@ -4,6 +4,7 @@ import org.junit.*;
 
 import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.DefaultEventInfo;
+import craftedMods.utils.data.LockableTypedProperties;
 
 public class EventImplTest {
 
@@ -23,9 +24,9 @@ public class EventImplTest {
 
 	@Test
 	public void testRecreatedEventResults() {
-		WriteableEventProperties properties = this.event.getEventResults();
+		LockableTypedProperties properties = this.event.getEventResults();
 		this.event.recreateEventResults();
-		WriteableEventProperties newProperties = this.event.getEventResults();
+		LockableTypedProperties newProperties = this.event.getEventResults();
 		Assert.assertNotNull(newProperties);
 		Assert.assertNotSame(properties, newProperties);
 	}

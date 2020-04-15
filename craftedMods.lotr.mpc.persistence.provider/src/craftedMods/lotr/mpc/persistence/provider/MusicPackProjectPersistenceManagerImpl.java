@@ -1,31 +1,20 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.ServiceException;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.persistence.api.*;
+import craftedMods.utils.data.*;
 import craftedMods.versionChecker.api.SemanticVersion;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
@@ -97,7 +86,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
                 catch (Exception e)
                 {
                     this.logger.error ("The Music Pack Project at \"%s\" couldn't be loaded: ", projectFolder, e);
-                    WriteableEventProperties properties = new DefaultWriteableEventProperties ();
+                    LockableTypedProperties properties = new DefaultTypedProperties ();
                     properties.put (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
                     properties.put (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT_PATH, projectFolder);
                     this.eventManager.dispatchEvent (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT,
@@ -135,7 +124,7 @@ public class MusicPackProjectPersistenceManagerImpl implements MusicPackProjectP
                     int comp = !isSemanticVersion ? -1 : DefaultSemanticVersion.of (version).compareTo (mpcVersion);
                     if (comp != 0)
                     {
-                        WriteableEventProperties properties = new DefaultWriteableEventProperties ();
+                        LockableTypedProperties properties = new DefaultTypedProperties ();
                         boolean newer = comp > 0;
                         properties.put (newer
                             ? MusicPackProjectPersistenceManager.NEWER_SAVE_VERSION_EVENT_MUSIC_PACK_PROJECT

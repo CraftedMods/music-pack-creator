@@ -1,40 +1,21 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.eventManager.api.*;
 import craftedMods.eventManager.base.EventUtils;
 import craftedMods.fileManager.api.FileManager;
-import craftedMods.lotr.mpc.core.api.MusicPack;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
-import craftedMods.lotr.mpc.core.api.Track;
-import craftedMods.lotr.mpc.persistence.api.TrackStore;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
-import craftedMods.utils.data.ExtendedProperties;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
-import craftedMods.utils.data.TypedPropertyKey;
+import craftedMods.utils.data.*;
 import craftedMods.versionChecker.api.SemanticVersion;
 
 @Component
@@ -166,7 +147,7 @@ public class MusicPackProjectExporterImpl implements MusicPackProjectExporter {
 
 	private <T> Collection<ReadOnlyTypedProperties> dispatchEvent(EventInfo info, Path path, MusicPackProject project,
 			TypedPropertyKey<T> key, T value) {
-		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		LockableTypedProperties properties = new DefaultTypedProperties();
 		properties.put(MusicPackProjectExporter.COMMON_EVENT_LOCATION, path);
 		properties.put(MusicPackProjectExporter.COMMON_EVENT_MUSIC_PACK_PROJECT, project);
 		if (key != null)

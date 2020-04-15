@@ -13,8 +13,7 @@ import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import craftedMods.eventManager.api.*;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.eventManager.api.EventManager;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.*;
@@ -80,11 +79,11 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	public void testApplyPreLoadFixesSerializedWorkspace() throws IOException {
 		EasyMock.expect(mockFileManager.exists(oldProjectFile)).andReturn(true).once();
 
-		Capture<WriteableEventProperties> capturedProperties1 = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties1 = Capture.newInstance();
 
 		Collection<ReadOnlyTypedProperties> results = new ArrayList<>();
 
-		WriteableEventProperties proceedProperties = new DefaultWriteableEventProperties();
+		LockableTypedProperties proceedProperties = new DefaultTypedProperties();
 		proceedProperties.put(
 				MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED,
 				Boolean.TRUE);
@@ -98,7 +97,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 		mockSerializedConverter.convertWorkspace(projectsDir);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> capturedProperties2 = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties2 = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_CONVERTED_EVENT),
@@ -108,8 +107,8 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		compatibilityManager.applyPreLoadFixes(projectsDir);
 
-		WriteableEventProperties properties1 = capturedProperties1.getValue();
-		WriteableEventProperties properties2 = capturedProperties2.getValue();
+		LockableTypedProperties properties1 = capturedProperties1.getValue();
+		LockableTypedProperties properties2 = capturedProperties2.getValue();
 
 		Assert.assertEquals(projectsDir, properties1
 				.getProperty(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_PATH));
@@ -125,14 +124,14 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(new ArrayList<>()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(new ArrayList<>()).once();
 
 		mockSerializedConverter.convertWorkspace(projectsDir);
 		EasyMock.expectLastCall().once();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_CONVERTED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(null).once();
 
 		replayAll();
 
@@ -145,16 +144,16 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 	public void testApplyPreLoadFixesSerializedWorkspaceCancel() {
 		EasyMock.expect(mockFileManager.exists(oldProjectFile)).andReturn(true).once();
 
-		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties = Capture.newInstance();
 
 		Collection<ReadOnlyTypedProperties> results = new ArrayList<>();
 
-		WriteableEventProperties proceedProperties = new DefaultWriteableEventProperties();
+		LockableTypedProperties proceedProperties = new DefaultTypedProperties();
 		proceedProperties.put(
 				MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED,
 				Boolean.TRUE);
 
-		WriteableEventProperties cancelProperties = new DefaultWriteableEventProperties();
+		LockableTypedProperties cancelProperties = new DefaultTypedProperties();
 		proceedProperties.put(
 				MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_RESULT_PROCEED,
 				Boolean.FALSE);
@@ -179,14 +178,14 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(new ArrayList<>()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(new ArrayList<>()).once();
 
 		RuntimeException thrownException = new RuntimeException("Error");
 
 		mockSerializedConverter.convertWorkspace(projectsDir);
 		EasyMock.expectLastCall().andThrow(thrownException).once();
 
-		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT),
@@ -196,7 +195,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		compatibilityManager.applyPreLoadFixes(projectsDir);
 
-		WriteableEventProperties properties = capturedProperties.getValue();
+		LockableTypedProperties properties = capturedProperties.getValue();
 
 		Assert.assertEquals(thrownException, properties
 				.getProperty(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT_EXCEPTION));
@@ -428,7 +427,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		EasyMock.expect(mockTrackStoreManager.getTrackStore(mockMusicPackProject)).andThrow(exception).once();
 
-		Capture<WriteableEventProperties> propertiesCapture = Capture.newInstance();
+		Capture<LockableTypedProperties> propertiesCapture = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(
 				EasyMock.eq(MusicPackProjectCompatibilityManager.POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT),
@@ -443,7 +442,7 @@ public class MusicPackProjectCompatibilityManagerImplTest extends EasyMockSuppor
 
 		Assert.assertTrue(oldProjects.isEmpty());
 
-		WriteableEventProperties properties = propertiesCapture.getValue();
+		LockableTypedProperties properties = propertiesCapture.getValue();
 
 		Assert.assertEquals(mockMusicPackProject, properties.getProperty(
 				MusicPackProjectCompatibilityManager.POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_MUSIC_PACK_PROJECT));

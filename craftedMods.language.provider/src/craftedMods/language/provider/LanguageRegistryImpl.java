@@ -1,27 +1,14 @@
 package craftedMods.language.provider;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LogLevel;
-import org.osgi.service.log.LoggerFactory;
+import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.*;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
 import craftedMods.language.api.LanguageRegistry;
-import craftedMods.preferences.api.Preferences;
-import craftedMods.preferences.api.PreferencesManager;
+import craftedMods.preferences.api.*;
+import craftedMods.utils.data.*;
 
 @Component
 public class LanguageRegistryImpl implements LanguageRegistry {
@@ -109,7 +96,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	}
 
 	private void fireDefaultLanguageChangedEvent(Locale oldLanguage) {
-		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		LockableTypedProperties properties = new DefaultTypedProperties();
 		properties.put(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE, oldLanguage);
 		properties.put(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE, this.defaultLanguage);
 
@@ -139,7 +126,7 @@ public class LanguageRegistryImpl implements LanguageRegistry {
 	}
 
 	private void fireCurrentLanguageChangedEvent(Locale oldLanguage) {
-		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		LockableTypedProperties properties = new DefaultTypedProperties();
 		properties.put(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_OLD_LANGUAGE, oldLanguage);
 		properties.put(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE, this.currentLanguage);
 

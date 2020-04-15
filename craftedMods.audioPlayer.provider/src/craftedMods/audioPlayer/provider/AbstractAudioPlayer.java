@@ -1,31 +1,18 @@
 package craftedMods.audioPlayer.provider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.*;
 import javax.sound.sampled.FloatControl.Type;
-import javax.sound.sampled.LineUnavailableException;
 
 import org.osgi.service.log.Logger;
 
-import craftedMods.audioPlayer.api.AudioPlayer;
-import craftedMods.audioPlayer.api.PlayableTrack;
-import craftedMods.eventManager.api.EventDispatchPolicy;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.audioPlayer.api.*;
+import craftedMods.eventManager.api.*;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.*;
 
 public abstract class AbstractAudioPlayer implements AudioPlayer {
 
@@ -184,7 +171,7 @@ public abstract class AbstractAudioPlayer implements AudioPlayer {
 
 			logger.error("Couldn't play the track \"%s\"", trackName, e);
 
-			WriteableEventProperties properties = new DefaultWriteableEventProperties();
+			LockableTypedProperties properties = new DefaultTypedProperties();
 			properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_NAME, trackName);
 			properties.put(AudioPlayer.PLAY_TRACK_ERROR_EVENT_EXCEPTION, e);
 			eventManager.dispatchEvent(AudioPlayer.PLAY_TRACK_ERROR_EVENT, properties,

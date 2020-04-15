@@ -1,32 +1,15 @@
 package craftedMods.eventManager.provider;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockRunner;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
 
-import craftedMods.eventManager.api.Event;
-import craftedMods.eventManager.api.EventDispatchPolicy;
-import craftedMods.eventManager.api.EventHandler;
-import craftedMods.eventManager.api.EventHandlerPolicy;
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.eventManager.base.DefaultEventInfo;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
-import craftedMods.eventManager.base.EventUtils;
-import craftedMods.utils.data.ArrayUtils;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
-import craftedMods.utils.data.TypedPropertyKey;
+import craftedMods.eventManager.api.*;
+import craftedMods.eventManager.base.*;
+import craftedMods.utils.data.*;
 
 @RunWith(EasyMockRunner.class)
 public class EventManagerImplTest {
@@ -376,7 +359,7 @@ public class EventManagerImplTest {
 
 		EasyMock.replay(this.mockEventHandler1);
 
-		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		LockableTypedProperties properties = new DefaultTypedProperties();
 		TypedPropertyKey<String> property1 = TypedPropertyKey.createStringPropertyKey();
 		properties.put(property1, "Test");
 		TypedPropertyKey<Integer> property2 = TypedPropertyKey.createIntegerPropertyKey();

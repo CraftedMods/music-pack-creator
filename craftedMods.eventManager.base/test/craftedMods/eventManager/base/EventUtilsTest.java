@@ -1,22 +1,12 @@
 package craftedMods.eventManager.base;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 
-import craftedMods.eventManager.api.EventDispatchPolicy;
-import craftedMods.eventManager.api.EventHandlerPolicy;
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
-import craftedMods.utils.data.TypedPropertyKey;
+import craftedMods.eventManager.api.*;
+import craftedMods.utils.data.*;
 
 public class EventUtilsTest extends EasyMockSupport {
 
@@ -50,10 +40,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedAllContainAllDefaultTrue() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.TRUE);
 
 		Assert.assertTrue(EventUtils.proceed(Arrays.asList(props1, props2), key));
@@ -63,10 +53,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedAllContainAllDefaultFalse() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.TRUE);
 
 		Assert.assertTrue(EventUtils.proceed(Arrays.asList(props1, props2), key, false));
@@ -76,10 +66,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedSomeContainAllDefaultTrue() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.FALSE);
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key));
@@ -89,10 +79,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedSomeContainAllDefaultFalse() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.FALSE);
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key, false));
@@ -102,10 +92,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedSomeContainSomeDefaultTrue() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 
 		Assert.assertTrue(EventUtils.proceed(Arrays.asList(props1, props2), key));
 	}
@@ -114,10 +104,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedSomeContainSomeDefaultFalse() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.TRUE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key, false));
 	}
@@ -126,10 +116,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedNoneContainAllDefaultTrue() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.FALSE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.FALSE);
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key));
@@ -139,10 +129,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedNoneContainAllDefaultFalse() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.FALSE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 		props2.put(key, Boolean.FALSE);
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key, false));
@@ -152,10 +142,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedNoneContainSomeDefaultTrue() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.FALSE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key));
 	}
@@ -164,10 +154,10 @@ public class EventUtilsTest extends EasyMockSupport {
 	public void testProceedNoneContainSomeDefaultFalse() {
 		TypedPropertyKey<Boolean> key = TypedPropertyKey.createBooleanPropertyKey();
 
-		WriteableEventProperties props1 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props1 = new DefaultTypedProperties();
 		props1.put(key, Boolean.FALSE);
 
-		WriteableEventProperties props2 = new DefaultWriteableEventProperties();
+		LockableTypedProperties props2 = new DefaultTypedProperties();
 
 		Assert.assertFalse(EventUtils.proceed(Arrays.asList(props1, props2), key, false));
 	}
@@ -196,7 +186,7 @@ public class EventUtilsTest extends EasyMockSupport {
 		String value = "123lk";
 		Collection<ReadOnlyTypedProperties> returnedResults = new ArrayList<>();
 
-		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(info), EasyMock.capture(capturedProperties)))
 				.andReturn(returnedResults).once();
@@ -208,7 +198,7 @@ public class EventUtilsTest extends EasyMockSupport {
 
 		Assert.assertTrue(returnedResults == results);
 
-		WriteableEventProperties properties = capturedProperties.getValue();
+		LockableTypedProperties properties = capturedProperties.getValue();
 
 		Assert.assertEquals(value, properties.getProperty(key));
 
@@ -223,7 +213,7 @@ public class EventUtilsTest extends EasyMockSupport {
 		String value = "123lk";
 		Collection<ReadOnlyTypedProperties> returnedResults = new ArrayList<>();
 
-		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(info), EasyMock.capture(capturedProperties)))
 				.andReturn(returnedResults).once();
@@ -234,7 +224,7 @@ public class EventUtilsTest extends EasyMockSupport {
 
 		Assert.assertTrue(returnedResults == results);
 
-		WriteableEventProperties properties = capturedProperties.getValue();
+		LockableTypedProperties properties = capturedProperties.getValue();
 
 		Assert.assertEquals(value, properties.getProperty(key));
 
@@ -249,7 +239,7 @@ public class EventUtilsTest extends EasyMockSupport {
 		String value = "123lk";
 		Collection<ReadOnlyTypedProperties> returnedResults = new ArrayList<>();
 
-		Capture<WriteableEventProperties> capturedProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> capturedProperties = Capture.newInstance();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(info), EasyMock.capture(capturedProperties),
 				EasyMock.eq(EventDispatchPolicy.HANDLER))).andReturn(returnedResults).once();
@@ -261,7 +251,7 @@ public class EventUtilsTest extends EasyMockSupport {
 
 		Assert.assertTrue(returnedResults == results);
 
-		WriteableEventProperties properties = capturedProperties.getValue();
+		LockableTypedProperties properties = capturedProperties.getValue();
 
 		Assert.assertEquals(value, properties.getProperty(key));
 

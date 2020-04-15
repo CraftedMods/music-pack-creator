@@ -1,30 +1,13 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URI;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.CaptureType;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.IAnswer;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
 import org.powermock.api.easymock.PowerMock;
@@ -32,22 +15,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.EventUtils;
 import craftedMods.fileManager.api.FileManager;
-import craftedMods.lotr.mpc.core.api.MusicPack;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
-import craftedMods.lotr.mpc.core.api.Track;
+import craftedMods.lotr.mpc.core.api.*;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
-import craftedMods.lotr.mpc.persistence.api.TrackStore;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
-import craftedMods.utils.data.CollectionUtils;
-import craftedMods.utils.data.ExtendedProperties;
-import craftedMods.utils.data.NonNullSet;
-import craftedMods.utils.data.PrimitiveProperties;
+import craftedMods.utils.data.*;
 import craftedMods.versionChecker.api.SemanticVersion;
 
 @RunWith(PowerMockRunner.class)
@@ -180,7 +154,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(FileSystems.newFileSystem(URI.create("jar:" + exportLocation.toUri()), envs))
 				.andReturn(mockFileSystem).once();
 
-		Capture<WriteableEventProperties> createFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> createFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
 				EasyMock.capture(createFileEventPropertiesCapture))).andReturn(null).times(2);
@@ -223,7 +197,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.createDir(tracksDir)).andReturn(true).once();
 
-		Capture<WriteableEventProperties> copyTrackEventProperties = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyTrackEventProperties = Capture.newInstance(CaptureType.ALL);
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
@@ -282,14 +256,14 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3MockInputStream, track3MockOutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> preSuccessEventProperties = Capture.newInstance();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true).once();
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventProperties))).andReturn(Arrays.asList()).once();
 
-		Capture<WriteableEventProperties> successEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> successEventProperties = Capture.newInstance();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventProperties))).andReturn(Arrays.asList()).once();
@@ -299,18 +273,18 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		exporter.exportMusicPackProject(exportLocation, mockMusicPackProject);
 
-		WriteableEventProperties createJSONFileEventProperties = createFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties createJSONFileEventProperties = createFileEventPropertiesCapture.getValues().get(0);
 		this.checkForStandardProperties(createJSONFileEventProperties);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				createJSONFileEventProperties.getProperty(MusicPackProjectExporter.CREATING_FILE_EVENT_FILENAME));
 
-		WriteableEventProperties createPackFileEventProperties = createFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties createPackFileEventProperties = createFileEventPropertiesCapture.getValues().get(1);
 		this.checkForStandardProperties(createPackFileEventProperties);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				createPackFileEventProperties.getProperty(MusicPackProjectExporter.CREATING_FILE_EVENT_FILENAME));
 
 		for (int i = 0; i < 3; i++) {
-			WriteableEventProperties copyTrackEventPropertiesValue = copyTrackEventProperties.getValues().get(i);
+			LockableTypedProperties copyTrackEventPropertiesValue = copyTrackEventProperties.getValues().get(i);
 			this.checkForStandardProperties(copyTrackEventPropertiesValue);
 			Assert.assertEquals(i == 0 ? trackName1 : i == 1 ? trackName2 : trackName3,
 					copyTrackEventPropertiesValue.getProperty(MusicPackProjectExporter.COPYING_TRACK_EVENT_TRACK_NAME));
@@ -332,7 +306,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(true).once();
 
-		Capture<WriteableEventProperties> overrideEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> overrideEventProperties = Capture.newInstance();
 		EasyMock.expect(
 				this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.EXPORT_LOCATION_EXISTS_EVENT),
 						EasyMock.capture(overrideEventProperties)))
@@ -341,7 +315,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectExporter.EXPORT_LOCATION_EXISTS_EVENT_RESULT_OVERRIDE), EasyMock.eq(false)))
 				.andReturn(false).once();
 
-		Capture<WriteableEventProperties> cancelEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> cancelEventProperties = Capture.newInstance();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventProperties))).andReturn(Arrays.asList()).once();
@@ -370,7 +344,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andReturn(true).once();
 
-		Capture<WriteableEventProperties> overrideEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> overrideEventProperties = Capture.newInstance();
 		EasyMock.expect(
 				this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.EXPORT_LOCATION_EXISTS_EVENT),
 						EasyMock.capture(overrideEventProperties)))
@@ -401,7 +375,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(null).times(2);
 
 		mockFileManager.write(EasyMock.eq(Paths.get(".", MusicPackProjectExporter.BASE_FILE)),
 				EasyMock.anyObject(byte[].class));
@@ -445,16 +419,16 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).times(3);
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).times(3);
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andStubReturn(true);
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).once();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.SUCCESS_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).once();
 
 		this.replayAll();
 		PowerMock.replayAll();
@@ -498,7 +472,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(null).times(2);
 
 		mockFileManager.write(EasyMock.eq(Paths.get(".", MusicPackProjectExporter.BASE_FILE)),
 				EasyMock.anyObject(byte[].class));
@@ -543,10 +517,10 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(2)
 				.andReturn(false).once();
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).atLeastOnce();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).atLeastOnce();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CANCEL_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).once();
 
 		EasyMock.expect(mockFileManager.deleteFile(exportLocation)).andReturn(true).once();
 
@@ -590,7 +564,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 				.andStubReturn(mockFileSystem);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CREATING_FILE_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(null).times(2);
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(null).times(2);
 
 		mockFileManager.write(EasyMock.eq(Paths.get(".", MusicPackProjectExporter.BASE_FILE)),
 				EasyMock.anyObject(byte[].class));
@@ -634,16 +608,16 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT_RESULT_PROCEED))).andReturn(true).times(3);
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.COPYING_TRACK_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).times(3);
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).times(3);
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andStubReturn(false);
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.PRE_SUCCESS_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).once();
 
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.CANCEL_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andReturn(Arrays.asList()).once();
+				EasyMock.anyObject(LockableTypedProperties.class))).andReturn(Arrays.asList()).once();
 
 		EasyMock.expect(mockFileManager.deleteFile(exportLocation)).andReturn(true).once();
 
@@ -666,7 +640,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.exists(exportLocation)).andThrow(exception).once();
 
-		Capture<WriteableEventProperties> exceptionEventProperties = Capture.newInstance();
+		Capture<LockableTypedProperties> exceptionEventProperties = Capture.newInstance();
 		EasyMock.expect(this.mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectExporter.ERROR_EVENT),
 				EasyMock.capture(exceptionEventProperties))).andReturn(Arrays.asList()).once();
 
@@ -677,7 +651,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 		exporter.exportMusicPackProject(exportLocation, mockMusicPackProject);
 
-		WriteableEventProperties properties = exceptionEventProperties.getValue();
+		LockableTypedProperties properties = exceptionEventProperties.getValue();
 		Assert.assertEquals(exception, properties.getProperty(MusicPackProjectExporter.ERROR_EVENT_EXCEPTION));
 		this.checkForStandardProperties(properties);
 
@@ -686,7 +660,7 @@ public class MusicPackProjectExporterImplTest extends EasyMockSupport {
 
 	}
 
-	private void checkForStandardProperties(WriteableEventProperties properties) {
+	private void checkForStandardProperties(LockableTypedProperties properties) {
 		Assert.assertEquals(mockMusicPackProject,
 				properties.getProperty(MusicPackProjectExporter.COMMON_EVENT_MUSIC_PACK_PROJECT));
 		Assert.assertEquals(exportLocation, properties.getProperty(MusicPackProjectExporter.COMMON_EVENT_LOCATION));

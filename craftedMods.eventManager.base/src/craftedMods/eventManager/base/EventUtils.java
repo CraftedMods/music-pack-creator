@@ -1,17 +1,9 @@
 package craftedMods.eventManager.base;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-import craftedMods.eventManager.api.EventDispatchPolicy;
-import craftedMods.eventManager.api.EventHandlerPolicy;
-import craftedMods.eventManager.api.EventInfo;
-import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
-import craftedMods.utils.data.ReadOnlyTypedProperties;
-import craftedMods.utils.data.TypedPropertyKey;
+import craftedMods.eventManager.api.*;
+import craftedMods.utils.data.*;
 
 public class EventUtils {
 
@@ -61,7 +53,7 @@ public class EventUtils {
 		Objects.requireNonNull(manager);
 		Objects.requireNonNull(info);
 		Objects.requireNonNull(key);
-		WriteableEventProperties properties = new DefaultWriteableEventProperties();
+		LockableTypedProperties properties = new DefaultTypedProperties();
 		properties.put(key, value);
 		return policy == null ? manager.dispatchEvent(info, properties)
 				: manager.dispatchEvent(info, properties, policy);

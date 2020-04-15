@@ -14,6 +14,7 @@ import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManag
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
 import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
+import craftedMods.utils.data.*;
 
 @Component
 public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjectCompatibilityManager {
@@ -44,7 +45,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 			this.logger.warn("Found a Music Pack Project at \"%s\" which contains a serialized project file",
 							projectDir.toString());
 			
-			WriteableEventProperties properties = new DefaultWriteableEventProperties();
+			LockableTypedProperties properties = new DefaultTypedProperties();
 			properties.put(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_DETECTED_EVENT_PATH,
 					projectDir);
 			if (EventUtils.proceed(this.eventManager.dispatchEvent(
@@ -53,7 +54,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 				try {
 					this.serializedWorkspaceToJsonConverter.convertWorkspace(projectDir);
 					this.logger.info("Converted the Music Pack Project at \"%s\" to the JSON format", projectDir);
-					properties = new DefaultWriteableEventProperties();
+					properties = new DefaultTypedProperties();
 					properties.put(
 							MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_CONVERTED_EVENT_PATH,
 							projectDir);
@@ -62,7 +63,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 							properties);
 				} catch (Exception e) {
 					this.logger.error("Couldn't convert the Music Pack Project at \"%s\": ", projectDir.toString(), e);
-					properties = new DefaultWriteableEventProperties();
+					properties = new DefaultTypedProperties();
 					properties.put(MusicPackProjectCompatibilityManager.PRE_LOAD_SERIALIZED_WORKSPACE_ERROR_EVENT_PATH,
 							projectDir);
 					properties.put(
@@ -121,7 +122,7 @@ public class MusicPackProjectCompatibilityManagerImpl implements MusicPackProjec
 			this.logger.error("Couldn't copy the tracks of the old Music Pack Project \"%s\" to the track store",
 							project.getName(),
 					e);
-			WriteableEventProperties properties = new DefaultWriteableEventProperties();
+			LockableTypedProperties properties = new DefaultTypedProperties();
 			properties.put(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_MUSIC_PACK_PROJECT, project);
 			properties.put(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT_EXCEPTION, e);
 			this.eventManager.dispatchEvent(POST_LOAD_SERIALIZED_WORKSPACE_TRACK_COPY_ERROR_EVENT, properties);

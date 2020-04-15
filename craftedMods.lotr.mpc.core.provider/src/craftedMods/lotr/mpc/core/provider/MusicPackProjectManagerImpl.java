@@ -5,11 +5,11 @@ import java.util.*;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.*;
 
-import craftedMods.eventManager.api.*;
-import craftedMods.eventManager.base.DefaultWriteableEventProperties;
+import craftedMods.eventManager.api.EventManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.*;
 import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
+import craftedMods.utils.data.*;
 import craftedMods.utils.exceptions.InvalidInputException;
 import craftedMods.versionChecker.api.SemanticVersion;
 
@@ -52,7 +52,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 			} catch (Exception e) {
 				this.logger.error("The Music Pack Project \"%s\" couldn't be registered during loading",
 						loadedProject.getName(), e);
-				WriteableEventProperties properties = new DefaultWriteableEventProperties();
+				LockableTypedProperties properties = new DefaultTypedProperties();
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				properties.put(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT, loadedProject);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.LOAD_ALL_REGISTER_PROJECT_ERROR_EVENT,
@@ -166,7 +166,7 @@ public class MusicPackProjectManagerImpl implements MusicPackProjectManager {
 				this.saveMusicPackProject(project);
 			} catch (Exception e) {
 				this.logger.error("The Music Pack Project \"%s\" couldn't be saved: ", project.getName(), e);
-				WriteableEventProperties properties = new DefaultWriteableEventProperties();
+				LockableTypedProperties properties = new DefaultTypedProperties();
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_MUSIC_PACK_PROJECT, project);
 				properties.put(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT_EXCEPTION, e);
 				this.eventManager.dispatchEvent(MusicPackProjectManager.SAVE_ALL_PROJECT_ERROR_EVENT, properties);

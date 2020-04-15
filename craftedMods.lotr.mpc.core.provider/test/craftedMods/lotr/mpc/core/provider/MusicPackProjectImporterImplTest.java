@@ -1,29 +1,12 @@
 package craftedMods.lotr.mpc.core.provider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.CaptureType;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.IAnswer;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.osgi.service.log.FormatterLogger;
 import org.powermock.api.easymock.PowerMock;
@@ -33,22 +16,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.gson.JsonSyntaxException;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.eventManager.base.EventUtils;
 import craftedMods.fileManager.api.FileManager;
-import craftedMods.lotr.mpc.core.api.MusicPack;
-import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectExporter;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectImporter;
-import craftedMods.lotr.mpc.core.api.MusicPackProjectManager;
-import craftedMods.lotr.mpc.core.api.Track;
-import craftedMods.lotr.mpc.persistence.api.TrackStore;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.core.api.*;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.utils.Utils;
-import craftedMods.utils.data.CollectionUtils;
-import craftedMods.utils.data.ExtendedProperties;
-import craftedMods.utils.data.NonNullSet;
-import craftedMods.utils.data.PrimitiveProperties;
+import craftedMods.utils.data.*;
 import craftedMods.versionChecker.api.SemanticVersion;
 import junit.framework.AssertionFailedError;
 
@@ -142,7 +115,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -220,7 +193,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -231,7 +204,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(3);
 
@@ -284,14 +257,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3InputStream, track3OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true);
 
-		Capture<WriteableEventProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventPropertiesCapture))).andReturn(null).once();
 
@@ -300,37 +273,37 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(mockPackImpl, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 3; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i + 1) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties successEventProps = successEventPropertiesCapture.getValue();
+		LockableTypedProperties successEventProps = successEventPropertiesCapture.getValue();
 		Assert.assertEquals("pack2",
 				successEventProps.getProperty(MusicPackProjectImporter.SUCCESS_EVENT_PROJECT_NAME));
 		Assert.assertEquals(importLocation,
@@ -372,7 +345,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -382,7 +355,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		// Reading file event is captured above
 
-		Capture<WriteableEventProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT),
 				EasyMock.capture(fileNotFoundEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -427,7 +400,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -438,7 +411,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(3);
 
@@ -491,14 +464,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3InputStream, track3OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true);
 
-		Capture<WriteableEventProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventPropertiesCapture))).andReturn(null).once();
 
@@ -507,42 +480,42 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(mockPackImpl, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 3; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i + 1) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties successEventProps = successEventPropertiesCapture.getValue();
+		LockableTypedProperties successEventProps = successEventPropertiesCapture.getValue();
 		Assert.assertEquals("pack", successEventProps.getProperty(MusicPackProjectImporter.SUCCESS_EVENT_PROJECT_NAME));
 		Assert.assertEquals(importLocation,
 				successEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
+		LockableTypedProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				fileNotFoundEventProps.getProperty(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
@@ -584,7 +557,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -656,7 +629,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -667,7 +640,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(3);
 
@@ -720,14 +693,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3InputStream, track3OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true);
 
-		Capture<WriteableEventProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventPropertiesCapture))).andReturn(null).once();
 
@@ -736,37 +709,37 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(mockPackImpl, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 3; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i + 1) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties successEventProps = successEventPropertiesCapture.getValue();
+		LockableTypedProperties successEventProps = successEventPropertiesCapture.getValue();
 		Assert.assertEquals("pack", successEventProps.getProperty(MusicPackProjectImporter.SUCCESS_EVENT_PROJECT_NAME));
 		Assert.assertEquals(importLocation,
 				successEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
@@ -806,7 +779,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -847,7 +820,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.BASE_FILE)).andReturn(mockMusicJSONFile).once();
 		EasyMock.expect(mockFileManager.exists(mockMusicJSONFile)).andReturn(false).once();
 
-		Capture<WriteableEventProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT),
 				EasyMock.capture(fileNotFoundEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -860,13 +833,13 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
+		LockableTypedProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				fileNotFoundEventProps.getProperty(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
@@ -907,7 +880,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -966,7 +939,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andThrow(exception).once();
 
-		Capture<WriteableEventProperties> invalidMusicJsonEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> invalidMusicJsonEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.INVALID_MUSIC_JSON_EVENT),
 				EasyMock.capture(invalidMusicJsonEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -981,13 +954,13 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties invalidMusicJsonEventProps = invalidMusicJsonEventPropertiesCapture.getValue();
+		LockableTypedProperties invalidMusicJsonEventProps = invalidMusicJsonEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				invalidMusicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -1027,7 +1000,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1089,20 +1062,20 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
 		EasyMock.expect(mockFileManager.exists(mockTracksDir)).andReturn(false).once();
 
-		Capture<WriteableEventProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT),
 				EasyMock.capture(fileNotFoundEventPropertiesCapture))).andReturn(null).times(1);
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_RESULT_PROCEED))).andReturn(true).once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true);
 
-		Capture<WriteableEventProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventPropertiesCapture))).andReturn(null).once();
 
@@ -1111,29 +1084,29 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(mockPackImpl, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties successEventProps = successEventPropertiesCapture.getValue();
+		LockableTypedProperties successEventProps = successEventPropertiesCapture.getValue();
 		Assert.assertEquals("pack2",
 				successEventProps.getProperty(MusicPackProjectImporter.SUCCESS_EVENT_PROJECT_NAME));
 		Assert.assertEquals(importLocation,
 				successEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
+		LockableTypedProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
 		Assert.assertEquals(MusicPackProjectExporter.TRACKS_DIR,
 				fileNotFoundEventProps.getProperty(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
@@ -1175,7 +1148,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1237,13 +1210,13 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockFileSystem.getPath(MusicPackProjectExporter.TRACKS_DIR)).andReturn(mockTracksDir).once();
 		EasyMock.expect(mockFileManager.exists(mockTracksDir)).andReturn(false).once();
 
-		Capture<WriteableEventProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> fileNotFoundEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT),
 				EasyMock.capture(fileNotFoundEventPropertiesCapture))).andReturn(null).times(1);
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_RESULT_PROCEED))).andReturn(false).once();
 
-		Capture<WriteableEventProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -1258,25 +1231,25 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(null, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
+		LockableTypedProperties fileNotFoundEventProps = fileNotFoundEventPropertiesCapture.getValue();
 		Assert.assertEquals(MusicPackProjectExporter.TRACKS_DIR,
 				fileNotFoundEventProps.getProperty(MusicPackProjectImporter.FILE_NOT_FOUND_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				fileNotFoundEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
+		LockableTypedProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				cancelEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -1316,7 +1289,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1394,7 +1367,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> nonOggFiledEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> nonOggFiledEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT),
 						EasyMock.capture(nonOggFiledEventPropertiesCapture)))
@@ -1403,7 +1376,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT_ENTRIES_RESULT_PROCEED)))
 				.andReturn(true).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -1413,7 +1386,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1452,14 +1425,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3InputStream, track3OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(true);
 
-		Capture<WriteableEventProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> successEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.SUCCESS_EVENT),
 				EasyMock.capture(successEventPropertiesCapture))).andReturn(null).once();
 
@@ -1468,43 +1441,43 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertEquals(mockPackImpl, importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties nonOggTracksEventProps = nonOggFiledEventPropertiesCapture.getValue();
+		LockableTypedProperties nonOggTracksEventProps = nonOggFiledEventPropertiesCapture.getValue();
 		Assert.assertEquals(Arrays.asList("track2.avi"),
 				nonOggTracksEventProps.getProperty(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT_FILENAMES));
 		Assert.assertEquals(importLocation,
 				nonOggTracksEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(2l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 2; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i == 0 ? 1 : 3) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties successEventProps = successEventPropertiesCapture.getValue();
+		LockableTypedProperties successEventProps = successEventPropertiesCapture.getValue();
 		Assert.assertEquals("pack2",
 				successEventProps.getProperty(MusicPackProjectImporter.SUCCESS_EVENT_PROJECT_NAME));
 		Assert.assertEquals(importLocation,
@@ -1546,7 +1519,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1624,7 +1597,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> nonOggFiledEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> nonOggFiledEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT),
 						EasyMock.capture(nonOggFiledEventPropertiesCapture)))
@@ -1633,7 +1606,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT_ENTRIES_RESULT_PROCEED)))
 				.andReturn(false).once();
 
-		Capture<WriteableEventProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -1648,25 +1621,25 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties nonOggTracksEventProps = nonOggFiledEventPropertiesCapture.getValue();
+		LockableTypedProperties nonOggTracksEventProps = nonOggFiledEventPropertiesCapture.getValue();
 		Assert.assertEquals(Arrays.asList("track2.avi"),
 				nonOggTracksEventProps.getProperty(MusicPackProjectImporter.NON_OGG_TRACK_FILES_FOUND_EVENT_FILENAMES));
 		Assert.assertEquals(importLocation,
 				nonOggTracksEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
+		LockableTypedProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				cancelEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -1706,7 +1679,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1784,7 +1757,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -1795,7 +1768,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(false)
 				.once();
 
-		Capture<WriteableEventProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -1810,25 +1783,25 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
+		LockableTypedProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				cancelEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -1868,7 +1841,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -1946,7 +1919,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -1957,7 +1930,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(3);
 
@@ -1997,7 +1970,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track2InputStream, track2OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventPropertiesCapture))).andReturn(null).times(1);
 
@@ -2012,33 +1985,33 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 2; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i + 1) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
+		LockableTypedProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				cancelEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -2078,7 +2051,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -2156,7 +2129,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(mockFileManager.getPathsInDirectory(mockTracksDir)).andReturn(trackFiles.stream()).once();
 
-		Capture<WriteableEventProperties> trackCountDeterminedEventPropertiesCapture = Capture
+		Capture<LockableTypedProperties> trackCountDeterminedEventPropertiesCapture = Capture
 				.newInstance(CaptureType.ALL);
 		EasyMock.expect(
 				mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT),
@@ -2167,7 +2140,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 				EasyMock.eq(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_RESULT_PROCEED))).andReturn(true)
 				.once();
 
-		Capture<WriteableEventProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> copyingTrackEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.COPYING_TRACK_EVENT),
 				EasyMock.capture(copyingTrackEventPropertiesCapture))).andReturn(null).times(3);
 
@@ -2220,14 +2193,14 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		Utils.writeFromInputStreamToOutputStream(track3InputStream, track3OutputStream);
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> preSuccessEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT),
 				EasyMock.capture(preSuccessEventPropertiesCapture))).andReturn(null).once();
 
 		EasyMock.expect(EventUtils.proceed(EasyMock.anyObject(),
 				EasyMock.eq(MusicPackProjectImporter.PRE_SUCCESS_EVENT_RESULT_PROCEED))).andReturn(false);
 
-		Capture<WriteableEventProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> cancelEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.CANCEL_EVENT),
 				EasyMock.capture(cancelEventPropertiesCapture))).andReturn(null).once();
 
@@ -2242,37 +2215,37 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
+		LockableTypedProperties trackCountDeterminedEventProps = trackCountDeterminedEventPropertiesCapture.getValue();
 		Assert.assertEquals(3l, (long) trackCountDeterminedEventProps
 				.getProperty(MusicPackProjectImporter.TRACK_COUNT_DETERMINED_EVENT_TRACK_COUNT));
 		Assert.assertEquals(importLocation,
 				trackCountDeterminedEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
 		for (int i = 0; i < 3; i++) {
-			WriteableEventProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
+			LockableTypedProperties copyingTrackEventProps = copyingTrackEventPropertiesCapture.getValues().get(i);
 			Assert.assertEquals("track" + (i + 1) + ".ogg",
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COPYING_TRACK_EVENT_TRACK_NAME));
 			Assert.assertEquals(importLocation,
 					copyingTrackEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		}
 
-		WriteableEventProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
+		LockableTypedProperties preSuccessEventProps = preSuccessEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				preSuccessEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
+		LockableTypedProperties cancelEventProps = cancelEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				cancelEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
@@ -2294,7 +2267,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		EasyMock.expect(FileSystems.newFileSystem(importLocation, null)).andThrow(exception).once();
 
-		Capture<WriteableEventProperties> errorEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> errorEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.UNEXPECTED_ERROR_EVENT),
 				EasyMock.capture(errorEventPropertiesCapture))).andReturn(null).once();
 
@@ -2303,7 +2276,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties errorEventProperties = errorEventPropertiesCapture.getValue();
+		LockableTypedProperties errorEventProperties = errorEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				errorEventProperties.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		Assert.assertEquals(exception,
@@ -2345,7 +2318,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		});
 
-		Capture<WriteableEventProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> readingFileEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.READING_FILE_EVENT),
 				EasyMock.capture(readingFileEventPropertiesCapture))).andReturn(null).times(2);
 
@@ -2403,7 +2376,7 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 		EasyMock.expect(mockFileManager.read(mockMusicJSONFile)).andReturn(readContent).once();
 		EasyMock.expect(mockReader.readJSONFile(readContent)).andThrow(exception).once();
 
-		Capture<WriteableEventProperties> errorEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
+		Capture<LockableTypedProperties> errorEventPropertiesCapture = Capture.newInstance(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(MusicPackProjectImporter.UNEXPECTED_ERROR_EVENT),
 				EasyMock.capture(errorEventPropertiesCapture))).andReturn(null).once();
 
@@ -2418,19 +2391,19 @@ public class MusicPackProjectImporterImplTest extends EasyMockSupport {
 
 		Assert.assertNull(importer.importMusicPackProject(importLocation));
 
-		WriteableEventProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
+		LockableTypedProperties packPropertiesEventProps = readingFileEventPropertiesCapture.getValues().get(0);
 		Assert.assertEquals(MusicPackProjectExporter.PACK_FILE,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				packPropertiesEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
+		LockableTypedProperties musicJsonEventProps = readingFileEventPropertiesCapture.getValues().get(1);
 		Assert.assertEquals(MusicPackProjectExporter.BASE_FILE,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.READING_FILE_EVENT_FILENAME));
 		Assert.assertEquals(importLocation,
 				musicJsonEventProps.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 
-		WriteableEventProperties errorEventProperties = errorEventPropertiesCapture.getValue();
+		LockableTypedProperties errorEventProperties = errorEventPropertiesCapture.getValue();
 		Assert.assertEquals(importLocation,
 				errorEventProperties.getProperty(MusicPackProjectImporter.COMMON_EVENT_LOCATION));
 		Assert.assertEquals(exception,

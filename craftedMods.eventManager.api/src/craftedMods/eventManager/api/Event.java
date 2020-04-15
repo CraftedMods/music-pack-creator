@@ -2,7 +2,7 @@ package craftedMods.eventManager.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import craftedMods.utils.data.ReadOnlyTypedProperties;
+import craftedMods.utils.data.*;
 
 @ProviderType
 public interface Event {
@@ -13,6 +13,6 @@ public interface Event {
 
 	public boolean matches(EventInfo eventInfo);
 
-	public WriteableEventProperties getEventResults();// TODO: Only supported for synchronous dispatched events
+	public LockableTypedProperties getEventResults();// TODO: Only supported for synchronous dispatched events
 
 }

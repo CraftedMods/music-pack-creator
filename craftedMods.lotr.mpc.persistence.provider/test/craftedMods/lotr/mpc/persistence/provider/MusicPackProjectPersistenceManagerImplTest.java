@@ -1,26 +1,12 @@
 package craftedMods.lotr.mpc.persistence.provider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.IAnswer;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.osgi.framework.ServiceException;
@@ -29,17 +15,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.fileManager.api.FileManager;
 import craftedMods.lotr.mpc.compatibility.api.MusicPackProjectCompatibilityManager;
 import craftedMods.lotr.mpc.core.api.MusicPackProject;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectPersistenceManager;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectReader;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
-import craftedMods.lotr.mpc.persistence.api.TrackStoreManager;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.lotr.mpc.persistence.provider.MusicPackProjectPersistenceManagerImpl.Configuration;
-import craftedMods.utils.data.ExtendedProperties;
-import craftedMods.utils.data.PrimitiveProperties;
+import craftedMods.utils.data.*;
 import craftedMods.versionChecker.base.DefaultSemanticVersion;
 
 @RunWith(PowerMockRunner.class)
@@ -223,7 +204,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         mockCompatibilityManager.applyPreLoadFixes (projectPath1);
         EasyMock.expectLastCall ().andThrow (thrownException).once ();
 
-        Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture ();
+        Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture ();
 
         EasyMock.expect (mockEventManager.dispatchEvent (
             EasyMock.eq (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT),
@@ -237,7 +218,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         Assert.assertEquals (0, projects.size ());
         Assert.assertTrue (managedMusicPackProjects.isEmpty ());
 
-        WriteableEventProperties value = propertiesCapture.getValue ();
+        LockableTypedProperties value = propertiesCapture.getValue ();
 
         Assert.assertEquals (thrownException,
             value.getProperty (MusicPackProjectPersistenceManager.LOAD_ALL_PROJECT_ERROR_EVENT_EXCEPTION));
@@ -298,7 +279,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         mockCompatibilityManager.applyPreLoadFixes (projectPath1);
         EasyMock.expectLastCall ().once ();
 
-        Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture ();
+        Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture ();
 
         EasyMock.expect (
             mockEventManager.dispatchEvent (EasyMock.eq (MusicPackProjectPersistenceManager.NEWER_SAVE_VERSION_EVENT),
@@ -313,7 +294,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         persistenceManager.onActivate (createConfig ());
         persistenceManager.loadMusicPackProjects ();
 
-        WriteableEventProperties value = propertiesCapture.getValue ();
+        LockableTypedProperties value = propertiesCapture.getValue ();
 
         Assert.assertEquals ("0.2.0",
             value.getProperty (MusicPackProjectPersistenceManager.NEWER_SAVE_VERSION_EVENT_DETECTED_VERSION));
@@ -348,7 +329,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         mockCompatibilityManager.applyPreLoadFixes (projectPath1);
         EasyMock.expectLastCall ().once ();
 
-        Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture ();
+        Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture ();
 
         EasyMock.expect (
             mockEventManager.dispatchEvent (EasyMock.eq (MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT),
@@ -363,7 +344,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         persistenceManager.onActivate (createConfig ());
         persistenceManager.loadMusicPackProjects ();
 
-        WriteableEventProperties value = propertiesCapture.getValue ();
+        LockableTypedProperties value = propertiesCapture.getValue ();
 
         Assert.assertEquals ("0.0.1",
             value.getProperty (MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION));
@@ -398,7 +379,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         mockCompatibilityManager.applyPreLoadFixes (projectPath1);
         EasyMock.expectLastCall ().once ();
 
-        Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture ();
+        Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture ();
 
         EasyMock.expect (
             mockEventManager.dispatchEvent (EasyMock.eq (MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT),
@@ -414,7 +395,7 @@ public class MusicPackProjectPersistenceManagerImplTest extends EasyMockSupport
         persistenceManager.onActivate (createConfig ());
         persistenceManager.loadMusicPackProjects ();
 
-        WriteableEventProperties value = propertiesCapture.getValue ();
+        LockableTypedProperties value = propertiesCapture.getValue ();
 
         Assert.assertEquals ("Music Pack Creator 10.12.14",
             value.getProperty (MusicPackProjectPersistenceManager.OLDER_SAVE_VERSION_EVENT_DETECTED_VERSION));

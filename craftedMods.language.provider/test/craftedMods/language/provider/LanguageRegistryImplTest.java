@@ -1,34 +1,21 @@
 package craftedMods.language.provider;
 
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
-import org.easymock.Capture;
-import org.easymock.CaptureType;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.Mock;
-import org.easymock.MockType;
-import org.easymock.TestSubject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.easymock.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
-import org.osgi.service.log.FormatterLogger;
-import org.osgi.service.log.LogLevel;
+import org.osgi.service.log.*;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import craftedMods.eventManager.api.EventManager;
-import craftedMods.eventManager.api.WriteableEventProperties;
 import craftedMods.language.api.LanguageRegistry;
 import craftedMods.language.provider.LanguageRegistryImpl.Configuration;
-import craftedMods.preferences.api.Preferences;
-import craftedMods.preferences.api.PreferencesManager;
+import craftedMods.preferences.api.*;
+import craftedMods.utils.data.LockableTypedProperties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ResourceBundle.class)
@@ -90,11 +77,11 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 				mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.getDefault()), EasyMock.anyBoolean()))
 				.andReturn(mockBundle2).once();
 
-		Capture<WriteableEventProperties> defaultLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> defaultLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(defaultLanguagePropertiesCapture))).andReturn(null).once();
 
-		Capture<WriteableEventProperties> currentLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> currentLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(currentLanguagePropertiesCapture))).andReturn(null).once();
 
@@ -108,13 +95,13 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		Assert.assertEquals(mockBundle1, languageRegistry.getEntries().get(Locale.US));
 		Assert.assertEquals(mockBundle2, languageRegistry.getEntries().get(Locale.getDefault()));
 
-		WriteableEventProperties defaultLanguageProperties = defaultLanguagePropertiesCapture.getValue();
+		LockableTypedProperties defaultLanguageProperties = defaultLanguagePropertiesCapture.getValue();
 		Assert.assertEquals(Locale.US,
 				defaultLanguageProperties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertNull(
 				defaultLanguageProperties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE));
 
-		WriteableEventProperties currentLanguageProperties = currentLanguagePropertiesCapture.getValue();
+		LockableTypedProperties currentLanguageProperties = currentLanguagePropertiesCapture.getValue();
 		Assert.assertEquals(Locale.getDefault(),
 				currentLanguageProperties.getProperty(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertNull(
@@ -136,11 +123,11 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		EasyMock.expect(mockResourceBundleLoader.loadResourceBunde(EasyMock.eq(Locale.CANADA), EasyMock.anyBoolean()))
 				.andReturn(mockBundle2).once();
 
-		Capture<WriteableEventProperties> defaultLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> defaultLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(defaultLanguagePropertiesCapture))).andReturn(null).once();
 
-		Capture<WriteableEventProperties> currentLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> currentLanguagePropertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(currentLanguagePropertiesCapture))).andReturn(null).once();
 
@@ -154,13 +141,13 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		Assert.assertEquals(mockBundle1, languageRegistry.getEntries().get(Locale.US));
 		Assert.assertEquals(mockBundle2, languageRegistry.getEntries().get(Locale.CANADA));
 
-		WriteableEventProperties defaultLanguageProperties = defaultLanguagePropertiesCapture.getValue();
+		LockableTypedProperties defaultLanguageProperties = defaultLanguagePropertiesCapture.getValue();
 		Assert.assertEquals(Locale.US,
 				defaultLanguageProperties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertNull(
 				defaultLanguageProperties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE));
 
-		WriteableEventProperties currentLanguageProperties = currentLanguagePropertiesCapture.getValue();
+		LockableTypedProperties currentLanguageProperties = currentLanguagePropertiesCapture.getValue();
 		Assert.assertEquals(Locale.CANADA,
 				currentLanguageProperties.getProperty(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertNull(
@@ -181,9 +168,9 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 				.andReturn(null).once();
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 
 		this.replayAll();
 
@@ -223,7 +210,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		prefs.setString(LanguageRegistryImpl.DEFAULT_LANGUAGE_KEY, Locale.getDefault().toLanguageTag());
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(propertiesCapture))).andReturn(null).once();
 
@@ -232,7 +219,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		Assert.assertTrue(languageRegistry.setDefaultLanguage(Locale.getDefault()));
 		Assert.assertEquals(Locale.getDefault(), languageRegistry.getDefaultLanguage());
 
-		WriteableEventProperties properties = propertiesCapture.getValue();
+		LockableTypedProperties properties = propertiesCapture.getValue();
 		Assert.assertEquals(Locale.getDefault(),
 				properties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertEquals(Locale.US, properties.getProperty(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_OLD_LANGUAGE));
@@ -268,7 +255,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		prefs.setString(LanguageRegistryImpl.CURRENT_LANGUAGE_KEY, Locale.US.toLanguageTag());
 		EasyMock.expectLastCall().once();
 
-		Capture<WriteableEventProperties> propertiesCapture = EasyMock.newCapture(CaptureType.ALL);
+		Capture<LockableTypedProperties> propertiesCapture = EasyMock.newCapture(CaptureType.ALL);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
 				EasyMock.capture(propertiesCapture))).andReturn(null).once();
 
@@ -277,7 +264,7 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 		Assert.assertTrue(languageRegistry.setCurrentLanguage(Locale.US));
 		Assert.assertEquals(Locale.US, languageRegistry.getCurrentLanguage());
 
-		WriteableEventProperties properties = propertiesCapture.getValue();
+		LockableTypedProperties properties = propertiesCapture.getValue();
 		Assert.assertEquals(Locale.US, properties.getProperty(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_NEW_LANGUAGE));
 		Assert.assertEquals(Locale.getDefault(),
 				properties.getProperty(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_OLD_LANGUAGE));
@@ -465,9 +452,9 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 				.andStubReturn(mockBundle2);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 
 		this.replayAll();
 
@@ -493,9 +480,9 @@ public class LanguageRegistryImplTest extends EasyMockSupport {
 				.andStubReturn(mockBundle2);
 
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.DEFAULT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 		EasyMock.expect(mockEventManager.dispatchEvent(EasyMock.eq(LanguageRegistry.CURRENT_LANGUAGE_CHANGED_EVENT),
-				EasyMock.anyObject(WriteableEventProperties.class))).andStubReturn(null);
+				EasyMock.anyObject(LockableTypedProperties.class))).andStubReturn(null);
 
 		this.replayAll();
 		PowerMock.replayAll();
