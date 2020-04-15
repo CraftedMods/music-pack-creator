@@ -21,14 +21,14 @@ import craftedMods.lotr.mpc.core.api.MusicPackProjectFactory;
 import craftedMods.lotr.mpc.core.api.Region;
 import craftedMods.lotr.mpc.core.base.DefaultRegion;
 import craftedMods.lotr.mpc.core.base.DefaultTrack;
-import craftedMods.lotr.mpc.persistence.api.MusicPackProjectWriter;
+import craftedMods.lotr.mpc.persistence.api.*;
 import craftedMods.versionChecker.api.SemanticVersion;
 
 @Component(service = SerializedWorkspaceToJSONConverter.class)
 public class SerializedWorkspaceToJSONConverter {
 
 	public static final String OLD_PROJECT_FILE = "project.lmpp";
-	public static final String OLD_PROJECT_FILE_RENAMED = "old_project.lmpp";
+	public static final String OLD_PROJECT_FILE_RENAMED = "project_old-format_backup.lmpp";
 	public static final String NEW_PROJECT_FILE = "project.json";
 
 	@Reference(target = "(application=mpc)")
