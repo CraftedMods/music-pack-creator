@@ -44,7 +44,7 @@ public class MusicPackDataImpl implements MusicPackData
         this.regions.put ("angmar", Arrays.asList ("ettenmoors", "angmar", "coldfells"));
         this.regions.put ("eregion", Arrays.asList ("eregion"));
         this.regions.put ("enedwaith", Arrays.asList ("enedwaith"));
-        this.regions.put ("dunland", Arrays.asList ("dunland"));
+        this.regions.put ("dunland", Arrays.asList ("dunland", "adorn"));
         this.regions.put ("pukel", Arrays.asList ("andrast", "pukel"));
         this.regions.put ("mistyMountains", Arrays.asList ("mistyMountains"));
         this.regions.put ("forodwaith", Arrays.asList ("forodwaith", "tundra"));
@@ -66,10 +66,9 @@ public class MusicPackDataImpl implements MusicPackData
             Arrays.asList ("mordor", "mountains", "dagorlad", "nurn", "nanUngol", "morgulVale", "east"));
         this.regions.put ("rhun", Arrays.asList ("rhun", "rhudel", "lastDesert", "windMountains"));
         this.regions.put ("dorwinion", Arrays.asList ("dorwinion"));
-        this.regions.put ("nearHarad", Arrays.asList ("harondor", "desert", "fertile", "oasis"));
-        this.regions.put ("umbar", Arrays.asList ("umbar"));
+        this.regions.put ("nearHarad", Arrays.asList ("harondor", "desert", "umbar", "lostladen", "fertile", "gulf", "oasis", "harnedor"));
         this.regions.put ("farHarad",
-            Arrays.asList ("savannah", "mountains", "swamp", "bushland", "mangrove", "volcano"));
+            Arrays.asList ("savannah", "mountains", "swamp", "bushland", "mangrove", "volcano", "kanuka"));
         this.regions.put ("farHaradJungle", Arrays.asList ("jungle", "edge", "cloudForest"));
         this.regions.put ("pertorogwaith", Arrays.asList ("pertorogwaith"));
         this.regions.put ("utumno", Arrays.asList ("utumno"));
@@ -91,7 +90,7 @@ public class MusicPackDataImpl implements MusicPackData
     @Override
     public String getLOTRModVersion ()
     {
-        return "Beta 33.8";
+        return "Beta 35.4";
     }
 
     @Override
