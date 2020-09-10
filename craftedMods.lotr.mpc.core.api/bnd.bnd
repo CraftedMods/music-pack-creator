@@ -19,3 +19,5 @@ Export-Package:  \
 javac.source: 1.8
 javac.target: 1.8
 
+Bundle-Description: The core API for Music Pack management providing basic data structures and \
+	services.

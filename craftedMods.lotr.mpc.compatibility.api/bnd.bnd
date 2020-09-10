@@ -20,3 +20,4 @@ Export-Package:  \
 javac.source: 1.8
 javac.target: 1.8
 
+Bundle-Description: The API of compatibility services for the persistance manager.

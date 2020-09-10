@@ -19,3 +19,4 @@ Bundle-Version:					1.0.0.${tstamp}
 	${junit}
 
 Export-Package: craftedMods.audioPlayer.base
+Bundle-Description: A bundle containing default implementations of certain audio API components.

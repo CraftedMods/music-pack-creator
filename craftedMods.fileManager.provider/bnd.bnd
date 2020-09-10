@@ -23,3 +23,4 @@ Private-Package:  \
 javac.source: 1.8
 javac.target: 1.8
 
+Bundle-Description: The implementation of the file manager API using Java IO/NIO.

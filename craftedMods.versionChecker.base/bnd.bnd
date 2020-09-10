@@ -28,3 +28,4 @@ javac.source: 1.8
 javac.target: 1.8
 
 Export-Package: craftedMods.versionChecker.base
+Bundle-Description: A default implementation of some version checker API components.

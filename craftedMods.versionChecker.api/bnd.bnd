@@ -16,3 +16,4 @@ Export-Package:  \
 javac.source: 1.8
 javac.target: 1.8
 
+Bundle-Description: The API for a version checker service.

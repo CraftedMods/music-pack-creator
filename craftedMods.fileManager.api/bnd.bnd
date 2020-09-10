@@ -17,3 +17,4 @@ javac.source: 1.8
 javac.target: 1.8
 
 
+Bundle-Description: The API for services encapsulating file system operations.

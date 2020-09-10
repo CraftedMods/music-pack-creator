@@ -27,3 +27,4 @@ Export-Package: \
 	craftedMods.utils.function,\
 	craftedMods.utils,\
 	craftedMods.utils.lang
+Bundle-Description: A bundle collecting various utilities.

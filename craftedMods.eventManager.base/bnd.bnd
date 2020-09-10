@@ -24,3 +24,4 @@ Export-Package: craftedMods.eventManager.base
 javac.source: 1.8
 javac.target: 1.8
 
+Bundle-Description: A bundle containing default implementations of some event API components.

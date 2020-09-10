@@ -32,3 +32,4 @@ Private-Package:  \
 
 javac.source: 1.8
 javac.target: 1.8
+Bundle-Description: An implementation of the preferences API.

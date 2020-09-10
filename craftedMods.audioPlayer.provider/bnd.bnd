@@ -33,3 +33,5 @@ javac.target: 1.8
 Import-Package: \
 	org.tritonus.*;resolution:=optional,\
 	*
+Bundle-Description: An implementation of the audio player API using the java sound API together \
+	with JOrbis, VorbisSpi and Tritonus.
