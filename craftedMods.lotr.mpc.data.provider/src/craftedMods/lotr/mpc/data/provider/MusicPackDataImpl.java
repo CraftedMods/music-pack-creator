@@ -70,7 +70,7 @@ public class MusicPackDataImpl implements MusicPackData
         this.regions.put ("farHarad",
             Arrays.asList ("savannah", "mountains", "swamp", "bushland", "mangrove", "volcano", "kanuka"));
         this.regions.put ("farHaradJungle", Arrays.asList ("jungle", "edge", "cloudForest"));
-        this.regions.put ("pertorogwaith", Arrays.asList ("pertorogwaith"));
+        this.regions.put ("perdorogwaith", Arrays.asList ("pertorogwaith"));
         this.regions.put ("utumno", Arrays.asList ("utumno"));
 
         this.regions = Collections.unmodifiableMap (this.regions);
